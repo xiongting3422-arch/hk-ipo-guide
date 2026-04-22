@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Futu Skills Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3/dist/topojson-client.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'sans-serif'],
+          },
+          colors: {
+            futu: { orange: '#FF6B00', 'orange-light': '#FF8C33' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Copy card */
+    .copy-card {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.95);
+      box-shadow: 0 2px 24px rgba(0,0,0,0.06);
+    }
+    .dark .copy-card {
+      background: rgba(28,33,50,0.80);
+      border-color: rgba(255,255,255,0.07);
+    }
+
+    /* Copy toast */
+    #toast { transition: opacity .3s ease, transform .3s ease; }
+    #toast.hidden { opacity:0; transform:translateY(8px); pointer-events:none; }
+    #toast.show   { opacity:1; transform:translateY(0); }
+
+    /* AI tool badges */
+    .tools-card img { display: block; }
+
+    /* Hide scrollbar on tab row */
+    .tabs-scroll { scrollbar-width: none; }
+    .tabs-scroll::-webkit-scrollbar { display: none; }
+
+    /* Futu logo dark mode */
+    .dark .futu-logo path[fill="#26272B"] { fill: #e5e7eb; }
+
+    /* D3 city dot pulse */
+    @keyframes city-pulse {
+      0%   { transform: scale(0.6); opacity: 0.7; }
+      70%  { transform: scale(1.6); opacity: 0.2; }
+      100% { transform: scale(1.6); opacity: 0;   }
+    }
+    .city-ring {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: city-pulse 2.8s ease-out infinite;
+    }
+
+    /* Hero section: needs explicit height for the absolute map to measure */
+    #hero-section {
+      min-height: 600px;
+    }
+    /* Interactive map container */
+    #interactive-map-container {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 600px;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    #interactive-map-container svg {
+      display: block;
+      pointer-events: all;
+    }
+
+    /* ── Layout: centered mode ── */
+    .layout-centered .hero-title-block {
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+    .layout-centered .hero-title-block p { text-align: center; }
+    .layout-centered .copy-card {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .layout-centered .hero-tools {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .layout-centered .hero-tools .tools-card { justify-content: center; }
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-[#0d1117] min-h-screen font-sans transition-colors duration-300">
+
+  <!-- ═══ NAVBAR ═══ -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-white/85 dark:bg-[#0d1117]/85 backdrop-blur-md border-b border-gray-200/60 dark:border-gray-700/40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <svg class="futu-logo h-7 w-auto flex-shrink-0" viewBox="0 0 492 106" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_futu_logo)">
+            <path d="M210.213 17.889H178.418C178.418 15.4225 176.473 13.4492 174.075 13.4492H163.379C162.439 13.4492 161.694 14.2056 161.694 15.1594V17.889H129.898C128.991 17.889 128.213 18.6454 128.213 19.5992V36.5691C128.213 37.5229 128.958 38.2793 129.898 38.2793H136.607C137.547 38.2793 138.293 37.5229 138.293 36.5691V23.0195H201.883V38.2793H203.536C208.171 38.2793 211.931 34.4314 211.931 29.6956V19.5992C211.866 18.6454 211.12 17.889 210.213 17.889Z" fill="#26272B"/>
+            <path d="M145.26 38.2188C144.32 38.2188 143.574 38.9752 143.574 39.9289V51.9328C143.574 52.8866 144.32 53.643 145.26 53.643H195.14C196.08 53.643 196.826 52.8866 196.826 51.9328V39.9289C196.826 38.9752 196.08 38.2188 195.14 38.2188H145.26ZM186.778 48.4797H153.622V43.3492H186.778V48.4797Z" fill="#26272B"/>
+            <path d="M196.826 29.759C196.826 28.8052 196.081 28.0488 195.141 28.0488H144.936C144.029 28.0488 143.283 28.8052 143.283 29.759V31.4691C143.283 32.4229 144.029 33.1793 144.936 33.1793H195.141C196.081 33.1793 196.826 32.4229 196.826 31.4691V29.759V29.759Z" fill="#26272B"/>
+            <path d="M206.834 58.6719H133.196C132.288 58.6719 131.543 59.4283 131.543 60.382V90.4741C131.543 91.4278 132.288 92.1842 133.196 92.1842H200.157C204.76 92.1842 208.519 88.3364 208.519 83.6335V60.382C208.519 59.4283 207.774 58.6719 206.834 58.6719ZM165.024 87.0538H141.59V77.944H165.024V87.0538ZM165.024 72.8135H141.59V63.8023H165.024V72.8135ZM198.472 87.0538H175.039V77.944H198.472V87.0538V87.0538ZM198.472 72.8135H175.103H175.039V63.8023H198.472V72.8135V72.8135Z" fill="#26272B"/>
+            <path d="M253.025 81.5544L262.748 57.5137H255.261C253.77 57.5137 252.053 58.3687 251.34 60.0131C248.228 67.347 241.973 83.1988 241.973 83.1988H250.659C252.15 83.1988 252.83 82.1135 253.025 81.5544Z" fill="#26272B"/>
+            <path d="M230.469 26.7406H237.179C238.118 26.7406 238.832 25.9842 238.832 25.0305V24.3398C238.832 19.604 235.072 15.7891 230.469 15.7891H223.793C222.853 15.7891 222.107 16.5455 222.107 17.4992V18.1899C222.107 22.8928 225.835 26.7406 230.469 26.7406Z" fill="#26272B"/>
+            <path d="M236.501 82.6197V36.314H239.223C240.131 36.314 240.909 35.5576 240.909 34.6039V32.8937C240.909 31.94 240.163 31.1836 239.223 31.1836H223.731C222.823 31.1836 222.078 31.94 222.078 32.8937V34.6039C222.078 35.5576 222.823 36.314 223.763 36.314H226.486V82.5539V82.5868C226.486 84.6258 225.157 86.3688 223.31 86.895C222.856 87.0266 222.078 87.5199 222.078 88.5723V92.2228C222.078 92.2228 224.963 92.2228 225.06 92.2228C227.685 92.1242 230.019 90.8086 231.51 88.7696V88.8025C233.001 90.8086 235.302 92.2228 237.927 92.2228H301.226C303.592 92.2228 305.504 90.2496 305.504 87.8488V87.0924H240.844C238.446 87.0595 236.501 85.0862 236.501 82.6197Z" fill="#26272B"/>
+            <path d="M290.525 15.6213H256.817C255.196 15.6213 253.511 16.5093 252.798 18.2195C249.719 25.6191 241.973 45.4174 241.973 45.4174H250.691C252.15 45.4174 252.798 44.3321 253.025 43.773C253.77 41.8985 256.039 36.3405 256.039 36.3405H268.744V48.476H244.728C243.788 48.476 243.042 49.2324 243.042 50.1861V51.8963C243.042 52.85 243.788 53.6064 244.728 53.6064H268.777V73.7664V73.7993C268.777 75.937 267.318 77.6801 265.374 78.1405C264.628 78.3049 264.077 78.9956 264.077 79.8177V83.238H268.777H273.476H274.481C276.879 83.238 278.824 81.2648 278.824 78.7982V53.6064H302.841C303.748 53.6064 304.494 52.85 304.494 51.8963V50.1861C304.494 49.2324 303.748 48.476 302.808 48.476H278.824V36.3076H291.529C291.529 36.3076 293.831 41.8985 294.544 43.773C294.77 44.3321 295.451 45.4174 296.877 45.4174H305.596C305.596 45.4174 297.817 25.3889 294.511 18.0221C293.766 16.3449 292.015 15.6213 290.525 15.6213ZM258.113 31.1771C259.507 27.7239 261.257 23.4486 262.327 20.7518H285.306C286.408 23.4157 288.094 27.7239 289.487 31.1771H258.113Z" fill="#26272B"/>
+            <path d="M296.81 83.1988H305.496C305.496 83.1988 299.111 66.9853 296.129 60.0131C295.416 58.3687 293.699 57.5137 292.208 57.5137H284.721L294.444 81.5544C294.671 82.1135 295.319 83.1988 296.81 83.1988Z" fill="#26272B"/>
+            <path d="M392.552 58.7024H359.396V36.3389H388.533C389.473 36.3389 390.219 35.5825 390.219 34.6288V32.9186C390.219 31.9649 389.473 31.2085 388.533 31.2085H359.396V15.2251C359.396 14.2385 358.618 13.4492 357.646 13.4492H351.066C350.094 13.4492 349.316 14.2385 349.316 15.2251V31.2085H329.675L333.305 17.9219H325.818C324.327 17.9219 322.998 18.9743 322.642 20.4543L313.599 53.6377H321.086C322.577 53.6377 323.906 52.5853 324.262 51.1054L328.281 36.3718H349.348V58.7353H314.344C313.404 58.7353 312.691 59.4917 312.691 60.4455V62.1556C312.691 63.1093 313.437 63.8658 314.344 63.8658H349.348V90.4718C349.348 91.4584 350.126 92.2477 351.099 92.2477H357.678C358.65 92.2477 359.428 91.4584 359.428 90.4718V63.8658H392.585C393.525 63.8658 394.27 63.1093 394.27 62.1556V60.4455C394.238 59.4588 393.492 58.7024 392.552 58.7024Z" fill="#26272B"/>
+            <path d="M481.166 58.7024H448.009V36.3389H477.147C478.087 36.3389 478.832 35.5825 478.832 34.6288V32.9186C478.832 31.9649 478.087 31.2085 477.147 31.2085H448.009V15.2251C448.009 14.2385 447.231 13.4492 446.259 13.4492H439.679C438.707 13.4492 437.929 14.2385 437.929 15.2251V31.2085H418.288L421.918 17.9219H414.431C412.94 17.9219 411.611 18.9743 411.255 20.4543L402.212 53.6377H409.699C411.19 53.6377 412.519 52.5853 412.875 51.1054L416.894 36.3718H437.962V58.7353H402.958C402.018 58.7353 401.305 59.4917 401.305 60.4455V62.1556C401.305 63.1093 402.05 63.8658 402.958 63.8658H437.962V90.4718C437.962 91.4584 438.74 92.2477 439.712 92.2477H446.291C447.264 92.2477 448.041 91.4584 448.041 90.4718V63.8658H481.198C482.138 63.8658 482.883 63.1093 482.883 62.1556V60.4455C482.851 59.4588 482.106 58.7024 481.166 58.7024Z" fill="#26272B"/>
+            <path d="M44.5905 63.7031C40.3771 63.7031 36.9739 60.2499 36.9739 55.9745C36.9739 51.6992 40.3771 48.246 44.5905 48.246C48.8039 48.246 52.2071 51.6992 52.2071 55.9745C52.1747 60.2499 48.7715 63.7031 44.5905 63.7031ZM104.843 52.8173C104.843 81.9886 81.5391 105.635 52.7905 105.635C51.2024 105.635 49.6466 105.569 48.0909 105.404V102.905V96.9853L45.5304 95.5053C43.1644 94.1241 41.2522 92.1179 39.9557 89.6842L46.6 93.565C52.4988 97.0182 60.0182 94.9791 63.4213 88.9936L78.6546 62.2232C82.0577 56.2376 80.0482 48.6077 74.1494 45.1546L51.9478 32.164L44.8498 27.9873L39.2751 24.7314L37.849 23.9092C35.5478 22.5608 34.8023 19.5681 36.2284 17.2659L36.2933 17.1673C39.6316 12.5301 44.1043 8.87963 49.2901 6.5775L50.3597 6.08419L49.0308 6.01841C40.0529 5.59088 31.2695 8.97829 24.8521 15.4242L24.2039 16.082C18.4347 21.8702 19.6664 31.6378 26.6996 35.7487L31.3992 38.5113L19.796 58.9344H3.78492H1.0948C0.867926 56.9283 0.738281 54.8893 0.738281 52.8173C0.738281 23.6461 24.0419 0 52.7905 0C81.5391 0 104.843 23.6461 104.843 52.8173ZM98.8143 58.8358C101.278 49.693 99.6894 39.8925 94.4712 31.9995L94.0498 31.3747L94.1471 32.164C94.8925 37.9851 94.0498 43.9048 91.7486 49.2984L91.6514 49.5286C90.4198 51.9294 87.4704 52.7845 85.1692 51.4361L80.8585 48.9037C83.1273 53.2449 83.1921 58.6055 80.5992 63.144L78.9139 66.1039L80.6316 67.1234C87.6 71.2015 96.5131 67.4852 98.6522 59.6251L98.8143 58.8358Z" fill="#FF6900"/>
+            <path d="M94.4694 31.994L94.0481 31.3691L94.1453 32.1584C94.8908 37.9795 94.0481 43.8993 91.7469 49.2928L91.6497 49.523C90.418 51.9238 87.4686 52.7789 85.1674 51.4305L80.8568 48.8982C83.1255 53.2393 83.1904 58.6 80.5975 63.1385L78.9121 66.0983L80.6299 67.1179C87.5983 71.1959 96.5113 67.4796 98.6505 59.6195L98.8449 58.8302C101.276 49.6546 99.6876 39.8541 94.4694 31.994Z" fill="white"/>
+            <path d="M48.0937 97.0182L45.5333 95.5383C43.1997 94.157 41.255 92.118 39.9586 89.7172L46.6028 93.5979C52.5017 97.0511 60.021 95.0121 63.4242 89.0266L78.6574 62.2561C82.0606 56.2706 80.0511 48.6407 74.1523 45.1875L51.9507 32.1641L44.8526 28.0202L39.2779 24.7644L37.8518 23.9093C35.5507 22.5609 34.8052 19.5681 36.2313 17.266L36.2961 17.1674C39.6345 12.5302 44.1072 8.8797 49.293 6.57758L50.3625 6.08427L49.0337 6.01849C40.0558 5.59095 31.2724 8.97837 24.855 15.4243L24.2068 16.0821C18.4376 21.8703 19.6692 31.6379 26.7024 35.7817L31.402 38.5442L19.7989 58.9674H3.78778H1.09766C2.49133 71.3331 8.09845 82.3833 16.4281 90.638C24.7578 98.8928 35.8099 104.319 48.0613 105.437V102.938V97.0182H48.0937ZM36.9767 55.9746C36.9767 51.7321 40.3799 48.2789 44.5934 48.2789C48.8068 48.2789 52.21 51.7321 52.21 55.9746C52.21 60.25 48.8068 63.7032 44.5934 63.7032C40.3799 63.7032 36.9767 60.25 36.9767 55.9746Z" fill="white"/>
+          </g>
+          <defs>
+            <clipPath id="clip0_futu_logo">
+              <rect width="491.688" height="105.635" fill="white"/>
+            </clipPath>
+          </defs>
+        </svg>
+        <span class="text-gray-300 dark:text-gray-600 select-none">|</span>
+        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">Skills Hub</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <!-- Layout switcher -->
+        <div class="flex items-center border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden text-xs font-medium">
+          <button onclick="setLayout('left')" id="btn-layout-left" class="layout-btn px-2.5 py-1.5 bg-[#1a1a1a] text-white transition-colors">左对齐</button>
+          <button onclick="setLayout('center')" id="btn-layout-center" class="layout-btn px-2.5 py-1.5 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 transition-colors">居中</button>
+        </div>
+        <!-- Language switcher -->
+        <div class="flex items-center border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden text-xs font-medium">
+          <button onclick="setLang('zh-s')" id="btn-zhs" class="lang-btn px-2.5 py-1.5 bg-[#1a1a1a] text-white transition-colors">简</button>
+          <button onclick="setLang('zh-t')" id="btn-zht" class="lang-btn px-2.5 py-1.5 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 transition-colors">繁</button>
+          <button onclick="setLang('en')"   id="btn-en"  class="lang-btn px-2.5 py-1.5 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 transition-colors">EN</button>
+        </div>
+        <!-- Dark mode -->
+        <button onclick="toggleDark()" class="w-8 h-8 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-14">
+
+    <!-- ═══ HERO ═══ -->
+    <section id="hero-section" class="relative overflow-hidden" style="background-color: #f0f5f8;">
+
+      <!-- D3 interactive world map (absolute background) -->
+      <div id="interactive-map-container"></div>
+
+      <!-- Gradient overlay -->
+      <div class="absolute inset-0 pointer-events-none" style="z-index:1; background:
+        radial-gradient(ellipse at 75% 25%, rgba(255,107,0,0.06) 0%, transparent 45%),
+        radial-gradient(ellipse at 15% 65%, rgba(190,210,245,0.15) 0%, transparent 55%);"></div>
+
+      <!-- Hero content -->
+      <div class="relative max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-14 sm:pt-24 sm:pb-20" style="z-index:2;">
+
+        <!-- Title block -->
+        <div class="hero-title-block max-w-xl">
+          <h1 class="text-5xl sm:text-6xl font-black tracking-tight text-gray-900 dark:text-white leading-tight mb-3">
+            Futu Skills Hub
+          </h1>
+          <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-5 leading-snug">
+            安全驾驭<span class="text-[#FF6B00]">AI智能体</span>，赢在全球变幻市场
+          </p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+            覆盖港/美/A/新/日/澳/加7大市场，深度聚焦行情、交易、量化核心场景，支持16种专业订单类型，<br/>
+            9类实时推送即时响应。本地网关、交易密码、审计日志三重安全架构<br/>
+            让每一笔AI交易都可控，全面满足专业量化与实时行情需求。
+          </p>
+        </div>
+
+        <!-- Copy card -->
+        <div class="copy-card rounded-2xl p-5 sm:p-7 mt-10 max-w-xl relative">
+          <p class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+            复制以下内容发送给任意 AI，它会引导你完成 Skil 安装
+          </p>
+          <div class="flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap">
+            <div class="min-w-0">
+              <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">根据指引安装 Futu Skills：</p>
+              <a id="install-link" href="https://www.futunn.com/skills/futu-install.md"
+                 target="_blank" rel="noopener"
+                 class="text-[#FF6B00] hover:text-[#FF8C33] text-sm font-medium break-all transition-colors">
+                https://www.futunn.com/skills/futu-install.md
+              </a>
+            </div>
+            <div class="relative shrink-0">
+              <button onclick="copyLink()"
+                class="flex items-center gap-1.5 bg-[#FF6B00] hover:bg-[#FF8C33] active:scale-95 text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow transition-all duration-150 select-none">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <rect x="9" y="9" width="13" height="13" rx="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                复制
+              </button>
+              <div id="toast" class="hidden absolute -top-9 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap shadow pointer-events-none">
+                已复制 ✓
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Tools -->
+        <div class="hero-tools mt-10">
+          <p class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3">支持以下 AI 工具</p>
+          <div class="tools-card flex flex-wrap items-center gap-3">
+            <img src="网页模拟/SVG/Open%20Claw.svg" alt="Open Claw" class="h-8 w-auto">
+            <img src="网页模拟/SVG/Claude%20Code.svg" alt="Claude Code" class="h-8 w-auto">
+            <img src="网页模拟/SVG/Cursor.svg" alt="Cursor" class="h-8 w-auto">
+            <img src="网页模拟/SVG/Codex.svg" alt="Codex" class="h-8 w-auto">
+            <img src="网页模拟/SVG/%20Claude%20Code.svg" alt="Claude Code" class="h-8 w-auto">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">更多...</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══ FEATURES ═══ -->
+    <section class="bg-white dark:bg-[#111827] py-16 sm:py-24">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+        <h2 class="text-3xl sm:text-[2.5rem] font-black text-center text-gray-900 dark:text-white mb-8 tracking-tight leading-tight">
+          富途Skills Hub 能做什么
+        </h2>
+
+        <div class="border-b border-gray-200 dark:border-gray-700">
+          <div class="tabs-scroll flex justify-center gap-10 overflow-x-auto">
+            <button onclick="switchTab(0)" id="tab-0"
+              class="feat-tab shrink-0 pb-4 text-base font-semibold text-gray-900 dark:text-white border-b-[3px] border-[#FF6B00] -mb-px transition-colors whitespace-nowrap">
+              智能策略交易
+            </button>
+            <button onclick="switchTab(1)" id="tab-1"
+              class="feat-tab shrink-0 pb-4 text-base font-medium text-gray-400 dark:text-gray-500 border-b-[3px] border-transparent -mb-px hover:text-gray-700 dark:hover:text-gray-300 transition-colors whitespace-nowrap">
+              期权智能解析
+            </button>
+            <button onclick="switchTab(2)" id="tab-2"
+              class="feat-tab shrink-0 pb-4 text-base font-medium text-gray-400 dark:text-gray-500 border-b-[3px] border-transparent -mb-px hover:text-gray-700 dark:hover:text-gray-300 transition-colors whitespace-nowrap">
+              持仓透视
+            </button>
+            <button onclick="switchTab(3)" id="tab-3"
+              class="feat-tab shrink-0 pb-4 text-base font-medium text-gray-400 dark:text-gray-500 border-b-[3px] border-transparent -mb-px hover:text-gray-700 dark:hover:text-gray-300 transition-colors whitespace-nowrap">
+              资讯雷达
+            </button>
+            <button onclick="switchTab(4)" id="tab-4"
+              class="feat-tab shrink-0 pb-4 text-base font-medium text-gray-400 dark:text-gray-500 border-b-[3px] border-transparent -mb-px hover:text-gray-700 dark:hover:text-gray-300 transition-colors whitespace-nowrap">
+              情绪温度计
+            </button>
+          </div>
+        </div>
+
+        <p class="text-center text-sm text-gray-400 dark:text-gray-500 mt-7 mb-9">
+          支持 <span class="text-[#FF6B00] font-semibold">20+</span> 筛选维度:市值/PE/ROE/股息率/涨跌幅 · 覆盖港/美/A 三大市场
+        </p>
+
+        <div class="rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700/50 bg-white dark:bg-[#1a1f2e] max-w-4xl mx-auto">
+          <div class="relative flex items-center px-5 py-3 bg-[#ececec] dark:bg-[#252b3b] border-b border-gray-200 dark:border-gray-700/60">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-[#FF5F57]"></span>
+              <span class="w-3 h-3 rounded-full bg-[#FFBD2E]"></span>
+              <span class="w-3 h-3 rounded-full bg-[#28C840]"></span>
+            </div>
+            <span class="absolute inset-x-0 text-center text-xs font-medium text-gray-500 dark:text-gray-400 pointer-events-none select-none">
+              富途Skills · AI Assistant
+            </span>
+          </div>
+          <div class="bg-[#f4f5f9] dark:bg-[#151a27] px-6 sm:px-10 py-8 sm:py-10 flex flex-col gap-6 min-h-[400px]">
+            <div class="flex justify-end">
+              <div class="bg-[#FF6B00] text-white text-sm sm:text-[15px] font-medium px-5 py-3 rounded-2xl rounded-tr-sm max-w-[75%] sm:max-w-[55%] shadow leading-relaxed">
+                对英伟达设置一个追踪止损单，回落3%自动卖出1股
+              </div>
+            </div>
+            <div class="flex justify-start">
+              <div class="bg-white dark:bg-[#1e2538] rounded-2xl rounded-tl-sm shadow-sm px-5 py-4 w-full max-w-[90%] sm:max-w-[58%]">
+                <p class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">已下实盘追踪止损单</p>
+                <div class="flex flex-col gap-2">
+                  <div class="bg-white dark:bg-[#252b3b] border border-gray-100 dark:border-gray-700/40 rounded-xl px-4 py-3 text-xs text-gray-700 dark:text-gray-300 flex flex-wrap gap-x-5 gap-y-1">
+                    <span><span class="text-gray-400">标的</span> US.NVDA(英伟达)</span>
+                    <span><span class="text-gray-400">方向</span> SELL</span>
+                    <span><span class="text-gray-400">数量</span> 1</span>
+                  </div>
+                  <div class="bg-white dark:bg-[#252b3b] border border-gray-100 dark:border-gray-700/40 rounded-xl px-4 py-3 text-xs text-gray-700 dark:text-gray-300">
+                    <span class="text-gray-400">订单类型</span> TRAILING STOP(追踪止损市价)
+                  </div>
+                  <div class="bg-white dark:bg-[#252b3b] border border-gray-100 dark:border-gray-700/40 rounded-xl px-4 py-3 text-xs text-gray-700 dark:text-gray-300">
+                    <span class="text-gray-400">追踪参数</span> TrailType=RATIO，trail_value=3(即回落3%触发)
+                  </div>
+                  <div class="bg-white dark:bg-[#252b3b] border border-gray-100 dark:border-gray-700/40 rounded-xl px-4 py-3 text-xs text-gray-700 dark:text-gray-300">
+                    <span class="text-gray-400">订单号</span> FU1C4E307C
+                    <span class="text-gray-400 ml-3">账户</span> FUTUINC，acc id=283445331355
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══ SCRIPTS ═══ -->
+  <script>
+    /* ── Utility ── */
+    const COPY_TEXT = '根据指引安装 Futu Skills：\nhttps://www.futunn.com/skills/futu-install.md';
+
+    function copyLink() {
+      navigator.clipboard.writeText(COPY_TEXT).then(showToast).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = COPY_TEXT;
+        ta.style.cssText = 'position:fixed;left:-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast();
+      });
+    }
+
+    function showToast() {
+      const t = document.getElementById('toast');
+      t.classList.remove('hidden'); t.classList.add('show');
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.classList.add('hidden'), 300); }, 1800);
+    }
+
+    /* ── Dark mode ── */
+    function toggleDark() {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    }
+    if (localStorage.getItem('theme') === 'dark' ||
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+
+    /* ── Layout switcher ── */
+    function setLayout(mode) {
+      const isCentered = mode === 'center';
+      document.body.classList.toggle('layout-centered', isCentered);
+      const btnCenter = document.getElementById('btn-layout-center');
+      const btnLeft   = document.getElementById('btn-layout-left');
+      const on  = ['bg-[#1a1a1a]', 'text-white'];
+      const off = ['bg-white', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300'];
+      if (isCentered) {
+        btnCenter.classList.add(...on);   btnCenter.classList.remove(...off);
+        btnLeft.classList.remove(...on);  btnLeft.classList.add(...off);
+      } else {
+        btnLeft.classList.add(...on);     btnLeft.classList.remove(...off);
+        btnCenter.classList.remove(...on); btnCenter.classList.add(...off);
+      }
+      localStorage.setItem('layout', mode);
+    }
+    if (localStorage.getItem('layout') === 'center') setLayout('center');
+
+    /* ── Feature tabs ── */
+    function switchTab(index) {
+      for (let i = 0; i < 5; i++) {
+        const b = document.getElementById('tab-' + i);
+        if (i === index) {
+          b.classList.add('text-gray-900','dark:text-white','font-semibold','border-[#FF6B00]');
+          b.classList.remove('text-gray-400','dark:text-gray-500','font-medium','border-transparent');
+        } else {
+          b.classList.remove('text-gray-900','dark:text-white','font-semibold','border-[#FF6B00]');
+          b.classList.add('text-gray-400','dark:text-gray-500','font-medium','border-transparent');
+        }
+      }
+    }
+
+    /* ── Language switcher ── */
+    const langMap = { 'zh-s':'btn-zhs', 'zh-t':'btn-zht', 'en':'btn-en' };
+    function setLang(lang) {
+      Object.values(langMap).forEach(id => {
+        const b = document.getElementById(id);
+        b.classList.remove('bg-[#1a1a1a]','text-white');
+        b.classList.add('bg-white','dark:bg-gray-800','text-gray-600','dark:text-gray-300');
+      });
+      const active = document.getElementById(langMap[lang]);
+      active.classList.add('bg-[#1a1a1a]','text-white');
+      active.classList.remove('bg-white','dark:bg-gray-800','text-gray-600','dark:text-gray-300');
+    }
+  </script>
+
+  <!-- ═══ D3 INTERACTIVE MAP ═══ -->
+  <script>
+  (async function initInteractiveMap() {
+    const container   = document.getElementById('interactive-map-container');
+    const heroSection = document.getElementById('hero-section');
+    if (!container)                      { console.error('[FutuMap] container not found');  return; }
+    if (typeof d3 === 'undefined')       { console.error('[FutuMap] D3 not loaded');        return; }
+    if (typeof topojson === 'undefined') { console.error('[FutuMap] topojson not loaded');  return; }
+
+    /* ── Cities ── */
+    const CITIES = [
+      { name: '香港',   lon: 114.17, lat: 22.28, delay: 0.0 },
+      { name: '东京',   lon: 139.69, lat: 35.69, delay: 0.9 },
+      { name: '新加坡', lon: 103.82, lat:  1.35, delay: 1.4 },
+      { name: '吉隆坡', lon: 101.69, lat:  3.14, delay: 1.8 },
+      { name: '华盛顿', lon: -77.04, lat: 38.91, delay: 0.3 },
+    ];
+
+    /* ── Arc pairs: build all city combinations ── */
+    const ARC_PAIRS = [];
+    for (let i = 0; i < CITIES.length; i++)
+      for (let j = i + 1; j < CITIES.length; j++)
+        ARC_PAIRS.push([CITIES[i], CITIES[j]]);
+
+    /* ── Pre-compute arc geo-coordinate sequences (64 steps each) ── */
+    const ARC_GEO = ARC_PAIRS.map(([a, b]) => {
+      const interp = d3.geoInterpolate([a.lon, a.lat], [b.lon, b.lat]);
+      return Array.from({ length: 65 }, (_, k) => interp(Math.min(k / 64, 1)));
+    });
+
+    /* ── Color palette ── */
+    function palette() {
+      const dark = document.documentElement.classList.contains('dark');
+      return {
+        bg:     dark ? '#0d1117'                : '#F0F4F8',
+        land:   dark ? '#1e2d42'               : 'rgba(215,225,235,0.6)',
+        border: dark ? 'rgba(80,120,180,0.35)' : '#B0C4DE',
+        arc:    dark ? 'rgba(255,105,0,0.18)'  : 'rgba(255,105,0,0.22)',
+        label:  dark ? 'rgba(160,180,210,0.75)': '#9aafc0',
+      };
+    }
+
+    /* ── Load topology ── */
+    let worldData;
+    try {
+      worldData = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+    } catch(e) { console.error('[FutuMap] load failed', e); return; }
+
+    /* ── Merge all land into 2 paths for performance ── */
+    const landGeo    = topojson.merge(worldData, worldData.objects.countries.geometries);
+    const bordersGeo = topojson.mesh(worldData, worldData.objects.countries, (a, b) => a !== b);
+
+    await new Promise(r => requestAnimationFrame(r));
+    await new Promise(r => requestAnimationFrame(r));
+
+    /* ── Shared mutable state ── */
+    let mapTimer      = null;
+    let isInteracting = false;
+    let interactEndAt = -Infinity;
+
+    /* ── CatmullRom line generator (pixel space) ── */
+    const lineGen = d3.line().x(d => d[0]).y(d => d[1]).curve(d3.curveCatmullRom.alpha(0.5));
+
+    /* ── Build (called on init, resize, dark-mode toggle) ── */
+    function build() {
+      if (mapTimer) { mapTimer.stop(); mapTimer = null; }
+
+      const W = heroSection.offsetWidth  || window.innerWidth;
+      const H = Math.max(heroSection.offsetHeight, 620);
+
+      d3.select(container).selectAll('*').remove();
+      isInteracting = false;
+      interactEndAt = -Infinity;
+
+      const pal = palette();
+      heroSection.style.backgroundColor = pal.bg;
+
+      /* ── Projection driven by rotParam ── */
+      let rotParam = -114;   /* longitude offset; more negative = scroll east→west */
+      let scalePx  = W * 0.32;
+
+      const projection = d3.geoMercator()
+        .rotate([rotParam, 0])
+        .scale(scalePx)
+        .translate([W * 0.5, H * 0.42]);
+
+      const geoPath = d3.geoPath().projection(projection);
+
+      /* ── SVG ── */
+      const svg = d3.select(container).append('svg')
+        .attr('width', W).attr('height', H).style('display', 'block')
+        .style('cursor', 'grab');
+
+      svg.append('rect').attr('width', W).attr('height', H).attr('fill', pal.bg);
+
+      /* ── Land + borders (2 paths total) ── */
+      const landEl    = svg.append('path').datum(landGeo)
+        .attr('fill', pal.land).attr('stroke', 'none');
+      const bordersEl = svg.append('path').datum(bordersGeo)
+        .attr('fill', 'none').attr('stroke', pal.border).attr('stroke-width', 0.4)
+        .attr('stroke-linejoin', 'round');
+
+      /* ── Arc path elements ── */
+      const arcEls = ARC_PAIRS.map(() =>
+        svg.append('path').attr('fill', 'none')
+          .attr('stroke', pal.arc).attr('stroke-width', 0.7).attr('stroke-linecap', 'round')
+      );
+
+      /* ── City group elements ── */
+      const cityEls = CITIES.map(city => {
+        const cg = svg.append('g');
+        cg.append('circle').attr('class', 'city-ring')
+          .attr('r', 12).attr('fill', 'none')
+          .attr('stroke', '#FF6900').attr('stroke-width', 1.0).attr('opacity', 0.45)
+          .style('animation-delay', `${city.delay}s`);
+        cg.append('circle').attr('r', 5).attr('fill', 'rgba(255,105,0,0.10)');
+        cg.append('circle').attr('r', 2.5).attr('fill', '#FF6900')
+          .attr('stroke', 'rgba(255,255,255,0.6)').attr('stroke-width', 0.8);
+        cg.append('text').attr('x', 12).attr('y', 4)
+          .attr('font-size', '10.5px').attr('font-weight', '500')
+          .attr('fill', pal.label)
+          .attr('font-family', 'PingFang SC,-apple-system,sans-serif')
+          .style('pointer-events', 'none').style('user-select', 'none')
+          .text(city.name);
+        return cg;
+      });
+
+      /* ── Redraw: update all dynamic elements in one pass ── */
+      function redraw() {
+        projection.rotate([rotParam, 0]).scale(scalePx);
+        landEl.attr('d', geoPath);
+        bordersEl.attr('d', geoPath);
+        ARC_GEO.forEach((pts, idx) => {
+          const screen = pts.map(p => projection(p)).filter(p => p && isFinite(p[0]) && isFinite(p[1]));
+          arcEls[idx].attr('d', screen.length >= 2 ? lineGen(screen) : '');
+        });
+        CITIES.forEach((city, i) => {
+          const p = projection([city.lon, city.lat]);
+          cityEls[i].attr('transform',
+            p && isFinite(p[0]) ? `translate(${p[0]},${p[1]})` : 'translate(-9999,-9999)');
+        });
+      }
+
+      redraw(); /* initial paint */
+
+      /* ── Custom drag (replaces d3.zoom) ── */
+      let dragStartX = 0, dragStartRot = 0;
+      svg.call(d3.drag()
+        .on('start', e => {
+          isInteracting = true;
+          dragStartX   = e.x;
+          dragStartRot = rotParam;
+          svg.style('cursor', 'grabbing');
+        })
+        .on('drag', e => {
+          /* deg-per-pixel: at scale S, 1px ≈ 180/(π·S) degrees */
+          const degPerPx = 180 / (Math.PI * scalePx);
+          rotParam = dragStartRot + (e.x - dragStartX) * degPerPx;
+          redraw();
+        })
+        .on('end', () => {
+          isInteracting = false;
+          interactEndAt = performance.now();
+          svg.style('cursor', 'grab');
+        })
+      );
+
+      /* ── Scroll-wheel zoom ── */
+      svg.on('wheel.map', e => {
+        e.preventDefault();
+        const factor = e.deltaY > 0 ? 0.9 : 1.1;
+        scalePx = Math.max(W * 0.2, Math.min(W * 5, scalePx * factor));
+        redraw();
+      }, { passive: false });
+
+      /* ── Auto-rotate via d3.timer (0.5 °/s) ── */
+      let prevT = 0;
+      mapTimer = d3.timer(t => {
+        const dt = t - prevT;
+        prevT = t;
+        if (!isInteracting && (performance.now() - interactEndAt) > 1500) {
+          rotParam -= 1.6 * dt / 1000;
+          redraw();
+        }
+      });
+    }
+
+    build();
+
+    let rt;
+    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 200); });
+    new MutationObserver(build)
+      .observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+  })();
+  </script>
+
+</body>
+</html>
