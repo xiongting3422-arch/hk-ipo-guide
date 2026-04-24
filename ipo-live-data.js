@@ -1117,6 +1117,81 @@ async function _parseCsv(text) {
   });
 }
 
+/**
+ * 「上市新股」表可能是宽表转置：第1列=字段名，第2列起每列为一只标的（见发布 CSV gid=63719317）。
+ * 与常规「一行一标的」自动区分。
+ */
+function _isIpoListTransposedMatrix(matrix) {
+  if (!Array.isArray(matrix) || matrix.length < 2) return false;
+  const a = _normKey(matrix[0] && matrix[0][0]);
+  const b = _normKey(matrix[1] && matrix[1][0]);
+  return a === '股票名称' && b === '股票代码';
+}
+
+function _pivotIpoListTransposedToRows(matrix) {
+  const fieldLabels = [];
+  for (let i = 0; i < (matrix || []).length; i++) {
+    const r = matrix[i];
+    if (!r) continue;
+    const k = r[0] != null ? _normKey(String(r[0])) : '';
+    if (k) fieldLabels.push(k);
+  }
+  const nRows = matrix.length;
+  const nCols = Math.max(0, ...matrix.map(r => (Array.isArray(r) ? r.length : 0)));
+  const out = [];
+  for (let j = 1; j < nCols; j++) {
+    const row = {};
+    for (let i = 0; i < nRows; i++) {
+      const r = matrix[i];
+      if (!r) continue;
+      const keyRaw = r[0] != null ? _normKey(String(r[0])) : '';
+      if (!keyRaw) continue;
+      const val = r[j] != null ? String(r[j]).trim() : '';
+      row[keyRaw] = val;
+    }
+    if (Object.keys(row).some(k => String(row[k] || '').trim())) {
+      out.push(row);
+    }
+  }
+  return { rows: out, fieldLabels };
+}
+
+async function _parseIpoListCsvMaybeTransposed(text) {
+  if (typeof Papa === 'undefined') throw new Error('PapaParse 未加载');
+  if (text == null || text === '') throw new Error('CSV 为空');
+  return new Promise((resolve, reject) => {
+    Papa.parse(text, {
+      header: false,
+      skipEmptyLines: true,
+      complete: result => {
+        try {
+          const matrix = result.data || [];
+          if (_isIpoListTransposedMatrix(matrix)) {
+            const { rows: data, fieldLabels } = _pivotIpoListTransposedToRows(matrix);
+            if (typeof window !== 'undefined') {
+              window.__IPO_LISTED_FIELD_LABELS__ = fieldLabels;
+            }
+            const fields = data[0] ? Object.keys(data[0]) : [];
+            resolve({ data, meta: { fields }, errors: result.errors || [] });
+          } else {
+            _parseCsv(text)
+              .then(parsed => {
+                if (typeof window !== 'undefined' && parsed && parsed.meta && Array.isArray(parsed.meta.fields)) {
+                  window.__IPO_LISTED_FIELD_LABELS__ = parsed.meta.fields;
+                }
+                return resolve(parsed);
+              })
+              .catch(reject);
+          }
+        } catch (e) {
+          reject(e);
+        }
+      },
+      error: err => reject(err),
+    });
+  });
+}
+
 function _mergeThreeSheetsByCodeForPerf(listedRows, darkRows, schedRows) {
   const darkMap = new Map();
   (darkRows || []).forEach(raw => {
@@ -1421,6 +1496,8 @@ window.fetchMasterDataFromSheet = async function fetchMasterDataFromSheet() {
   _patchLeaderboardRenderer();
   window.__IPO_LB_DYNAMIC_ACTIVE__ = false;
 
+  let _ipoSheetFetchSucceeded = true;
+
   try {
     if (typeof Papa === 'undefined') throw new Error('PapaParse 未加载');
 
@@ -1444,11 +1521,21 @@ window.fetchMasterDataFromSheet = async function fetchMasterDataFromSheet() {
       { key: 'schedule', gid: G.schedule, label: _TAB_LABEL.schedule },
     ];
 
+    if (typeof window.showIpoListedLoading === 'function') {
+      try {
+        /* 提示节点 id=loading-status 由 showIpoListedLoading 注入 #listed-stocks，见 index 旁注；V9 在 finally 中隐藏或改失败文案 */
+        window.showIpoListedLoading('正在从 Google 表格拉取数据…');
+      } catch (e) {
+        /* noop */
+      }
+    }
+
     const results = await Promise.all(
       tabs.map(async def => {
         try {
           const text = await fetchSingleTabCsv(def.key, def.gid);
-          const parsed = await _parseCsv(text);
+          const parsed =
+            def.key === 'listed' ? await _parseIpoListCsvMaybeTransposed(text) : await _parseCsv(text);
           const rawRows = parsed.data || [];
           const rows =
             def.key === 'ipoHome'
@@ -1470,6 +1557,17 @@ window.fetchMasterDataFromSheet = async function fetchMasterDataFromSheet() {
     const byKey = Object.fromEntries(results.map(r => [r.key, r]));
     const home = byKey.ipoHome;
     const listed = byKey.listed;
+
+    // V11: 上市新股详情卡 UI 与双源数据在 ipo-google-sheet.js（rowToIpoDisplayModel、v11EnrichBullBearFromAI），表格：63719317
+    // 「有无绿鞋」展示/着色：ipo-google-sheet.js _v11ParseGreenShoeForDetail + switchIpoTabFromSheetModel（本文件无 display:none 隐藏该格）
+    // 详情 2×4 阵列：行业/招股价/一手入场费/A+H、招股期/发行机制/绿鞋/基石 — 由 ipo-google-sheet rowToIpoDisplayModel 映射「上市新股」表列；index.html 静态回退为 _buildStaticIpoDetailGrid8
+    if (typeof window.__ipoProcessListedSheetRows === 'function' && listed && listed.ok) {
+      try {
+        await window.__ipoProcessListedSheetRows(listed);
+      } catch (e) {
+        console.warn('[IPO Sheet] 上市新股行处理', e);
+      }
+    }
     const dark = byKey.dark;
     const sched = byKey.schedule;
 
@@ -1478,6 +1576,13 @@ window.fetchMasterDataFromSheet = async function fetchMasterDataFromSheet() {
       rows: home.rows || [],
     };
     window.__IPO_LISTED_SHEET_ROWS__ = listed.rows || [];
+    if (typeof window.ipoCalcRefreshStockList === 'function') {
+      try {
+        window.ipoCalcRefreshStockList();
+      } catch (e) {
+        console.warn('[IPO Calc] 刷新打新资金分配器标的', e);
+      }
+    }
     window.__IPO_DARK_SHEET_ROWS__ = dark.rows || [];
     window.__IPO_SCHEDULE_SHEET_ROWS__ = sched.rows || [];
 
@@ -1541,9 +1646,25 @@ window.fetchMasterDataFromSheet = async function fetchMasterDataFromSheet() {
 
     return true;
   } catch (e) {
+    _ipoSheetFetchSucceeded = false;
     console.warn('[IPO Sheet] fetchMasterDataFromSheet', e);
     _destroySheetLoadingTips();
     return false;
+  } finally {
+    const loadingStatus = document.getElementById('loading-status');
+    if (loadingStatus) {
+      if (_ipoSheetFetchSucceeded) {
+        loadingStatus.style.display = 'none';
+        // V9: Auto-hide loading status
+      } else {
+        loadingStatus.textContent = '加载失败，请重试';
+        loadingStatus.style.display = 'block';
+        loadingStatus.style.color = '#b91c1c';
+        loadingStatus.style.borderColor = 'rgba(220,38,38,.5)';
+        loadingStatus.style.background = 'rgba(220,38,38,.06)';
+        // V9: Auto-hide loading status
+      }
+    }
   }
 };
 

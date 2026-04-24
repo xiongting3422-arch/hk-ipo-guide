@@ -162,8 +162,10 @@ header{position:relative;z-index:1;background:#ffffff;border-bottom:1px solid va
 #ipo-calc-modal .ipo-calc-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;}
 #ipo-calc-modal .ipo-calc-card label{display:block;font-size:12px;font-weight:600;color:var(--t2);margin-bottom:8px;}
 #ipo-calc-modal .ipo-calc-card input[type="number"]{width:100%;padding:10px 12px;border:1px solid var(--b1);border-radius:8px;font-size:15px;font-family:'DM Mono',monospace;background:var(--s1);color:var(--t1);}
-#ipo-calc-modal .ipo-calc-stock-check{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
-#ipo-calc-modal .ipo-calc-stock-check label{font-weight:500;font-size:12px;color:var(--t1);cursor:pointer;display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--s1);border:1px solid var(--b1);border-radius:8px;}
+#ipo-calc-modal .ipo-calc-stock-check{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px;margin-top:4px;align-items:stretch;}
+#ipo-calc-modal .ipo-calc-stock-check label{font-weight:500;font-size:12px;color:var(--t1);cursor:pointer;display:flex;align-items:center;gap:6px;min-width:0;padding:8px 10px;background:var(--s1);border:1px solid var(--b1);border-radius:8px;word-break:break-word;line-height:1.35;}
+@media (max-width:600px){#ipo-calc-modal .ipo-calc-stock-check{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px;}}
+@media (max-width:400px){#ipo-calc-modal .ipo-calc-stock-check{grid-template-columns:1fr;gap:8px;}}
 #ipo-calc-modal .ipo-calc-slider{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
 #ipo-calc-modal .ipo-calc-slider span:first-child{min-width:120px;font-size:12px;color:var(--t1);}
 #ipo-calc-modal .ipo-calc-slider input[type="range"]{flex:1;min-width:0;}
@@ -606,7 +608,14 @@ footer a{color:var(--accent);}
 .ipo-tab-batch{display:flex;flex-direction:column;gap:0;}
 .ipo-tab-batch-label{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;padding:0 4px 6px;white-space:nowrap;}
 .ipo-tab-batch-cards{display:flex;gap:10px;align-items:stretch;}
-.ipo-tab-card{flex:1 1 0;min-width:0;padding:12px 12px 10px;background:#fff;border:1.5px solid rgba(0,0,0,.1);border-radius:12px;cursor:pointer;transition:border-color .18s,background .18s;display:flex;flex-direction:column;gap:4px;position:relative;}
+/* 新股横滑卡片：星级+名称为一整体垂直居中，min-height 与对称 padding 保持方框高度稳定（PC / H5 同逻辑） */
+.ipo-tab-card{flex:1 1 0;min-width:0;min-height:112px;box-sizing:border-box;padding:14px 12px;background:#fff;border:1.5px solid rgba(0,0,0,.1);border-radius:12px;cursor:pointer;transition:border-color .18s,background .18s;display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:5px;position:relative;}
+.ipo-tab-stars{font-size:14.5px;letter-spacing:1.2px;line-height:1.15;flex-shrink:0;margin:0;}
+.ipo-tab-stars .ipo-tab-stars-dim{opacity:.18;}
+.ipo-tab-name{font-size:17px;font-weight:800;color:#111;line-height:1.3;word-break:keep-all;margin:0;flex-shrink:0;}
+@media (max-width:768px){
+  .ipo-tab-card{min-height:112px;padding:12px 10px;gap:4px;}
+}
 .ipo-tab-card::after{content:'';position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:0 solid transparent;transition:border-top .15s;pointer-events:none;}
 .ipo-tab-card:hover{border-color:rgba(249,115,22,.4);background:rgba(249,115,22,.03);}
 .ipo-tab-card.active{border-color:#f97316;border-width:3px;background:rgba(249,115,22,.05);}
@@ -641,9 +650,33 @@ footer a{color:var(--accent);}
 /* ━━━━━━━━━ IPO NEWS BANNER ━━━━━━━━━ */
 .ipo-news-banner{margin:10px 0 14px;background:transparent;border:none;border-radius:0;padding:0;overflow:hidden;}
 .ipo-news-banner-viewport{overflow:hidden;width:100%;}
-.ipo-news-banner-track{display:flex;gap:10px;will-change:transform;transform:translate3d(0,0,0);}
-.ipo-news-banner-item{flex:0 0 calc((100% - 30px) / 4);min-width:0;}
-.ipo-news-banner-item img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;border:1px solid rgba(0,0,0,.08);}
+.ipo-news-banner-track{display:flex;align-items:flex-start;gap:10px;will-change:transform;transform:translate3d(0,0,0);}
+.ipo-news-banner-item{flex:0 0 calc((100% - 30px) / 4);min-width:0;position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:10px;border:1px solid rgba(0,0,0,.08);background:var(--s1);box-sizing:border-box;}
+.ipo-news-banner-item a{display:block;width:100%;height:100%;line-height:0;}
+.ipo-news-banner-item img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;border:0;vertical-align:top;}
+
+/* 新股数据汇总表：左对齐 + V7 三态（认购中 / 已截止 / 已上市） */
+#ipo-compare-table .ipo-cmp-scroll th,
+#ipo-compare-table .ipo-cmp-scroll td{
+  text-align:left;
+  vertical-align:top;
+}
+#ipo-compare-table .status-tag-compare{
+  display:inline-block;
+  font-size:10.5px;
+  font-weight:700;
+  line-height:1.25;
+  padding:2px 8px;
+  border-radius:4px;
+  color:#fff;
+  letter-spacing:0.02em;
+  white-space:nowrap;
+  font-family:'Noto Sans SC',sans-serif;
+}
+#ipo-compare-table .status-tag-compare.status-active{ background:#00BF7F; color:#fff; }
+#ipo-compare-table .status-tag-compare.status-pending{ background:#38bdf8; color:#fff; } /* 待上市 */
+#ipo-compare-table .status-tag-compare.status-listed-slate{ background:#94a3b8; color:#fff; } /* 已上市，与活跃区分 */
+#ipo-compare-table .status-tag-compare.status-unknown{ background:#e4e4e7; color:var(--t2); }
 
 /* ━━━━━━━━━ RESPONSIVE ━━━━━━━━━ */
 @media(max-width:1024px){.stat-grid{grid-template-columns:repeat(3,1fr);}.grey-hero{grid-template-columns:1fr;}}
@@ -1216,13 +1249,14 @@ footer a{color:var(--accent);}
     <div style="margin-bottom:18px;">
       <div class="sec-title" style="margin-bottom:0;gap:12px;">
         <span class="sec-icon">🔥</span>新股列表
-        <span style="font-size:12px;color:var(--t3);font-weight:500;background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:2px 8px;margin-left:4px;">截至 4/15 · 华勤技术今起招股 · 思格新能明日挂牌 · 群核/长光辰芯 4/17 上市</span>
       </div>
     </div>
 
     <!-- Google Sheet「上市新股」CSV 镜像（独立数据源） -->
+    <!-- 拉取提示由 ipo-google-sheet showIpoListedLoading 动态写入本容器，子节点 id=loading-status（V9） -->
     <div id="listed-stocks" class="ipo-sheet-csv-mount" style="margin-bottom:20px;"></div>
 
+    <!-- 详情 2×4 信息区：无「行业·招股价·一手」副标题行；表数据驱动见 ipo-google-sheet rowToIpoDisplayModel；无表时见 index _buildStaticIpoDetailGrid8 -->
     <div id="ipo-acc-wrapper"></div>
 
     <div id="ipo-calc-entry" style="margin-top:24px;">
@@ -1426,19 +1460,6 @@ footer a{color:var(--accent);}
 
   <!-- Google Sheet「新股暗盘」CSV 全表镜像（仅本页签 gid 数据） -->
   <div id="sheet-dark-csv" class="ipo-sheet-csv-mount" style="margin-bottom:20px;"></div>
-
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-    <span style="font-size:12px;color:var(--t3);font-weight:600;">今日暗盘排序</span>
-    <select id="grey-sort-live-key" onchange="greySortLiveApply()" style="font-size:12px;padding:4px 10px;border-radius:8px;border:1px solid var(--s3);background:var(--s1);color:var(--t1);">
-      <option value="darkDate">暗盘时间</option>
-      <option value="sector">板块</option>
-      <option value="darkGain">暗盘涨幅</option>
-    </select>
-    <select id="grey-sort-live-dir" onchange="greySortLiveApply()" style="font-size:12px;padding:4px 10px;border-radius:8px;border:1px solid var(--s3);background:var(--s1);color:var(--t1);">
-      <option value="desc">降序</option>
-      <option value="asc">升序</option>
-    </select>
-  </div>
 
   <!-- ── Today's dark pool cards (dynamic from AASTOCKS greymarket) ─── -->
   <div id="grey-live-section" style="margin-bottom:32px;">
@@ -1779,8 +1800,9 @@ footer a{color:var(--accent);}
         </div>
       </div>
       <div class="ipo-calc-card">
-        <label>选择新股标的（可多选）· 演示 3 只</label>
-        <div class="ipo-calc-stock-check" id="ipo-calc-stock-list">
+        <label id="ipo-calc-stock-label" style="display:block">选择新股标的（可多选）· 演示 3 只</label>
+        <div class="ipo-calc-stock-check" id="ipo-calc-stock-list" role="group" aria-label="选择新股">
+          <!-- 无 JS 时占位；与下方 const demoStocks 保持名称/代码一致，脚本会重绘 -->
           <label><input type="checkbox" value="02726" data-label="瀚天天成 02726">瀚天天成 · 02726</label>
           <label><input type="checkbox" value="01021" data-label="华沿机器人 01021">华沿机器人 · 01021</label>
           <label><input type="checkbox" value="06636" data-label="极视角 06636">极视角 · 06636</label>
@@ -1829,10 +1851,16 @@ footer a{color:var(--accent);}
 <script>
 /* 使用你自己的 Google 表：在表格中「文件 → 共享 → 发布到网络」，把生成的链接复制到 publishBase（必须以 /pub 结尾），gid 在浏览器打开该表时地址栏 gid= 数字 */
 window.__IPO_SHEET_CONFIG__ = window.__IPO_SHEET_CONFIG__ || {};
-// window.__IPO_SHEET_CONFIG__.publishBase = 'https://docs.google.com/spreadsheets/d/e/你的发布ID/pub';
-// window.__IPO_SHEET_CONFIG__.gids = { ipoHome: 1914717842, listed: 63719317, dark: 976801045, schedule: 0 };
+// 发布地址 /pub ；HTML 预览见同目录 pubhtml
+window.__IPO_SHEET_CONFIG__.publishBase =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vT5R7a29N0wHqOVKXO7Dx016Z_DV0IQ5n16IaTMSPWF2QOqwqud1ViC1Llp0MFwZep8qMUGW_-9SCBU/pub';
+window.__IPO_SHEET_CONFIG__.gids = Object.assign(
+  { ipoHome: 1914717842, listed: 63719317, dark: 976801045, schedule: 0 },
+  window.__IPO_SHEET_CONFIG__.gids || {},
+);
+// 可选 V11：AI 补全（表格「核心优势/主要压力」为空时） window.__IPO_AI_CONFIG__ = { apiKey: '…', model: 'gpt-4o-mini' };
 </script>
-<script src="./ipo-live-data.js?v=36"></script>
+<script src="./ipo-live-data.js?v=38"></script>
 <script>
 /* ━━━━━━━━━ DATA ━━━━━━━━━ */
 const STOCKS = {
@@ -2795,14 +2823,16 @@ let ipoNewsBannerStep = 0;
 let ipoNewsBannerTimer = null;
 let ipoNewsBannerResetTimer = null;
 
+/**
+ * 新股资讯轮播：本机图 01~04 各不重复；单张建议 ≤500KB、约 1:1 方图。替换即生效。
+ * 轮播会再拼接前 4 张的副本用于无缝滚动，勿重复添加同名 / 同内容的文件。
+ */
 const IPO_NEWS_BANNER_IMAGES = [
-  { src: './assets/images/banner-01.png' },
-  { src: './assets/images/banner-02.png' },
-  { src: './assets/images/banner-03.png' },
-  { src: './assets/images/banner-04.png' },
-  { src: './assets/images/banner-05.png' },
+  { src: './assets/images/ipo-news-banner-01.png' },
+  { src: './assets/images/ipo-news-banner-02.png' },
+  { src: './assets/images/ipo-news-banner-03.png' },
   {
-    src: './assets/images/banner-06.png',
+    src: './assets/images/ipo-news-banner-04.png',
     href: 'https://invest.futuhk.com/ipo_season'
   }
 ];
@@ -2856,19 +2886,20 @@ function ensureIpoNewsBanner() {
 
   if (!ipoNewsBannerInited) {
     const loopItems = [...IPO_NEWS_BANNER_IMAGES, ...IPO_NEWS_BANNER_IMAGES.slice(0, 4)];
-    track.innerHTML = loopItems.map(item => {
+    track.innerHTML = loopItems.map((item, i) => {
+      const img = `<img src="${item.src}" alt="IPO 资讯轮播图" loading="eager" decoding="async" fetchpriority="${i < 4 ? 'high' : 'low'}">`;
       if (item.href) {
         return `
           <div class="ipo-news-banner-item">
             <a href="${item.href}" target="_blank" rel="noopener noreferrer" style="display:block;">
-              <img src="${item.src}" alt="IPO 资讯轮播图" loading="lazy">
+              ${img}
             </a>
           </div>
         `;
       }
       return `
         <div class="ipo-news-banner-item">
-          <img src="${item.src}" alt="IPO 资讯轮播图" loading="lazy">
+          ${img}
         </div>
       `;
     }).join('');
@@ -4195,6 +4226,13 @@ function closeStatModal() {
 }
 
 function openIpoCalcModal() {
+  if (typeof ipoCalcRefreshStockList === 'function') {
+    try {
+      ipoCalcRefreshStockList();
+    } catch (e) {
+      console.warn('[IPO Calc] 刷新标的选择', e);
+    }
+  }
   const m = document.getElementById('ipo-calc-modal');
   if (m) { m.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
 }
@@ -4205,12 +4243,21 @@ function closeIpoCalcModal() {
 
 let ipoCalcSelected = [];
 
-/** 演示新股：每手股数 × 发行价（港元）→ 每手认购款，用于估算申购手数 */
-var IPO_CALC_STOCK_META = {
-  '02726': { lotSize: 50, ipoPrice: 76.26 },
-  '01021': { lotSize: 200, ipoPrice: 17.00 },
-  '06636': { lotSize: 50, ipoPrice: 40.00 }
-};
+/**
+ * 无表格内「募集中」标的时，计算器固定展示 3 只演示股；改此处即可换名/代码/每手/招股价（须与无 JS 时的 HTML 占位一致亦可同步改）。
+ * @type {{name:string, code:string, lotSize:number, ipoPrice:number}[]}
+ */
+const demoStocks = [
+  { name: '瀚天天成', code: '02726', lotSize: 50, ipoPrice: 76.26 },
+  { name: '华沿机器人', code: '01021', lotSize: 200, ipoPrice: 17.0 },
+  { name: '极视角', code: '06636', lotSize: 50, ipoPrice: 40.0 }
+];
+
+const IPO_CALC_DEMO_METAS = Object.fromEntries(
+  demoStocks.map(s => [s.code, { lotSize: s.lotSize, ipoPrice: s.ipoPrice }])
+);
+
+var IPO_CALC_STOCK_META = Object.assign({}, IPO_CALC_DEMO_METAS);
 
 function ipoCalcSubscriptionLots(code, amountHkd) {
   var m = IPO_CALC_STOCK_META[code];
@@ -4223,6 +4270,71 @@ function ipoCalcSubscriptionLots(code, amountHkd) {
 function ipoCalcEsc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
+
+function ipoCalcBuildDemoListHtml() {
+  return demoStocks
+    .map(function (s) {
+      const dataL = s.name + ' ' + s.code;
+      const disp = s.name + ' · ' + s.code;
+      return (
+        '<label><input type="checkbox" value="' +
+        ipoCalcEsc(s.code) +
+        '" data-label="' +
+        ipoCalcEsc(dataL) +
+        '">' +
+        ipoCalcEsc(disp) +
+        '</label>'
+      );
+    })
+    .join('');
+}
+
+function ipoCalcRefreshStockList() {
+  const label = document.getElementById('ipo-calc-stock-label');
+  const list = document.getElementById('ipo-calc-stock-list');
+  if (!list) return;
+  const allRows = Array.isArray(window.__IPO_LISTED_SHEET_ROWS__) ? window.__IPO_LISTED_SHEET_ROWS__ : [];
+  const filterFn = window.ipoCalcFilterSubEndAfterTodayRows;
+  const active =
+    typeof filterFn === 'function' ? filterFn(allRows) : [];
+  const parts = [];
+  if (active && active.length > 0) {
+    active.forEach(function (row) {
+      const meta =
+        typeof window.ipoCalcMetaFromListedRow === 'function' && window.ipoCalcMetaFromListedRow(row);
+      if (!meta || !meta.code) return;
+      const disp = (meta.name || '—') + ' · ' + meta.code;
+      const dataL = (meta.name || '') + ' ' + meta.code;
+      parts.push(
+        '<label><input type="checkbox" value="' +
+          ipoCalcEsc(meta.code) +
+          '" data-label="' +
+          ipoCalcEsc(dataL) +
+          '">' +
+          ipoCalcEsc(disp) +
+          '</label>',
+      );
+    });
+  }
+  if (active.length > 0 && parts.length > 0) {
+    if (label) label.textContent = '选择新股标的（可多选）';
+    IPO_CALC_STOCK_META = {};
+    active.forEach(function (row) {
+      const meta = window.ipoCalcMetaFromListedRow && window.ipoCalcMetaFromListedRow(row);
+      if (meta && meta.lotSize && meta.ipoPrice) {
+        IPO_CALC_STOCK_META[meta.code] = { lotSize: meta.lotSize, ipoPrice: meta.ipoPrice };
+      }
+    });
+    list.innerHTML = parts.join('');
+  } else {
+    if (label) label.textContent = '选择新股标的（可多选）· 演示 ' + demoStocks.length + ' 只';
+    IPO_CALC_STOCK_META = Object.assign({}, IPO_CALC_DEMO_METAS);
+    list.innerHTML = ipoCalcBuildDemoListHtml();
+  }
+  ipoCalcUpdateSliders();
+}
+
+window.ipoCalcRefreshStockList = ipoCalcRefreshStockList;
 
 function ipoCalcFormatStockCard(s, pool) {
   var amt = pool * (s.ratio / 100);
@@ -4342,7 +4454,13 @@ function ipoCalcRun() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('#ipo-calc-stock-list input').forEach(cb => cb.addEventListener('change', ipoCalcUpdateSliders));
+  const ipoStockList = document.getElementById('ipo-calc-stock-list');
+  if (ipoStockList) {
+    ipoStockList.addEventListener('change', e => {
+      if (e.target && e.target.matches('input[type="checkbox"]')) ipoCalcUpdateSliders();
+    });
+  }
+  if (typeof ipoCalcRefreshStockList === 'function') ipoCalcRefreshStockList();
   const b = document.getElementById('ipo-calc-btn');
   if (b) b.addEventListener('click', ipoCalcRun);
   const tot = document.getElementById('ipo-calc-total');
@@ -6693,7 +6811,7 @@ window.PERF_ALL = PERF_ALL;
 window.CAL_STOCKS = CAL_STOCKS;
 window.STOCKS = STOCKS;
 </script>
-<script src="./ipo-google-sheet.js?v=6"></script>
+<script src="./ipo-google-sheet.js?v=11"></script>
 <script>
 /* Initial silent load — Google 表格 CSV 为主数据源；空字段由 fetchLiveMarginData 内 AASTOCKS/富途逻辑补全 */
 (async () => {
@@ -7527,12 +7645,190 @@ const IPO_COMPARE_STOCKS = [
   },
 ];
 
+/* ── Sheet 汇总表：与 extendedIPO / __IPO_EXTENDED_IPO__ / __IPO_TARGET_STOCKS__ + 字段列顺序一致 ───────────────── */
+function _escCmpHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+function _normIpoMatrixField(f) {
+  return String(f == null ? '' : f)
+    .replace(/^\uFEFF/, '')
+    .replace(/\s/g, '');
+}
+/** 汇总表行：与表头「名称+代码+标签」重复，不输出为行 */
+function _isRedundantIpoMatrixRowField(field) {
+  const t = _normIpoMatrixField(field);
+  if (!t) return true;
+  if (
+    t === '股票名称' ||
+    t === '股票名' ||
+    t === '股票名稱' ||
+    t === '股票代码' ||
+    t === '股票代碼' ||
+    t === 'IPO名称' ||
+    t === '上市代号' ||
+    t === '代號' ||
+    t === '代号' ||
+    t === '代碼' ||
+    t === '名称' ||
+    t === '代码'
+  ) {
+    return true;
+  }
+  return false;
+}
+function _filterIpoCompareMatrixFields(order) {
+  return (order || []).filter(f => f != null && String(f).length && !_isRedundantIpoMatrixRowField(f));
+}
+function _deriveCompareFieldOrder(stocks) {
+  const fo = window.__IPO_LISTED_FIELD_LABELS__;
+  const raw = Array.isArray(fo) && fo.length ? fo.slice() : (function keysFrom() {
+    const seen = new Set();
+    const out = [];
+    (stocks || []).forEach(r => {
+      Object.keys(r || {}).forEach(k => {
+        if (k && !seen.has(k)) {
+          seen.add(k);
+          out.push(k);
+        }
+      });
+    });
+    return out;
+  })();
+  return _filterIpoCompareMatrixFields(raw);
+}
+function _cmpNameCodeFromRow(r) {
+  const name = (r && (r['股票名称'] || r['名称'] || r['IPO名称'])) || '—';
+  const raw = (r && (r['股票代码'] || r['代码'])) || '';
+  const m = String(raw).match(/(\d{4,5})/);
+  const c = m ? m[1].padStart(5, '0') : String(raw).replace(/\D/g, '') || '—';
+  return { name, code: c };
+}
+function _cmpRowBgForField(lab) {
+  const l = String(lab || '');
+  if (l === '核心优势' || /公司亮点|核心优势|投资亮点|行业地位/.test(l)) return 'rgba(22,163,74,.04)';
+  if (l === '主要压力' || /重要压力|主要风险|风险因素|风险提示/.test(l)) return 'rgba(220,38,38,.04)';
+  return null;
+}
+function _cmpIsSectionSeparatorRow(lab, stocks) {
+  const t = String(lab || '');
+  if (!t) return false;
+  if (t === '行业地位 · 优劣势分析' || /行业地位\s*·\s*优劣势/.test(t)) {
+    return (stocks || []).every(s => !String(s[t] != null ? s[t] : '').trim());
+  }
+  return false;
+}
+/** V7 汇总表：招股结束日 → 状态角标 HTML（与 ipo-google-sheet 判定一致） */
+function getCompareStatusBadgeHtml(key) {
+  if (key === 'active') return '<span class="status-tag-compare status-active">认购中</span>';
+  if (key === 'closed') return '<span class="status-tag-compare status-pending">待上市</span>';
+  if (key === 'listed') return '<span class="status-tag-compare status-listed-slate">已上市</span>';
+  return '<span class="status-tag-compare status-unknown">未设日期</span>';
+}
+function resolveCompareTableStatusKeyForRow(r) {
+  if (typeof window.__ipoGetCompareTableStatus === 'function' && r) {
+    return window.__ipoGetCompareTableStatus(r) || 'unknown';
+  }
+  return 'unknown';
+}
+function buildCompareTableFromListedSheet(el, stocks, fieldOrder) {
+  const order = _filterIpoCompareMatrixFields(
+    (fieldOrder && fieldOrder.length) ? fieldOrder : _deriveCompareFieldOrder(stocks),
+  );
+  if (!order.length && stocks && stocks.length) {
+    el.innerHTML =
+      '<div style="padding:24px 18px;color:var(--t3);font-size:13px;border:1px dashed var(--s3);border-radius:12px;background:var(--s1);line-height:1.55;">已排除与表头重复的股票名称/代码行后，暂无可对比的指标列。请为「上市新股」表补充行业、招股价等字段，或检查首列字段名是否仅为名称/代码。</div>';
+    return;
+  }
+  const n = stocks.length;
+  const minW = 140 + n * 150;
+  const nameCodes = stocks.map(s => _cmpNameCodeFromRow(s));
+  let html = `<div class="scroll-xy ipo-cmp-scroll" style="overflow:auto;max-height:80vh;border-radius:14px;border:1px solid rgba(0,0,0,.09);position:relative;">
+  <table class="ipo-cmp-matrix" style="border-collapse:collapse;width:100%;min-width:${minW}px;font-size:13px;background:#fff;">
+    <thead style="position:sticky;top:0;z-index:15;">
+      <tr style="background:#f4f4f5;border-bottom:2px solid rgba(0,0,0,.1);">
+        <th style="padding:12px 16px;text-align:left;vertical-align:top;font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.06em;white-space:nowrap;position:sticky;left:0;top:0;background:#f4f4f5;z-index:20;min-width:110px;box-shadow:2px 0 0 0 rgba(0,0,0,.13),6px 0 12px rgba(0,0,0,.06);">指标 \\ 个股</th>`;
+  for (let i = 0; i < n; i++) {
+    const { name, code } = nameCodes[i];
+    const r = stocks[i];
+    const stKey = resolveCompareTableStatusKeyForRow(r);
+    const badgeHtml = getCompareStatusBadgeHtml(stKey);
+    const c = String(code);
+    const canOpen = /^\d{3,5}$/.test(c);
+    const thAct = canOpen
+      ? ` style="padding:12px 16px;text-align:left;vertical-align:top;min-width:148px;max-width:200px;cursor:pointer;background:#f4f4f5;" onclick="openDrawer('${c}')"`
+      : ' style="padding:12px 16px;text-align:left;vertical-align:top;min-width:148px;max-width:200px;background:#f4f4f5;"';
+    const codeLine = _escCmpHtml(code) === '—' ? '—' : _escCmpHtml(code) + '.HK';
+    const nameBlock = `<div style="text-align:left;">
+        <div style="font-size:14px;font-weight:800;color:#18181b;line-height:1.3;">${ _escCmpHtml(name) }</div>
+        <div style="font-size:10px;color:var(--t3);font-family:'DM Mono',monospace;margin-top:4px;">${codeLine}</div>
+        <div style="margin-top:4px;">${badgeHtml}</div>
+      </div>`;
+    html += `<th${thAct}>
+      ${nameBlock}
+    </th>`;
+  }
+  html += `</tr></thead><tbody>`;
+  let rowIdx = 0;
+  order.forEach(field => {
+    if (_cmpIsSectionSeparatorRow(field, stocks)) {
+      html += `<tr style="border-top:2px solid rgba(0,0,0,.1);">
+        <td colspan="${n + 1}" style="padding:10px 16px;text-align:left;vertical-align:top;font-size:11px;font-weight:700;color:var(--t2);background:#f4f4f5;letter-spacing:.05em;text-transform:uppercase;">${ _escCmpHtml(field) }</td>
+      </tr>`;
+      return;
+    }
+    const cbg = _cmpRowBgForField(field);
+    const defaultBg = rowIdx % 2 === 0 ? '#ffffff' : '#fafafa';
+    const bg = cbg != null ? cbg : defaultBg;
+    const isLong = /优势|压力|风险|亮点|备注|分析|要点|总结|赛道|基石|孖展/.test(String(field)) || (field && String(field).length > 10);
+    const stickyBg = cbg && (cbg === 'rgba(22,163,74,.04)' || cbg === 'rgba(220,38,38,.04)') ? '#ffffff' : (bg || '#fff');
+    rowIdx += 1;
+    const labelStyle = `padding:${isLong ? '12px' : '10px'} 16px;text-align:left;vertical-align:top;font-size:11px;font-weight:600;color:var(--t3);white-space:${isLong ? 'normal' : 'nowrap'};letter-spacing:.03em;position:sticky;left:0;background:${stickyBg};z-index:10;min-width:110px;box-shadow:2px 0 0 0 rgba(0,0,0,.13),6px 0 12px rgba(0,0,0,.06);text-transform:uppercase;`;
+    const cellStyle = `padding:${isLong ? '12px' : '10px'} 12px ${isLong ? '12px' : '10px'} 16px;text-align:left;vertical-align:top;background:${bg};max-width:280px;white-space:pre-wrap;word-break:break-word;font-size:12px;color:var(--t1);line-height:1.55;`;
+    const lab = String(field).indexOf('\n') >= 0 ? _escCmpHtml(String(field).replace(/\n/g, ' ')) : _escCmpHtml(String(field));
+    html += `<tr style="border-top:1px solid rgba(0,0,0,.06);">
+      <td style="${labelStyle}">${ lab }</td>`;
+    for (let j = 0; j < n; j++) {
+      const v = stocks[j][field];
+      const show = v == null || String(v).trim() === '' ? '—' : _escCmpHtml(String(v).trim());
+      html += `<td style="${cellStyle}">${show}</td>`;
+    }
+    html += `</tr>`;
+  });
+  html += `</tbody></table></div>
+  <div style="font-size:10px;color:var(--t3);margin-top:8px;text-align:left;line-height:1.55;">
+    ⓘ 行序同表格「上市新股」首列（已去重名称/代码行）· 展示最多 6 只：优先「认购中」再按结束日由近到远补位 · 表头：绿=认购中 · 浅蓝=待上市 · 灰=已上市 · 仅供参考
+  </div>`;
+  el.innerHTML = html;
+}
+
 /* ── Render comparison table ────────────────────────────────── */
 function buildCompareTable() {
   const el = document.getElementById('ipo-compare-table');
   if (!el) return;
 
-  const stocks = IPO_COMPARE_STOCKS;
+  if (window.__IPO_LISTED_SHEET_HYDRATED__) {
+    const target =
+      (window.extendedIPO && window.extendedIPO.length) ? window.extendedIPO
+        : (window.__IPO_EXTENDED_IPO__ && window.__IPO_EXTENDED_IPO__.length) ? window.__IPO_EXTENDED_IPO__
+        : (window.__IPO_TARGET_STOCKS__ != null ? window.__IPO_TARGET_STOCKS__ : (window.__IPO_LISTED_SHEET_ACTIVE_ROWS__ || []));
+    if (!target || !target.length) {
+      el.innerHTML = '<div style="padding:32px 20px;text-align:center;font-size:14px;color:var(--t3);border:1px dashed var(--s3);border-radius:12px;background:var(--s1);">暂无可展示的新股：请检查「上市新股」表是否含有效「招股结束」日期与代码</div>';
+    } else {
+      const fieldOrder = (window.__IPO_LISTED_FIELD_LABELS__ && window.__IPO_LISTED_FIELD_LABELS__.length) ? window.__IPO_LISTED_FIELD_LABELS__ : _deriveCompareFieldOrder(target);
+      buildCompareTableFromListedSheet(el, target, fieldOrder);
+    }
+    const { timeStr } = formatNow();
+    const tu = document.getElementById('cmp-update-time');
+    if (tu) tu.textContent = `更新时间 ${timeStr}`;
+    return;
+  }
+
+  const stocks = IPO_COMPARE_STOCKS.slice(0, 6);
   const ratingColor = rc => rc==='r5'?'#16a34a':rc==='r4'?'#f97316':rc==='r3'?'#d97706':'#dc2626';
   const multColor   = v => {
     const n = parseFloat(v);
@@ -7579,7 +7875,7 @@ function buildCompareTable() {
     {key:'rating',      label:'综合评级',   bg:null, render: s => {
       const c = ratingColor(s.ratingClass);
       const stars = '★'.repeat(s.rating) + '<span style="opacity:.2;">★</span>'.repeat(5-s.rating);
-      return `<div style="text-align:center;"><div style="font-size:16px;color:${c};">${stars}</div><div style="font-size:11px;font-weight:700;color:${c};margin-top:3px;">${s.ratingLabel}</div></div>`;
+      return `<div style="text-align:left;"><div style="font-size:16px;color:${c};">${stars}</div><div style="font-size:11px;font-weight:700;color:${c};margin-top:3px;">${s.ratingLabel}</div></div>`;
     }},
 
     /* ── 分隔行：行业地位分析 ── */
@@ -7612,21 +7908,19 @@ function buildCompareTable() {
     }},
   ];
 
-  /* Group indicator colors */
-  const batchColors = {'批次一':'rgba(249,115,22,.1)','批次二':'rgba(124,58,237,.1)'};
-  const batchText   = {'批次一':'#c2410c','批次二':'#6d28d9'};
-
-  let html = `<div class="scroll-xy" style="overflow:auto;max-height:80vh;border-radius:14px;border:1px solid rgba(0,0,0,.09);position:relative;">
-  <table style="border-collapse:collapse;width:100%;min-width:${140+stocks.length*150}px;font-size:13px;background:#fff;">
+  let html = `<div class="scroll-xy ipo-cmp-scroll" style="overflow:auto;max-height:80vh;border-radius:14px;border:1px solid rgba(0,0,0,.09);position:relative;">
+  <table class="ipo-cmp-matrix" style="border-collapse:collapse;width:100%;min-width:${140+stocks.length*150}px;font-size:13px;background:#fff;">
     <thead style="position:sticky;top:0;z-index:15;">
       <tr style="background:#f4f4f5;border-bottom:2px solid rgba(0,0,0,.1);">
-        <th style="padding:12px 16px;text-align:left;font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.06em;white-space:nowrap;position:sticky;left:0;top:0;background:#f4f4f5;z-index:20;min-width:110px;box-shadow:2px 0 0 0 rgba(0,0,0,.13),6px 0 12px rgba(0,0,0,.06);">指标 \\ 个股</th>`;
+        <th style="padding:12px 16px;text-align:left;vertical-align:top;font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.06em;white-space:nowrap;position:sticky;left:0;top:0;background:#f4f4f5;z-index:20;min-width:110px;box-shadow:2px 0 0 0 rgba(0,0,0,.13),6px 0 12px rgba(0,0,0,.06);">指标 \\ 个股</th>`;
   stocks.forEach(s => {
-    const bc = batchColors[s.batch]||'rgba(0,0,0,.04)';
-    const bt = batchText[s.batch]||'#374151';
-    html += `<th style="padding:12px 10px;text-align:center;min-width:148px;max-width:160px;cursor:pointer;background:#f4f4f5;" onclick="openDrawer('${s.code}')">
-      <div style="font-size:14px;font-weight:800;color:#18181b;">${s.name}</div>
-      <div style="font-size:10px;color:var(--t3);font-family:'DM Mono',monospace;margin-top:2px;">${s.code}.HK</div>
+    const b = getCompareStatusBadgeHtml('unknown');
+    html += `<th style="padding:12px 16px;text-align:left;vertical-align:top;min-width:148px;max-width:200px;cursor:pointer;background:#f4f4f5;" onclick="openDrawer('${s.code}')">
+      <div style="text-align:left;">
+        <div style="font-size:14px;font-weight:800;color:#18181b;line-height:1.3;">${s.name}</div>
+        <div style="font-size:10px;color:var(--t3);font-family:'DM Mono',monospace;margin-top:4px;">${s.code}.HK</div>
+        <div style="margin-top:4px;">${b}</div>
+      </div>
     </th>`;
   });
   html += `</tr></thead><tbody>`;
@@ -7639,7 +7933,7 @@ function buildCompareTable() {
 
     if (isSep) {
       html += `<tr style="border-top:2px solid rgba(0,0,0,.1);">
-        <td colspan="${stocks.length + 1}" style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--t2);background:${bg};letter-spacing:.05em;text-transform:uppercase;">${row.label}</td>
+        <td colspan="${stocks.length + 1}" style="padding:10px 16px;text-align:left;vertical-align:top;font-size:11px;font-weight:700;color:var(--t2);background:${bg};letter-spacing:.05em;text-transform:uppercase;">${row.label}</td>
       </tr>`;
       return;
     }
@@ -7651,8 +7945,8 @@ function buildCompareTable() {
       /* semi-transparent rows: blend onto white */
       return '#ffffff';
     })();
-    const labelStyle = `padding:${isAnalysis?'12px':'10px'} 16px;font-size:11px;font-weight:600;color:var(--t3);white-space:${isAnalysis?'normal':'nowrap'};letter-spacing:.03em;position:sticky;left:0;background:${stickyBg};z-index:10;text-transform:uppercase;min-width:110px;vertical-align:top;box-shadow:2px 0 0 0 rgba(0,0,0,.13),6px 0 12px rgba(0,0,0,.06);`;
-    const cellStyle  = `padding:${isAnalysis?'12px':'10px'} 12px;text-align:${isAnalysis?'left':'center'};background:${bg};vertical-align:${isAnalysis?'top':'middle'};`;
+    const labelStyle = `padding:${isAnalysis?'12px':'10px'} 16px;text-align:left;vertical-align:top;font-size:11px;font-weight:600;color:var(--t3);white-space:${isAnalysis?'normal':'nowrap'};letter-spacing:.03em;position:sticky;left:0;background:${stickyBg};z-index:10;text-transform:uppercase;min-width:110px;box-shadow:2px 0 0 0 rgba(0,0,0,.13),6px 0 12px rgba(0,0,0,.06);`;
+    const cellStyle  = `padding:${isAnalysis?'12px':'10px'} 12px ${isAnalysis?'12px':'10px'} 16px;text-align:left;vertical-align:top;background:${bg};`;
 
     html += `<tr style="border-top:1px solid rgba(0,0,0,.06);">
       <td style="${labelStyle}">${row.label.replace('\n','<br>')}</td>`;
@@ -8703,6 +8997,42 @@ async function fetchLiveMarginData() {
   return anyOk;
 }
 
+/** 详情卡 2×4（静态 IPO_ANALYSIS / IPO_COMPARE 降级）；与 ipo-google-sheet rowToIpoDisplayModel 列对齐。*/
+function _buildStaticIpoDetailGrid8(d, code) {
+  const D = v => {
+    if (v == null) return '-';
+    const t = String(v).trim();
+    if (!t || t === '—') return '-';
+    return t;
+  };
+  const comp =
+    typeof IPO_COMPARE_STOCKS !== 'undefined' && IPO_COMPARE_STOCKS
+      ? IPO_COMPARE_STOCKS.find(s => String(s.code) === String(code))
+      : null;
+  const subM = d.metrics && d.metrics.find(x => /招股/.test(String(x.label || '')));
+  const ahB = d.ah != null ? d.ah : (comp && comp.ah != null ? comp.ah : null);
+  const ahText = typeof ahB === 'boolean' ? (ahB ? '是' : '否') : '-';
+  const mech = comp && comp.mechanism ? D(comp.mechanism) : '-';
+  let gsVal = '-';
+  let gsColor = null;
+  if (comp && typeof comp.greenshoe === 'boolean') {
+    gsVal = comp.greenshoe ? '有' : '无';
+    if (comp.greenshoe === false) gsColor = '#F03A55';
+  }
+  const ccStr = comp && (comp.cornerstonePct && comp.cornerstonePct !== '—' ? comp.cornerstonePct : comp.cornerstone);
+  const ccVal = !ccStr || String(ccStr).trim() === '' || String(ccStr) === '—' ? '-' : D(ccStr);
+  return [
+    { label: '行业板块', val: D(d.sectorLabel) },
+    { label: '招股价', val: d.ipoPrice != null && d.ipoPrice !== '' ? String(d.ipoPrice) : '-' },
+    { label: '一手入场费', val: d.entryFee != null && d.entryFee !== '' ? String(d.entryFee) : '-' },
+    { label: '是否为 A+H', val: ahText, valColor: ahB === false || ahText === '否' ? '#F03A55' : null },
+    { label: '招股期', val: subM && subM.val != null && String(subM.val).trim() !== '' ? D(subM.val) : '-' },
+    { label: '发行机制', val: mech },
+    { label: '有无绿鞋', val: gsVal, valColor: gsColor },
+    { label: '有无基石', val: ccVal, valColor: null },
+  ];
+}
+
 function buildIpoAccordion() {
   const wrapper = document.getElementById('ipo-acc-wrapper');
   if (!wrapper) return;
@@ -8727,9 +9057,8 @@ function buildIpoAccordion() {
       const starsOff = '★'.repeat(5 - d.rating);
       tabsHtml += `
         <div class="ipo-tab-card${bi===0&&ci===0?' active':''}" id="ipo-tab-${code}" onclick="switchIpoTab('${code}')">
-          <div style="color:${sc};font-size:12px;letter-spacing:1px;line-height:1;">${starsOn}<span style="opacity:.18;">${starsOff}</span></div>
-          <div style="font-size:14px;font-weight:800;color:#111;margin:3px 0 5px;line-height:1.3;word-break:keep-all;">${d.name}</div>
-          <span class="ipo-rec-badge ${d.ratingClass}" style="font-size:9px;padding:2px 8px;width:fit-content;">${d.ratingLabel}</span>
+          <div class="ipo-tab-stars" style="color:${sc};">${starsOn}<span class="ipo-tab-stars-dim">${starsOff}</span></div>
+          <div class="ipo-tab-name">${d.name}</div>
         </div>`;
     });
   });
@@ -8756,11 +9085,23 @@ function switchIpoTab(code) {
   const starsOn  = '★'.repeat(d.rating);
   const starsOff = '★'.repeat(5 - d.rating);
 
-  const mHtml = d.metrics.slice(0,3).map(m => `
-    <div style="background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:10px;padding:12px 16px;flex:1;min-width:130px;">
+  const g8 = _buildStaticIpoDetailGrid8(d, code);
+  const _cell = m => {
+    const c = m.valColor || '#111';
+    return `
+    <div style="background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:10px;padding:12px 10px;min-width:0;">
       <div style="font-size:10px;color:#6b7280;margin-bottom:5px;letter-spacing:.04em;">${m.label}</div>
-      <div style="font-size:14px;font-weight:700;color:#111;">${m.val}</div>
-    </div>`).join('');
+      <div style="font-size:14px;font-weight:700;color:${c};line-height:1.35;word-break:break-word;">${m.val}</div>
+    </div>`;
+  };
+  const gridHtml = `<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:10px;">${g8
+    .slice(0, 4)
+    .map(_cell)
+    .join('')}</div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px;">${g8
+    .slice(4, 8)
+    .map(_cell)
+    .join('')}</div>`;
 
   const bHtml = d.bull.slice(0,3).map(t => `
     <div style="display:flex;gap:8px;margin-bottom:8px;font-size:12px;line-height:1.65;color:#374151;">
@@ -8774,16 +9115,13 @@ function switchIpoTab(code) {
 
   contentEl.innerHTML = `
     <div style="padding:20px 22px;">
-      <!-- Row: stock header -->
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,.08);">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,.08);">
         <div style="flex:1;min-width:0;">
           <div style="font-size:18px;font-weight:800;color:#111;">${d.name}</div>
-          <div style="font-size:12px;color:var(--t2);margin-top:4px;">${d.sectorLabel} &nbsp;·&nbsp; 招股价 <b style="color:#b45309;">${d.ipoPrice}</b> &nbsp;·&nbsp; 入场费 <b style="color:var(--t1);">${d.entryFee}</b>/手</div>
         </div>
         <button onclick="openIpoAnalysis('${code}')" style="background:#f97316;border:none;border-radius:9px;padding:9px 20px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;flex-shrink:0;transition:background .15s;white-space:nowrap;" onmouseover="this.style.background='#ea580c'" onmouseout="this.style.background='#f97316'">查看完整分析 →</button>
       </div>
-      <!-- Metrics -->
-      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;">${mHtml}</div>
+      ${gridHtml}
       <!-- Bull / Bear -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px;">
         <div>
@@ -8902,6 +9240,57 @@ async function downloadCompareTable() {
   btn.disabled = true;
 
   try {
+    const _ext = (window.extendedIPO && window.extendedIPO.length) ? window.extendedIPO
+      : (window.__IPO_EXTENDED_IPO__ && window.__IPO_EXTENDED_IPO__.length) ? window.__IPO_EXTENDED_IPO__
+      : (window.__IPO_TARGET_STOCKS__ || []);
+    if (window.__IPO_LISTED_SHEET_HYDRATED__ && _ext.length) {
+      const host = document.getElementById('ipo-compare-table');
+      const inner = host && host.querySelector('.scroll-xy');
+      if (inner) {
+        const n = _ext.length;
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
+        const CARD_W = 960;
+        const PAD = 20;
+        const card = document.createElement('div');
+        card.style.cssText = `position:fixed;left:-9999px;top:0;width:${CARD_W}px;background:#ffffff;font-family:'Noto Sans SC',sans-serif;`;
+        const clone = inner.cloneNode(true);
+        clone.style.maxHeight = 'none';
+        clone.style.overflow = 'visible';
+        card.innerHTML = `<div style="background:linear-gradient(135deg,#f97316 0%,#ea580c 100%);padding:18px ${PAD}px 14px;display:flex;align-items:center;gap:10px;">
+          <div style="font-size:16px;font-weight:900;color:#fff;letter-spacing:-.01em;">招股中新股数据汇总</div>
+          <div style="margin-left:auto;font-size:10px;color:rgba(255,255,255,.8);">共 ${n} 只 · ${dateStr}</div>
+        </div><div class="cmp-cap-inner" style="padding:0 ${PAD}px 16px;"></div>`;
+        const wrap = card.querySelector('.cmp-cap-inner');
+        if (wrap) wrap.appendChild(clone);
+        document.body.appendChild(card);
+        const canvas = await html2canvas(card, {
+          scale: 2.2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          width: CARD_W,
+        });
+        document.body.removeChild(card);
+        const link = document.createElement('a');
+        link.download = `IPO数据汇总_${dateStr.replace(/\//g, '')}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2.5 7.5l3.5 3.5 6.5-6.5" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 已保存`;
+        btn.style.color = '#16a34a';
+        btn.style.borderColor = 'rgba(22,163,74,.4)';
+        btn.style.background = 'rgba(22,163,74,.07)';
+        setTimeout(() => {
+          btn.innerHTML = origHTML;
+          btn.style.color = '#ea580c';
+          btn.style.borderColor = 'rgba(249,115,22,.35)';
+          btn.style.background = 'rgba(249,115,22,.06)';
+          btn.disabled = false;
+        }, 2200);
+        return;
+      }
+    }
+
     const stocks = IPO_COMPARE_STOCKS;
     const n = stocks.length;
     const CARD_W  = 800;            /* px — fixed width */
