@@ -453,6 +453,21 @@
         : new Date().getFullYear();
       return new Date(y, +m3[1] - 1, +m3[2]);
     }
+    const mShort = s.match(/^(\d{1,2})[.\-\/](\d{1,2})$/);
+    if (mShort) {
+      const refY =
+        global.__IPO_SHEET_SYNC_REF_YMD__ != null
+          ? parseInt(String(global.__IPO_SHEET_SYNC_REF_YMD__).slice(0, 4), 10) || new Date().getFullYear()
+          : new Date().getFullYear();
+      return new Date(refY, +mShort[1] - 1, +mShort[2]);
+    }
+    const parsed = Date.parse(s);
+    if (Number.isFinite(parsed)) {
+      const d = new Date(parsed);
+      if (!isNaN(d.getTime())) {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      }
+    }
     return null;
   }
 
@@ -524,31 +539,16 @@
 
   /**
    * 上市新股 列表+汇总表：固定最多 6 只（不足则全展示）
-   * 首选：招股结束日 ≥ 今日 0 点，按结束日由近到远升序
-   * 次选：其余已结束，按结束日由近到远逆序 递补
+   * V17：按「招股结束」可解析为日历日后统一按时间戳从大到小排序，再取前 6（晚结束在前；已截止的因日期更早自然排在后段）。
    */
   function buildIpoTopSixStocks(rows) {
-    const t0 = _todayStart();
-    if (!t0) return [];
-    const t0m = t0.getTime();
     const withDate = _dedupeIpoRowsByCode(
       (rows || []).filter(
         r => r && getSubEndDateFromRow(r) && _extractCodeFromRow(r) && Object.keys(r).some(k => String(r[k] || '').trim()),
       ),
     );
     if (!withDate.length) return [];
-    const active = withDate.filter(r => getSubEndDateFromRow(r).getTime() >= t0m);
-    const past = withDate.filter(r => getSubEndDateFromRow(r).getTime() < t0m);
-    const actSorted = _sortRowsBySubEndAsc(active);
-    const pastSorted = _sortRowsBySubEndDesc(past);
-    const out = [];
-    actSorted.forEach(r => {
-      if (out.length < IPO_SHEET_TOP_N) out.push(r);
-    });
-    pastSorted.forEach(r => {
-      if (out.length < IPO_SHEET_TOP_N) out.push(r);
-    });
-    return out.slice(0, IPO_SHEET_TOP_N);
+    return _sortRowsBySubEndDesc(withDate).slice(0, IPO_SHEET_TOP_N);
   }
 
   /** 新股列表：仅「招股结束」≥ 今天（进行中的招股 / 将招） */
@@ -992,9 +992,9 @@
       const starsOn = '★'.repeat(m.rating);
       const starsOff = '★'.repeat(5 - m.rating);
       tabsHtml += `
-        <div class="ipo-tab-card${idx === 0 ? ' active' : ''}" id="ipo-tab-${_esc(m.code)}" onclick="switchIpoTab('${_esc(m.code)}')">
+        <div class="ipo-tab-card ipo-dbl-open${idx === 0 ? ' active' : ''}" id="ipo-tab-${_esc(m.code)}" data-ipo-code="${_esc(m.code)}" onclick="switchIpoTab('${_esc(m.code)}')">
           <div class="ipo-tab-stars" style="color:${_esc(sc)};">${starsOn}<span class="ipo-tab-stars-dim">${starsOff}</span></div>
-          <div class="ipo-tab-name">${_esc(m.name)}</div>
+          <div class="ipo-tab-name stock-name">${_esc(m.name)}</div>
         </div>`;
     });
     tabsHtml += '</div>';

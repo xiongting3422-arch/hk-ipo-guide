@@ -6,7 +6,8 @@
  * 现价批量来源：腾讯财经 https://qt.gtimg.cn/q=r_hk00700,r_hk09988,...（单批最多 60 只，避免 URL 过长）
  * 缓存：localStorage 键 __IPO_GTIMG_LIVE_CACHE_V1__，时间戳 ts；距上次成功更新不足 3 小时则只读缓存不发请求
  * 入口：window.loadLiveData(codes5) → { map: { '00700': 现价 } }
- * 刷新榜单元格：window.loadStockQuotes() — 按现价重算「累计表现」（走 loadLiveData，尊重 3 小时缓存）
+ * 多代码时腾讯分块用 Promise 并发，单块内 URL 与原先一致，尊重 3 小时缓存。
+ * 刷新榜单元格：window.loadStockQuotes() — 富途 OpenD(11111) 与腾讯并行、合并，失败行显示「实时行情暂不可用」
  *
  * 「今日」同步：window.__IPO_SHEET_SYNC_REF_YMD__ 为只读 getter，始终返回北京时间 YYYY-MM-DD（勿再赋值覆盖）
  */
@@ -366,9 +367,11 @@ function _rowLooksLikeCsvHeaderDuplicate(row) {
 }
 
 function _normStockCode(raw) {
-  const s = String(raw ?? '').trim();
-  const m = s.match(/(\d{4,5})/);
-  return m ? m[1].padStart(5, '0') : '';
+  const s = String(raw ?? '')
+    .replace(/\D/g, '');
+  if (!s) return '';
+  const t = s.length > 5 ? s.slice(-5) : s;
+  return t.padStart(5, '0');
 }
 
 function _extractStockCodeFromZh(row) {
@@ -677,18 +680,36 @@ async function loadLiveData(codes5) {
 
   const merged = {};
   try {
+    const tasks = [];
     for (let i = 0; i < uniq.length; i += _IPO_GTIMG_CHUNK) {
       const chunk = uniq.slice(i, i + _IPO_GTIMG_CHUNK);
-      const q = chunk.map(c => `r_hk${c}`).join(',');
-      const url = `https://qt.gtimg.cn/q=${q}&_=${Date.now()}`;
-      const res = await fetch(url, {
-        method: 'GET',
-        mode: 'cors',
-        credentials: 'omit',
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
-      Object.assign(merged, _parseGtimgQtBody(text));
+      if (!chunk.length) continue;
+      tasks.push(
+        (async () => {
+          const q = chunk.map(c => `r_hk${c}`).join(',');
+          const url = `https://qt.gtimg.cn/q=${q}&_=${Date.now()}`;
+          const res = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'omit',
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const text = await res.text();
+          return _parseGtimgQtBody(text);
+        })(),
+      );
+    }
+    const results = await Promise.allSettled(tasks);
+    let anyChunkOk = false;
+    for (let ri = 0; ri < results.length; ri++) {
+      const s = results[ri];
+      if (s && s.status === 'fulfilled' && s.value) {
+        Object.assign(merged, s.value);
+        anyChunkOk = true;
+      }
+    }
+    if (tasks.length && !anyChunkOk) {
+      throw new Error('all gtimg chunk requests failed or empty');
     }
 
     const prev = cached && cached.data && typeof cached.data === 'object' ? cached.data : {};
@@ -714,6 +735,8 @@ window.loadLiveData = loadLiveData;
  * 根据腾讯现价更新 window.allData（涨幅榜行）中的现价与累计表现，并触发 renderLeaderboardNow。
  * 数据结构为 _buildIpoHomeLeaderboardMapped 产出的行：cells[5] 招股价、cells[9] 现价、cells[14] 累计表现。
  */
+const _IPO_LIVE_QUOTE_UNAVAIL = '实时行情暂不可用';
+
 async function loadStockQuotes() {
   console.log('[IPO Live] 同步物理日期:', window.__IPO_SHEET_SYNC_REF_YMD__);
 
@@ -732,24 +755,65 @@ async function loadStockQuotes() {
   ];
   if (!codes.length) return;
 
-  let map;
+  const batchFn = typeof window.__ipoFutuOpenDHttp11111BatchFetch === 'function' ? window.__ipoFutuOpenDHttp11111BatchFetch : null;
+
+  let map = {};
+  let fmap = {};
   try {
-    const res = await loadLiveData(codes);
-    map = res && res.map ? res.map : {};
+    const [gtRes, futuRes] = await Promise.all([
+      loadLiveData(codes).catch(e => {
+        console.warn('[IPO Live] 腾讯拉取失败', e);
+        return { map: {} };
+      }),
+      batchFn
+        ? batchFn(codes).catch(e => {
+            console.warn('[IPO Live] 富途 OpenD 批量拉取失败', e);
+            return {};
+          })
+        : Promise.resolve({}),
+    ]);
+    map = (gtRes && gtRes.map) || {};
+    fmap = (futuRes && typeof futuRes === 'object' && !Array.isArray(futuRes)) ? futuRes : {};
   } catch (e) {
     console.warn('[IPO Live] loadStockQuotes 拉取行情失败', e);
     return;
+  }
+
+  function _futuNumericPrice(pack) {
+    if (!pack || pack.fallback) return null;
+    const v = pack.currentPrice != null ? pack.currentPrice : pack.last_price;
+    if (v != null && !Number.isNaN(+v) && Number.isFinite(+v)) return +v;
+    return null;
+  }
+
+  function _cellIsLivePlaceholder(val) {
+    if (_needsAutoFetchedPrice(val)) return true;
+    const t = String(val ?? '').trim();
+    if (t === '' || t === '—' || t === '-') return true;
+    if (t === _IPO_LIVE_QUOTE_UNAVAIL || t.indexOf('实时行情') >= 0) return true;
+    return false;
   }
 
   stocks.forEach(row => {
     const c5 = String(row.code != null ? row.code : '')
       .replace(/\D/g, '')
       .padStart(5, '0');
-    const px = map[c5];
-    if (px == null || !Number.isFinite(px)) return;
+    if (!c5) return;
+    const fp = fmap[c5];
+    const fPx = _futuNumericPrice(fp);
+    const gtPx = map[c5] != null && Number.isFinite(map[c5]) ? map[c5] : null;
+    const px = fPx != null && Number.isFinite(fPx) ? fPx : gtPx != null && Number.isFinite(gtPx) ? gtPx : null;
 
     const cells = Array.isArray(row.cells) ? row.cells.slice() : [];
     while (cells.length < 15) cells.push('-');
+
+    if (px == null || !Number.isFinite(px)) {
+      if (_cellIsLivePlaceholder(cells[9]) && fPx == null && gtPx == null) {
+        cells[9] = _dash(_IPO_LIVE_QUOTE_UNAVAIL);
+      }
+      row.cells = cells;
+      return;
+    }
 
     cells[9] = _dash(String(px));
     const ipo = _parseMoneyNum(cells[5]);
@@ -764,7 +828,7 @@ async function loadStockQuotes() {
   _publishIpoHomeLbMapped(stocks);
 
   if (typeof window.renderLeaderboardNow === 'function') {
-    console.log('[IPO Live] 抓取成功，正在刷新涨幅榜…');
+    console.log('[IPO Live] 行情已合并，正在刷新涨幅榜…（富途优先，腾讯补缺）');
     window.renderLeaderboardNow();
   }
 }
@@ -940,13 +1004,12 @@ function __ipoRenderLeaderboardInnerHTML(mapped, mode) {
             )}</div></div>`;
           }
         }
-        return `<td class="${`${sticky}${sectorCls}`.trim()}"${dataOrderAttr} style="padding:10px 10px;border-bottom:1px solid var(--s3);font-size:12px;white-space:${ws};vertical-align:${va};text-align:${align};${fw}">${inner}</td>`;
+        const nameCls = i === 0 ? ' stock-name' : i === 1 ? ' stock-code' : '';
+        return `<td class="${`${sticky}${sectorCls}`.trim() + nameCls}"${dataOrderAttr} style="padding:10px 10px;border-bottom:1px solid var(--s3);font-size:12px;white-space:${ws};vertical-align:${va};text-align:${align};${fw}">${inner}</td>`;
       })
       .join('');
-    const cls = 'lb-tr' + (neg ? ' lb-tr-neg' : '');
-    const oc = code
-      ? ` onclick="try{typeof openDrawer==='function'&&openDrawer('${code}')}catch(e){}"`
-      : '';
+    const cls = 'lb-tr' + (neg ? ' lb-tr-neg' : '') + ' ipo-dbl-open';
+    const oc = '';
     const breakAttr = isPerfBreak ? ' data-ipobreak="1"' : '';
     const secKey =
       r.sectorOrderKey != null && String(r.sectorOrderKey).trim() !== ''
@@ -954,13 +1017,14 @@ function __ipoRenderLeaderboardInnerHTML(mapped, mode) {
         : r.sectorLabel != null
           ? String(r.sectorLabel)
           : '';
+    const dCode = code ? ` data-ipo-code="${_lbEscAttr(code)}"` : '';
     return `<tr class="${cls}" data-rank="${r.lbRank}" data-fd="${r.fd != null ? r.fd : ''}" data-sk="${_lbEsc(
       r.sc,
     )}" data-sector-key="${_lbEsc(secKey)}" data-month="${r.mth != null ? r.mth : ''}" data-over="${
       r.over != null ? r.over : ''
     }" data-cum="${r.cum != null && Number.isFinite(r.cum) ? String(r.cum) : ''}" data-list-ms="${
       r.listMs != null && Number.isFinite(r.listMs) ? String(r.listMs) : ''
-    }"${breakAttr}${oc}>${tds}</tr>`;
+    }"${dCode}${breakAttr}>${tds}</tr>`;
   }
 
   const modesNumericNoDivider = {
@@ -2090,3 +2154,237 @@ window.generateWebScaleAnalysis = generateWebScaleAnalysis;
 window.generateWebScaleCoreLine = generateWebScaleCoreLine;
 window.generateDeepAnalysis = generateDeepAnalysis;
 window.renderIpoLbBreakGuide = renderIpoLbBreakGuide;
+
+/**
+ * 双击 .stock-name → 向本机 Futu OpenD HTTP 拉取行情（与 ipo-futu-dbl 并存：此处优先拦截含 .stock-name 的双击，且固定请求 11111 端口可配路径）
+ */
+(function _ipoFutuOpenD11111StockNameDbl() {
+  'use strict';
+
+  const C = (window.__IPO_FUTU_HTTP_11111__ = window.__IPO_FUTU_HTTP_11111__ || {
+    base: 'http://127.0.0.1:11111',
+    pathCandidates: ['/quote', '/qot_get_basic'],
+  });
+
+  function _norm5(c) {
+    return String(c || '')
+      .replace(/\D/g, '')
+      .padStart(5, '0');
+  }
+
+  /**
+   * 5 位标准化后先按港股 HK.XXXXX 请求（含 0 开头主板的典型表码，如 02726 → HK.02726）；
+   * 再兜底：5 位纯数字无市场前缀（自研 HTTP/网关与富途标准差异时）。
+   */
+  function _futuOpenDRequestCodes(code5) {
+    const c = _norm5(code5);
+    if (!/^\d{5}$/.test(c)) return [];
+    return ['HK.' + c, c];
+  }
+
+  if (typeof document === 'undefined' || !document.addEventListener) return;
+
+  if (!document.getElementById('ipo-futu-level-spin-style')) {
+    const st = document.createElement('style');
+    st.id = 'ipo-futu-level-spin-style';
+    st.textContent =
+      '@keyframes _ipoFutuLds{to{transform:rotate(360deg)}}' +
+      '._ipo-futu-ld-s{width:24px;height:24px;border:2.5px solid var(--s3);border-top-color:var(--accent);border-radius:50%;animation:_ipoFutuLds .7s linear infinite;flex-shrink:0;}';
+    document.head.appendChild(st);
+  }
+
+  function _escHtml(s) {
+    return String(s ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function showFutuOpenDLevelLoading(code5) {
+    const c = _norm5(code5);
+    const d = document.getElementById('drawer');
+    const ov = document.getElementById('overlay');
+    const body = document.getElementById('drawer-body');
+    const elCode = document.getElementById('d-code');
+    const elName = document.getElementById('d-name');
+    const chip = document.getElementById('d-sector-chip');
+    const s = typeof window.STOCKS === 'object' && c ? window.STOCKS[c] : null;
+    if (elCode) elCode.textContent = c + '.HK';
+    if (elName) elName.textContent = s && s.name ? s.name : '—';
+    if (chip) {
+      chip.innerHTML = s && s.sector
+        ? '<span class="sc-sector ' + (s.sectorClass || '') + '" style="margin-top:0;">' + _escHtml(s.sector) + '</span>'
+        : '';
+    }
+    if (body) {
+      body.innerHTML =
+        '<div class="dprice-banner" style="padding:16px 0 20px;max-width:100%;">' +
+        '<div class="ipo-futu-ld-box" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
+        '<div class="_ipo-futu-ld-s" role="status" aria-label="Loading"></div>' +
+        '<div><div style="font-size:13px;color:var(--t1);line-height:1.55;">正在通过富途 OpenD 调取 Level 级实时数据…</div>' +
+        '<div style="font-size:11px;color:var(--t3);margin-top:6px;">' +
+        '目标：' +
+        _escHtml(C.base) +
+        '（路径 /quote 或 /qot_get_basic）。若未启动或端口不一致，将使用表内/本地备份数据。' +
+        '</div></div></div></div>';
+    }
+    if (d) d.classList.add('open');
+    if (ov) ov.classList.add('open');
+    if (document.body) document.body.style.overflow = 'hidden';
+  }
+
+  function _get(obj, keys) {
+    for (let i = 0; i < keys.length; i++) {
+      if (obj != null && Object.prototype.hasOwnProperty.call(obj, keys[i]) && obj[keys[i]] != null && obj[keys[i]] !== '') {
+        return obj[keys[i]];
+      }
+    }
+    return null;
+  }
+
+  function parseFutuOpenDHttpJson(j) {
+    if (j == null) return null;
+    const o = j && (j.s2c || j.data || j.body || j.result) ? (j.s2c || j.data || j.body || j.result) : j;
+    const root = typeof o === 'object' && o && !Array.isArray(o) ? o : j;
+    const last = _get(root, [
+      'last_price',
+      'cur_price',
+      'curPrice',
+      'price',
+      'last',
+      'nominal',
+    ]);
+    const lastClose = _get(root, ['lastClosePrice', 'pre_close', 'yesterday', 'preClose']);
+    const amp = _get(root, ['amplitude', 'amplitudeRatio', 'amp', 'ampli']);
+    const vol = _get(root, ['volume', 'vol', 'turnover', 'volumn']);
+    const chgR = _get(root, ['pct', 'change_pct', 'chg', 'change_ratio', 'pct_change']);
+
+    const curN = last != null && !Number.isNaN(+last) ? +last : null;
+    const preN = lastClose != null && !Number.isNaN(+lastClose) ? +lastClose : null;
+    let chgP = chgR != null && !Number.isNaN(+chgR) ? +chgR : null;
+    if (chgP == null && preN > 0 && curN != null) chgP = ((curN - preN) / preN) * 100;
+    if (curN == null && vol == null && (amp == null || amp === '')) return null;
+
+    const ampN = amp != null && !Number.isNaN(+amp) ? +amp : null;
+    let volOut = vol;
+    if (typeof vol === 'number' && Number.isFinite(vol)) volOut = vol;
+    return {
+      ok: true,
+      fromOpenD: true,
+      currentPrice: curN,
+      last_price: curN,
+      changePct: chgP != null && !Number.isNaN(chgP) ? chgP : null,
+      amplitude: ampN,
+      volume: volOut,
+      name: _get(root, ['name', 'stock_name', 'stockName']),
+    };
+  }
+
+  async function fetchFutuOpenDHttp11111(code5, options) {
+    const silent = options && options.silent;
+    const code = _norm5(code5);
+    if (!code) return { fallback: true };
+    const variants = _futuOpenDRequestCodes(code);
+    let lastErr = null;
+    for (let vi = 0; vi < variants.length; vi++) {
+      const finalCode = variants[vi];
+      console.log('正在尝试抓取标的:', finalCode);
+      const q = 'code=' + encodeURIComponent(finalCode);
+      for (let pi = 0; pi < C.pathCandidates.length; pi++) {
+        const pth = C.pathCandidates[pi];
+        const sep = pth.indexOf('?') < 0 ? '?' : '&';
+        const u = String(C.base || 'http://127.0.0.1:11111').replace(/\/$/, '') + pth + sep + q;
+        try {
+          const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+          const t = ctrl
+            ? setTimeout(() => {
+                try {
+                  ctrl.abort();
+                } catch (e) {
+                  /* */
+                }
+              }, 10000)
+            : null;
+          const res = await fetch(u, {
+            method: 'GET',
+            cache: 'no-store',
+            mode: 'cors',
+            signal: ctrl ? ctrl.signal : undefined,
+          });
+          if (t) clearTimeout(t);
+          if (res && res.ok) {
+            const j = await res.json();
+            const parsed = parseFutuOpenDHttpJson(j);
+            if (parsed) return parsed;
+          }
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+    }
+    if (lastErr && !silent) {
+      console.warn('请确保 FutuOpenD 已启动且 API 密码已解锁');
+    }
+    return { fallback: true, error: lastErr };
+  }
+
+  async function fetchFutuOpenDHttp11111Batch(codes5List) {
+    const list = [
+      ...new Set(
+        (codes5List || [])
+          .map(c => _norm5(c))
+          .filter(c => c && c.length === 5 && /^\d{5}$/.test(c)),
+      ),
+    ];
+    if (!list.length) return {};
+    const results = await Promise.all(
+      list.map(c5 =>
+        fetchFutuOpenDHttp11111(c5, { silent: true })
+          .then(pack => ({ c5, pack }))
+          .catch(e => ({ c5, pack: { fallback: true, error: e } })),
+      ),
+    );
+    const byCode = {};
+    let nOk = 0;
+    for (let i = 0; i < results.length; i++) {
+      byCode[results[i].c5] = results[i].pack;
+      if (results[i].pack && !results[i].pack.fallback) nOk++;
+    }
+    if (nOk === 0 && list.length) {
+      console.warn('请确保 FutuOpenD 已启动且 API 密码已解锁');
+    }
+    return byCode;
+  }
+
+  async function onDblClickStockName(ev) {
+    const t = ev.target;
+    if (!t || !t.closest) return;
+    const cell = t.closest('.stock-name');
+    if (!cell) return;
+    if (t.closest('button, a, input, textarea, select, [data-no-ipo-dbl]')) return;
+    const row = cell.closest('[data-ipo-code]');
+    if (!row) return;
+    const code5 = _norm5(row.getAttribute('data-ipo-code'));
+    if (!code5) return;
+    if (ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+    ev.preventDefault();
+    showFutuOpenDLevelLoading(code5);
+    let pack = { fallback: true };
+    try {
+      pack = await fetchFutuOpenDHttp11111(code5);
+    } catch (e) {
+      console.warn('请确保 FutuOpenD 已启动且 API 密码已解锁');
+    }
+    if (typeof window.openDrawer !== 'function') return;
+    if (pack && !pack.fallback && (pack.currentPrice != null || pack.amplitude != null || pack.volume != null)) {
+      window.openDrawer(code5, { futu: pack });
+    } else {
+      window.openDrawer(code5, {});
+    }
+  }
+
+  document.addEventListener('dblclick', onDblClickStockName, true);
+  window.__ipoFutuOpenDHttp11111Fetch = fetchFutuOpenDHttp11111;
+  window.__ipoFutuOpenDHttp11111BatchFetch = fetchFutuOpenDHttp11111Batch;
+  window.__ipoShowFutuOpenDLevelLoading = showFutuOpenDLevelLoading;
+})();

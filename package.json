@@ -1,0 +1,25 @@
+{
+  "name": "ipo-dashboard-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ipo-futu-dbl.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "futu-bridge": "node scripts/futu-opend-bridge.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiongting3422-arch/hk-ipo-guide.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/xiongting3422-arch/hk-ipo-guide/issues"
+  },
+  "homepage": "https://github.com/xiongting3422-arch/hk-ipo-guide#readme",
+  "dependencies": {
+    "futu-api": "^10.4.6408"
+  }
+}
