@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/xiongting3422-arch/hk-ipo-guide/issues"
   },
-  "homepage": "https://github.com/xiongting3422-arch/hk-ipo-guide#readme",
+  "homepage": "https://xiongting3422-arch.github.io/hk-ipo-guide/",
   "dependencies": {
     "futu-api": "^10.4.6408"
   }
