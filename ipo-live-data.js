@@ -1621,6 +1621,13 @@ window.fetchMasterDataFromSheet = async function fetchMasterDataFromSheet() {
     const byKey = Object.fromEntries(results.map(r => [r.key, r]));
     const home = byKey.ipoHome;
     const listed = byKey.listed;
+    const dark = byKey.dark;
+    const sched = byKey.schedule;
+
+    // 先暴露完整 JSON 数据，再做上市新股二次处理，确保详情卡可直接按 code 严格映射打新时间表
+    window.__IPO_LISTED_SHEET_ROWS__ = listed.rows || [];
+    window.__IPO_DARK_SHEET_ROWS__ = dark.rows || [];
+    window.__IPO_SCHEDULE_SHEET_ROWS__ = sched.rows || [];
 
     // V11: 上市新股详情卡 UI 与双源数据在 ipo-google-sheet.js（rowToIpoDisplayModel、v11EnrichBullBearFromAI），表格：63719317
     // 「有无绿鞋」展示/着色：ipo-google-sheet.js _v11ParseGreenShoeForDetail + switchIpoTabFromSheetModel（本文件无 display:none 隐藏该格）
@@ -1632,14 +1639,11 @@ window.fetchMasterDataFromSheet = async function fetchMasterDataFromSheet() {
         console.warn('[IPO Sheet] 上市新股行处理', e);
       }
     }
-    const dark = byKey.dark;
-    const sched = byKey.schedule;
 
     window.__IPO_HOME_SHEET__ = {
       headers: home.fields || [],
       rows: home.rows || [],
     };
-    window.__IPO_LISTED_SHEET_ROWS__ = listed.rows || [];
     if (typeof window.ipoCalcRefreshStockList === 'function') {
       try {
         window.ipoCalcRefreshStockList();
@@ -1647,8 +1651,6 @@ window.fetchMasterDataFromSheet = async function fetchMasterDataFromSheet() {
         console.warn('[IPO Calc] 刷新打新资金分配器标的', e);
       }
     }
-    window.__IPO_DARK_SHEET_ROWS__ = dark.rows || [];
-    window.__IPO_SCHEDULE_SHEET_ROWS__ = sched.rows || [];
 
     const pub = _getPublishBase();
     window.__IPO_SHEET_CSV_URLS = {

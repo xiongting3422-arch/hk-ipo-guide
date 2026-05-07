@@ -676,6 +676,40 @@
     return _getCellByAliases(row, ['股票名称', '名称', 'IPO名称', '股票名']) || '—';
   }
 
+  let _scheduleTimingMapCacheRowsRef = null;
+  let _scheduleTimingMapCache = new Map();
+
+  function _buildScheduleTimingMapStrict(rows) {
+    const map = new Map();
+    (Array.isArray(rows) ? rows : []).forEach(row => {
+      if (!row || typeof row !== 'object') return;
+      const code = _extractCodeFromRow(row);
+      if (!code) return;
+      // 仅锁定「打新时间表」三列：股票代码（用于匹配）、暗盘时间、上市日期
+      const darkRaw = _getCellByAliases(row, ['暗盘时间']);
+      const listRaw = _getCellByAliases(row, ['上市日期']);
+      map.set(code, {
+        darkDate: _parseDateFlexible(darkRaw),
+        listDate: _parseDateFlexible(listRaw),
+      });
+    });
+    return map;
+  }
+
+  function _getScheduleTimingByCodeStrict(code) {
+    const rows = global.__IPO_SCHEDULE_SHEET_ROWS__ || [];
+    if (rows !== _scheduleTimingMapCacheRowsRef) {
+      _scheduleTimingMapCacheRowsRef = rows;
+      _scheduleTimingMapCache = _buildScheduleTimingMapStrict(rows);
+    }
+    return _scheduleTimingMapCache.get(String(code || '').trim()) || null;
+  }
+
+  function _fmtYmdOrDash(d) {
+    if (!(d instanceof Date) || isNaN(d.getTime())) return '--';
+    return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+  }
+
   function _fmtYmd(d) {
     if (!d) return '待定';
     if (!(d instanceof Date) || isNaN(d.getTime())) return '待定';
@@ -909,8 +943,9 @@
     const mech = _getCellByAliases(row, ['发行机制', '发售机制']) || '';
     const green = _getCellByAliases(row, ['绿鞋机制', '绿鞋', '超额配售权']) || '';
     const cornerPct = _getCellByAliases(row, ['基石认购占比', '基石占比', '基石投资者认购占比']) || '';
-    const dDark = _parseDateFlexible(_getCellByAliases(row, ['暗盘时间', '暗盘日期', '暗盘']));
-    const dList = _parseDateFlexible(_getCellByAliases(row, ['上市日期', '上市日', '预计上市']));
+    const strictTiming = _getScheduleTimingByCodeStrict(code);
+    const dDark = strictTiming ? strictTiming.darkDate : null;
+    const dList = strictTiming ? strictTiming.listDate : null;
     const hl =
       _getCellByAliases(row, ['核心优势', '公司亮点', '投资亮点']) ||
       _getCellByAliases(row, HIGHLIGHT_ALIASES) ||
@@ -953,9 +988,8 @@
       detailGrid8,
       bull: bullItems.length ? bullItems : [hl && String(hl).trim() ? String(hl).trim() : '—'],
       bear: bearOut.slice(0, 3),
-      subDeadline: _fmtYmd(subEnd),
-      darkDate: dDark ? _fmtYmd(dDark) : '待定',
-      listDate: dList ? _fmtYmd(dList) : '待定',
+      darkDate: _fmtYmdOrDash(dDark),
+      listDate: _fmtYmdOrDash(dList),
     };
   }
 
@@ -1077,8 +1111,6 @@
         </div>
       </div>
       <div style="font-size:12px;color:#6b7280;padding-top:14px;border-top:1px solid rgba(0,0,0,.08);display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-        <span>截止 <b style="color:#111;">${_esc(d.subDeadline)}</b></span>
-        <span style="opacity:.35;">·</span>
         <span>暗盘 <b style="color:#d97706;">${_esc(d.darkDate)}</b></span>
         <span style="opacity:.35;">·</span>
         <span>上市 <b style="color:#111;">${_esc(d.listDate)}</b></span>

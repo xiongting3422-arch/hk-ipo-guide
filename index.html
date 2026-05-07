@@ -10,6 +10,7 @@
 <link rel="canonical" href="https://xiongting3422-arch.github.io/hk-ipo-guide/">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@900&family=Noto+Sans+SC:wght@400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="./auth.js?v=5"></script>
 <style>
     /* ── Embedded fonts from IPO-1080*1080 folder ─────────────────────────── */
     @font-face {
@@ -6842,6 +6843,22 @@ window.STOCKS = STOCKS;
 <script>
 /* Initial silent load — Google 表格 CSV 为主数据源；空字段由 fetchLiveMarginData 内 AASTOCKS/富途逻辑补全 */
 (async () => {
+  if (!window.IPO_AUTH || typeof window.IPO_AUTH.waitForGrant !== 'function') {
+    document.documentElement.classList.add('__ipo-auth-locked');
+    const failNode = document.createElement('div');
+    failNode.id = 'ipo-auth-overlay';
+    failNode.style.cssText =
+      'position:fixed;inset:0;z-index:2147483647;background:#fff;display:flex;align-items:center;justify-content:center;padding:24px;font-family:"Noto Sans SC",sans-serif;';
+    failNode.innerHTML =
+      '<div style="width:min(480px,96vw);border:1px solid rgba(220,38,38,.25);border-radius:14px;padding:20px;background:#fff7f7;">' +
+      '<div style="font-size:20px;font-weight:800;color:#991b1b;">访问授权模块加载失败</div>' +
+      '<div style="font-size:13px;color:#7f1d1d;line-height:1.7;margin-top:8px;">当前页面已被安全拦截，请刷新重试或联系管理员修复部署后再访问。</div>' +
+      '</div>';
+    if (document.body) document.body.appendChild(failNode);
+    return;
+  }
+  const granted = await window.IPO_AUTH.waitForGrant();
+  if (!granted) return;
   CAL_TODAY = ipoToday();
   calViewStartDate = calComputeIdealViewStartDate();
   let sheetOk = false;
