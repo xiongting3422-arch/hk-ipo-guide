@@ -10,7 +10,7 @@
 <link rel="canonical" href="https://xiongting3422-arch.github.io/hk-ipo-guide/">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@900&family=Noto+Sans+SC:wght@400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="./auth.js?v=5"></script>
+<script src="./auth.js?v=7"></script>
 <style>
     /* ── Embedded fonts from IPO-1080*1080 folder ─────────────────────────── */
     @font-face {
@@ -31,6 +31,11 @@
     @font-face {
       font-family: 'FZLanTingHei-EB-GBK';
       src: url('./assets/fonts/fzlt-dahei-gbk.ttf') format('truetype');
+      font-weight: normal; font-style: normal;
+    }
+    @font-face {
+      font-family: 'FZLanTingHei-R-GBK';
+      src: url('./assets/fonts/fzlt-zhonghei.ttf') format('truetype');
       font-weight: normal; font-style: normal;
     }
 /* ━━━ Custom fonts for Canvas (system-installed) ━━━ */
@@ -680,6 +685,323 @@ footer a{color:var(--accent);}
 #ipo-compare-table .status-tag-compare.status-listed-slate{ background:#94a3b8; color:#fff; } /* 已上市，与活跃区分 */
 #ipo-compare-table .status-tag-compare.status-unknown{ background:#e4e4e7; color:var(--t2); }
 
+/* ━━━━━━━━━ Access Control Popup (Figma 1920×1080 + responsive) ━━━━━━━━━ */
+#ipo-auth-overlay.auth-popup-overlay{
+  background:#090909 !important;
+  position:fixed !important;
+  inset:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  animation:authOverlayFade .28s ease-out both;
+}
+#ipo-auth-overlay.auth-popup-overlay::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:url('./访问弹窗/.fig-assets/646d63b84bdee57cfedeaea30190f3595385791c.png') center center / cover no-repeat;
+  filter:saturate(1.02);
+}
+#ipo-auth-overlay.auth-popup-overlay .auth-popup-frame{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:100%;
+  padding:max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  box-sizing:border-box;
+  z-index:1;
+}
+@media (min-width:1920px){
+  #ipo-auth-overlay.auth-popup-overlay{
+    align-items:flex-start !important;
+    justify-content:center !important;
+    overflow:hidden;
+  }
+  #ipo-auth-overlay.auth-popup-overlay .auth-popup-frame{
+    width:1920px;
+    height:1080px;
+    min-height:1080px;
+    max-height:min(1080px,100vh);
+    align-items:flex-start;
+    justify-content:flex-start;
+    padding:0;
+    flex-shrink:0;
+    margin:0 auto;
+  }
+  #ipo-auth-overlay.auth-popup-overlay .auth-popup-card{
+    position:absolute !important;
+    left:718px !important;
+    top:196px !important;
+    margin:0 !important;
+    transform:none !important;
+  }
+}
+#ipo-auth-overlay.auth-popup-overlay .auth-popup-card{
+  width:min(484px,90vw) !important;
+  max-width:484px !important;
+  height:auto !important;
+  min-height:566px !important;
+  border:none !important;
+  border-radius:18px !important;
+  padding:0 !important;
+  box-shadow:
+    0 28px 90px rgba(0,0,0,.28),
+    0 12px 32px rgba(0,0,0,.12) !important;
+  background:#FFFFFF !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  position:relative;
+  flex-shrink:0;
+  animation:authPopupScaleIn .32s cubic-bezier(.2,.8,.2,1) both;
+}
+@media (min-width:1920px){
+  #ipo-auth-overlay.auth-popup-overlay .auth-popup-card{
+    width:484px !important;
+    height:566px !important;
+    min-height:566px !important;
+  }
+}
+.auth-popup-shell{
+  width:100%;
+  min-height:566px;
+  position:relative;
+  text-align:center;
+  padding:0;
+  box-sizing:border-box;
+}
+.auth-popup-brand{
+  width:152.4211px;
+  height:38.4737px;
+  object-fit:contain;
+  position:absolute;
+  left:166px;
+  top:53.2632px;
+  margin:0;
+}
+.auth-welcome-img{
+  width:304px;
+  max-width:calc(100% - 48px);
+  height:auto;
+  display:block;
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  top:138px;
+  margin:0;
+}
+.auth-tagline{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  top:198px;
+  width:calc(100% - 48px);
+  margin:0;
+  padding:0;
+  color:#000;
+  text-align:center;
+  font-family:'FZLanTingHei-DB-GBK','PingFang TC','PingFang SC','Microsoft YaHei',sans-serif;
+  font-size:25.336px;
+  font-style:normal;
+  font-weight:400;
+  line-height:normal;
+  letter-spacing:-0.76px;
+  white-space:nowrap;
+}
+.auth-field-label{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  top:288px;
+  width:360px;
+  max-width:calc(100% - 48px);
+  margin:0;
+  text-align:left;
+  color:#676767;
+  font-family:'FZLanTingHei-DB-GBK','PingFang TC','PingFang SC','Microsoft YaHei',sans-serif;
+  font-size:13.347px;
+  font-style:normal;
+  font-weight:400;
+  line-height:normal;
+}
+.auth-popup-field{
+  width:360px;
+  max-width:calc(100% - 48px);
+  height:58px;
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  top:312px;
+  border-radius:15px;
+  background:#F3F3F3;
+  box-sizing:border-box;
+}
+#ipo-auth-overlay.auth-popup-overlay #email-input.auth-popup-input,
+#ipo-auth-overlay.auth-popup-overlay .auth-popup-input{
+  width:100% !important;
+  margin:0 !important;
+  height:58px !important;
+  padding:0 14px !important;
+  border:none !important;
+  border-radius:15px !important;
+  background:transparent !important;
+  color:#676767 !important;
+  caret-color:#FF6900;
+  text-align:center;
+  font-family:'FZLanTingHei-DB-GBK','PingFang TC','PingFang SC','Microsoft YaHei',sans-serif !important;
+  font-size:17.161px !important;
+  font-weight:400 !important;
+  letter-spacing:-0.515px !important;
+  line-height:normal !important;
+  box-shadow:none !important;
+  position:relative;
+  z-index:2;
+  box-sizing:border-box !important;
+}
+#ipo-auth-overlay.auth-popup-overlay .auth-popup-input.has-value{
+  color:#FFB16F !important;
+}
+#ipo-auth-overlay.auth-popup-overlay .auth-popup-input:focus{
+  outline:none;
+  box-shadow:inset 0 0 0 1.5px rgba(255,105,0,.35) !important;
+}
+.auth-popup-action{
+  width:360px;
+  max-width:calc(100% - 48px);
+  height:58px;
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  top:452px;
+  border-radius:15px;
+  overflow:hidden;
+}
+#ipo-auth-overlay.auth-popup-overlay .auth-popup-submit{
+  display:flex !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  margin:0 !important;
+  height:58px !important;
+  padding:0 16px !important;
+  justify-content:center !important;
+  align-items:center !important;
+  border:none !important;
+  border-radius:15px !important;
+  background:#FF6900 !important;
+  color:#FFF !important;
+  font-family:'FZLanTingHei-DB-GBK','PingFang TC','PingFang SC','Microsoft YaHei',sans-serif !important;
+  font-size:15px !important;
+  font-style:normal !important;
+  font-weight:400 !important;
+  line-height:1 !important;
+  letter-spacing:-0.45px !important;
+  transition:transform .14s ease, background-color .14s ease, filter .14s ease;
+  box-shadow:none !important;
+  position:relative;
+  z-index:2;
+}
+@media (max-width:420px){
+  #ipo-auth-overlay.auth-popup-overlay .auth-popup-submit{
+    padding-left:12px !important;
+    padding-right:12px !important;
+  }
+}
+#ipo-auth-overlay.auth-popup-overlay .auth-popup-submit:hover{
+  filter:brightness(1.03);
+  transform:translateY(-1px);
+}
+#ipo-auth-overlay.auth-popup-overlay .auth-popup-submit:active{
+  transform:scale(.982);
+  filter:brightness(.97);
+}
+#ipo-auth-overlay.auth-popup-overlay .auth-popup-submit[disabled]{
+  opacity:.78;
+  transform:none;
+  filter:none;
+}
+.auth-popup-error-slot{
+  width:360px;
+  max-width:calc(100% - 48px);
+  min-height:22px;
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  top:518px;
+}
+#ipo-auth-overlay.auth-popup-overlay .auth-popup-error{
+  margin:0 !important;
+  min-height:0 !important;
+  font-size:12px !important;
+  line-height:1.45;
+  color:#dc2626 !important;
+  text-align:center;
+  font-family:'FZLanTingHei-DB-GBK','PingFang SC',sans-serif !important;
+}
+.auth-popup-footer-wrap{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:28px;
+  width:calc(100% - 56px);
+  max-width:400px;
+  padding:0;
+  margin:0;
+  border:none;
+  background:transparent;
+}
+.auth-popup-footer-text{
+  margin:0;
+  padding:0;
+  color:#979797;
+  text-align:center;
+  font-family:'FZLanTingHei-R-GBK','FZLanTingHei-DB-GBK','PingFang SC',sans-serif;
+  font-size:11.261px;
+  font-style:normal;
+  font-weight:400;
+  line-height:1.55;
+}
+#ipo-auth-overlay.auth-popup-overlay .auth-popup-footer-mail{
+  color:#2563eb;
+  text-decoration:underline;
+  text-underline-offset:2px;
+  word-break:break-all;
+}
+#ipo-auth-overlay.auth-popup-overlay .auth-popup-footer-mail:hover{
+  color:#1d4ed8;
+}
+@media (max-width:1919px){
+  .auth-popup-brand{
+    left:50%;
+    transform:translateX(-50%);
+    margin-left:0;
+  }
+  .auth-field-label{
+    text-align:center;
+  }
+}
+@media (max-width:400px){
+  .auth-tagline{
+    font-size:clamp(18px,5.8vw,25.336px);
+    white-space:normal;
+  }
+  .auth-welcome-img{
+    width:min(304px,88vw);
+    top:132px;
+  }
+}
+@keyframes authPopupScaleIn{
+  from{opacity:0;transform:translateY(8px) scale(.97);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+@keyframes authOverlayFade{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+
 /* ━━━━━━━━━ RESPONSIVE ━━━━━━━━━ */
 @media(max-width:1024px){.stat-grid{grid-template-columns:repeat(3,1fr);}.grey-hero{grid-template-columns:1fr;}}
 @media(max-width:768px){.header-inner,.page{padding-left:16px;padding-right:16px;}.tab-nav-inner{padding:0 16px;}.tab-btn{padding:14px 14px;font-size:13px;}.stat-grid{grid-template-columns:repeat(2,1fr);}.drawer{width:100%;}.grey-hero{grid-template-columns:1fr;}}
@@ -786,6 +1108,87 @@ footer a{color:var(--accent);}
       if (b) b.setAttribute('aria-expanded', 'false');
     }
   });
+})();
+</script>
+<script>
+(function () {
+  function buildAuthPopupSkin(overlay) {
+    if (!overlay || overlay.dataset.authPopupSkinned === '1') return;
+    var card = overlay.querySelector('.ipo-auth-card');
+    if (!card) return;
+    var input = card.querySelector('#email-input');
+    var submitBtn = card.querySelector('#ipo-auth-submit');
+    var error = card.querySelector('#ipo-auth-error');
+    var tip = card.querySelector('.ipo-auth-tip');
+    if (!input || !submitBtn || !error) return;
+
+    overlay.dataset.authPopupSkinned = '1';
+    overlay.classList.add('auth-popup-overlay');
+    card.classList.add('auth-popup-card');
+
+    var frame = document.createElement('div');
+    frame.className = 'auth-popup-frame';
+    card.parentNode.insertBefore(frame, card);
+    frame.appendChild(card);
+
+    var shell = document.createElement('div');
+    shell.className = 'auth-popup-shell';
+    shell.innerHTML =
+      '<img class="auth-popup-brand" src="./访问弹窗/logo.svg" alt="打新指南" />' +
+      '<img class="auth-welcome-img" src="./访问弹窗/Welcome.svg" alt="WELCOME" />' +
+      '<p class="auth-tagline">一起港股打新赚钱！</p>' +
+      '<p class="auth-field-label">请输入您的授权邮箱（飞书邮箱）</p>' +
+      '<div class="auth-popup-field"></div>' +
+      '<div class="auth-popup-action"></div>' +
+      '<div class="auth-popup-error-slot"></div>' +
+      '<div class="auth-popup-footer-wrap" role="note">' +
+      '<p class="auth-popup-footer-text">如无权限，请发送姓名+邮箱至管理员：<a class="auth-popup-footer-mail" href="mailto:xiongting3422@Gmail.com">xiongting3422@Gmail.com</a></p>' +
+      '</div>';
+
+    input.classList.add('auth-popup-input');
+    submitBtn.classList.add('auth-popup-submit');
+    error.classList.add('auth-popup-error');
+
+    shell.querySelector('.auth-popup-field').appendChild(input);
+    shell.querySelector('.auth-popup-action').appendChild(submitBtn);
+    shell.querySelector('.auth-popup-error-slot').appendChild(error);
+
+    if (tip) {
+      tip.style.display = 'none';
+      tip.setAttribute('aria-hidden', 'true');
+    }
+
+    function syncAuthInputValueClass() {
+      if (input.value && String(input.value).trim()) input.classList.add('has-value');
+      else input.classList.remove('has-value');
+    }
+    input.addEventListener('input', syncAuthInputValueClass);
+    syncAuthInputValueClass();
+
+    card.innerHTML = '';
+    card.appendChild(shell);
+  }
+
+  function applyAuthPopupSkin() {
+    buildAuthPopupSkin(document.getElementById('ipo-auth-overlay'));
+  }
+
+  var observer = new MutationObserver(function () {
+    applyAuthPopupSkin();
+  });
+
+  function bootAuthPopupSkin() {
+    if (document.body) {
+      observer.observe(document.body, { childList: true, subtree: true });
+      applyAuthPopupSkin();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootAuthPopupSkin, { once: true });
+  } else {
+    bootAuthPopupSkin();
+  }
 })();
 </script>
 

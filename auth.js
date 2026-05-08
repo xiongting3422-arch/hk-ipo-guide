@@ -298,14 +298,14 @@
       '<div class="ipo-auth-card">' +
       '<div class="ipo-auth-title">访问授权验证</div>' +
       '<div class="ipo-auth-sub">请输入已授权邮箱；系统将实时对照 Google 表格 Whitelist 名单。</div>' +
-      '<input class="ipo-auth-input" id="ipo-auth-email" type="email" placeholder="请输入您的授权邮箱" autocomplete="email" />' +
-      '<button class="ipo-auth-btn" id="ipo-auth-submit" type="button">进入</button>' +
+      '<input class="ipo-auth-input" id="email-input" type="email" autocomplete="email" spellcheck="false" />' +
+      '<button class="ipo-auth-btn" id="ipo-auth-submit" type="button">立即进入</button>' +
       '<div class="ipo-auth-tip">如需访问，请发送 姓名+邮箱 至管理员：xiongting3422@Gmail.com </div>' +
       '<div class="ipo-auth-error" id="ipo-auth-error"></div>' +
       '</div>';
     document.body.appendChild(box);
 
-    var input = document.getElementById('ipo-auth-email');
+    var input = document.getElementById('email-input');
     var btn = document.getElementById('ipo-auth-submit');
     var err = document.getElementById('ipo-auth-error');
     if (input && prefillEmail) input.value = prefillEmail;
@@ -320,7 +320,7 @@
       }
       err.textContent = '';
       btn.disabled = true;
-      btn.textContent = '验证中...';
+      btn.textContent = '验证中…';
       try {
         var allowed = await fetchWhitelistEmailsLive();
         if (allowed.indexOf(email) >= 0) {
@@ -337,7 +337,7 @@
         err.textContent = '授权服务暂时不可用，请稍后再试';
       } finally {
         btn.disabled = false;
-        btn.textContent = '进入';
+        btn.textContent = '立即进入';
       }
     }
 
