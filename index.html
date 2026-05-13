@@ -84,8 +84,8 @@ header{position:relative;z-index:1;background:#ffffff;border-bottom:1px solid va
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ━━━━━━━━━ TAB NAV ━━━━━━━━━ */
-.tab-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;padding-right:20px;}
-.tab-nav-inner{max-width:1300px;margin:0;padding:0 32px;display:flex;gap:0;flex:1;}
+.tab-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;padding-left:max(32px,calc((100% - 1400px) / 2 + 32px));padding-right:20px;}
+.tab-nav-inner{max-width:none;margin:0;padding:0;display:flex;gap:0;flex:1;min-width:0;}
 .nav-refresh-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:var(--s2);border:1px solid var(--b1);color:var(--t2);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
 .nav-refresh-btn:hover{border-color:var(--accent);color:var(--t1);}
 .nav-refresh-btn:active .nav-refresh-icon{transform:rotate(360deg);}
@@ -1001,7 +1001,7 @@ footer a{color:var(--accent);}
 
 /* ━━━━━━━━━ RESPONSIVE ━━━━━━━━━ */
 @media(max-width:1024px){.stat-grid{grid-template-columns:repeat(3,1fr);}.grey-hero{grid-template-columns:1fr;}}
-@media(max-width:768px){.header-inner,.page{padding-left:16px;padding-right:16px;}.tab-nav-inner{padding:0 16px;}.tab-btn{padding:14px 14px;font-size:13px;}.stat-grid{grid-template-columns:repeat(2,1fr);}.drawer{width:100%;}.grey-hero{grid-template-columns:1fr;}}
+@media(max-width:768px){.header-inner,.page{padding-left:16px;padding-right:16px;}.tab-nav{padding-left:16px;padding-right:20px;}.tab-nav-inner{padding:0;}.tab-btn{padding:14px 14px;font-size:13px;}.stat-grid{grid-template-columns:repeat(2,1fr);}.drawer{width:100%;}.grey-hero{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -1678,7 +1678,7 @@ footer a{color:var(--accent);}
       <span id="cmp-badge" style="display:none;"></span>
       <span id="cmp-update-time" style="display:none;"></span>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <div class="sec-title"><span class="sec-icon">📊</span>招股中新股数据汇总</div>
+        <div class="sec-title"><span class="sec-icon">📊</span>近期新股详细情况</div>
         <button id="cmp-dl-btn" onclick="downloadCompareTable()" style="display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:9px;border:1.5px solid rgba(249,115,22,.35);background:rgba(249,115,22,.06);color:#ea580c;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;white-space:nowrap;" onmouseover="this.style.background='rgba(249,115,22,.14)';this.style.borderColor='rgba(249,115,22,.6)'" onmouseout="this.style.background='rgba(249,115,22,.06)';this.style.borderColor='rgba(249,115,22,.35)'">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style="flex-shrink:0;"><path d="M7.5 1v9M4 7l3.5 3.5L11 7" stroke="#ea580c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12h11" stroke="#ea580c" stroke-width="1.8" stroke-linecap="round"/></svg>
           导出图片
@@ -9702,7 +9702,7 @@ async function downloadCompareTable() {
         clone.style.maxHeight = 'none';
         clone.style.overflow = 'visible';
         card.innerHTML = `<div style="background:linear-gradient(135deg,#f97316 0%,#ea580c 100%);padding:18px ${PAD}px 14px;display:flex;align-items:center;gap:10px;">
-          <div style="font-size:16px;font-weight:900;color:#fff;letter-spacing:-.01em;">招股中新股数据汇总</div>
+          <div style="font-size:16px;font-weight:900;color:#fff;letter-spacing:-.01em;">近期新股详细情况</div>
           <div style="margin-left:auto;font-size:10px;color:rgba(255,255,255,.8);">共 ${n} 只 · ${dateStr}</div>
         </div><div class="cmp-cap-inner" style="padding:0 ${PAD}px 16px;"></div>`;
         const wrap = card.querySelector('.cmp-cap-inner');
@@ -9833,7 +9833,7 @@ async function downloadCompareTable() {
           <svg width="16" height="16" viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="3" height="8" rx="1" fill="white"/><rect x="5.5" y="2" width="3" height="11" rx="1" fill="white"/><rect x="10" y="3.5" width="3" height="9.5" rx="1" fill="white"/></svg>
         </div>
         <div>
-          <div style="font-size:16px;font-weight:900;color:#fff;letter-spacing:-.01em;">招股中新股数据汇总</div>
+          <div style="font-size:16px;font-weight:900;color:#fff;letter-spacing:-.01em;">近期新股详细情况</div>
           <div style="font-size:10px;color:rgba(255,255,255,.75);margin-top:2px;">打新指南 · ${dateStr} · 共 ${n} 只新股</div>
         </div>
         <div style="margin-left:auto;text-align:right;">
