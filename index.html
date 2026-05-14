@@ -2993,15 +2993,16 @@ let ipoNewsBannerTimer = null;
 let ipoNewsBannerResetTimer = null;
 
 /**
- * 新股资讯轮播：本机图 01~04 各不重复；单张建议 ≤500KB、约 1:1 方图。替换即生效。
- * 轮播会再拼接前 4 张的副本用于无缝滚动，勿重复添加同名 / 同内容的文件。
+ * 新股资讯轮播：图片放在 assets/images/ipo-news/banner/，按从左到右槽位 slot-1 … slot-4。
+ * 单张建议 ≤500KB、约 1:1 方图；覆盖同名文件后 push 即更新线上。
+ * 轮播会再拼接前 4 张的副本用于无缝滚动（张数若改须同步调整下方 slice 与数组）。
  */
 const IPO_NEWS_BANNER_IMAGES = [
-  { src: './assets/images/ipo-news-banner-01.png' },
-  { src: './assets/images/ipo-news-banner-02.png' },
-  { src: './assets/images/ipo-news-banner-03.png' },
+  { src: './assets/images/ipo-news/banner/slot-1.png' },
+  { src: './assets/images/ipo-news/banner/slot-2.png' },
+  { src: './assets/images/ipo-news/banner/slot-3.png' },
   {
-    src: './assets/images/ipo-news-banner-04.png',
+    src: './assets/images/ipo-news/banner/slot-4.png',
     href: 'https://invest.futuhk.com/ipo_season'
   }
 ];
