@@ -617,6 +617,40 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 .ipo-news-banner-item a{display:block;width:100%;height:100%;line-height:0;}
 .ipo-news-banner-item img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;border:0;vertical-align:top;}
 
+/* ━━━━━━━━━ IPO NEWS · 搜索区 + 2×2 模块 ━━━━━━━━━ */
+.ipo-news-page{padding-top:28px;}
+.ipo-news-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:-8px 0 10px;flex-wrap:wrap;}
+.ipo-news-toolbar #ipo-news-status{flex:1;text-align:left;font-size:12px;color:var(--t3);min-height:16px;margin:0;}
+.ipo-news-toolbar-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--t3);}
+.ipo-news-search-section{margin:28px 0 24px;text-align:center;}
+.ipo-news-search-heading{font-size:22px;font-weight:700;color:#000000;letter-spacing:.02em;line-height:1.45;margin:0 0 20px;}
+.ipo-news-search-heading em{font-style:normal;font-weight:700;}
+.ipo-news-search-bar{display:flex;align-items:stretch;max-width:920px;margin:0 auto;border:2px solid var(--accent);border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(249,115,22,.08);}
+.ipo-news-search-input{flex:1;min-width:0;border:none;outline:none;padding:14px 18px;font-size:15px;color:var(--t1);background:transparent;}
+.ipo-news-search-input::placeholder{color:#a1a1aa;}
+.ipo-news-search-btn{flex-shrink:0;padding:0 28px;font-size:15px;font-weight:700;color:#fff;background:var(--accent);border:none;transition:background .15s,opacity .15s;}
+.ipo-news-search-btn:hover{background:#ea580c;}
+.ipo-news-search-btn:disabled{opacity:.65;cursor:not-allowed;}
+.ipo-news-search-results-wrap{display:none;margin:0 auto 24px;max-width:920px;}
+.ipo-news-search-results-wrap.is-visible{display:block;}
+.ipo-news-search-results{background:#F8F8F8;border-radius:12px;border:1px solid var(--b1);max-height:220px;overflow-y:auto;padding:4px 8px;}
+.ipo-news-search-results .ipo-news-row-meta{font-size:11px;color:var(--t3);margin-top:4px;}
+.ipo-news-search-empty{padding:16px 12px;font-size:13px;color:var(--t3);text-align:center;}
+.ipo-news-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px;margin-top:4px;}
+@media (max-width:900px){.ipo-news-grid{grid-template-columns:1fr;}}
+.ipo-news-module-card{position:relative;background:#F8F8F8;border-radius:12px;border:1px solid rgba(0,0,0,.04);min-height:340px;display:flex;flex-direction:column;overflow:hidden;}
+.ipo-news-module-label{position:absolute;top:12px;left:12px;z-index:2;padding:5px 12px;font-size:12px;font-weight:700;color:#fff;background:#000000;border-radius:4px;line-height:1.2;letter-spacing:.04em;}
+.ipo-news-module-body-wrap{position:relative;flex:1;margin-top:44px;min-height:0;}
+.ipo-news-module-body{max-height:288px;overflow-y:auto;padding:0 10px 8px 10px;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.2) transparent;}
+.ipo-news-module-body::-webkit-scrollbar{width:6px;}
+.ipo-news-module-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.18);border-radius:3px;}
+.ipo-news-module-fade{pointer-events:none;position:absolute;left:0;right:8px;bottom:0;height:52px;background:linear-gradient(to bottom,rgba(248,248,248,0),#F8F8F8 72%);z-index:1;}
+.ipo-news-module-card a.ipo-news-module-link{display:block;padding:11px 4px 11px 2px;border-bottom:1px solid rgba(0,0,0,.06);text-decoration:none;}
+.ipo-news-module-card a.ipo-news-module-link:last-child{border-bottom:none;}
+.ipo-news-module-title{font-size:13px;line-height:1.5;color:var(--t1);font-weight:700;}
+.ipo-news-module-meta{font-size:11px;color:var(--t3);margin-top:5px;}
+.ipo-news-module-empty{padding:24px 12px 32px;font-size:12px;color:var(--t3);text-align:center;}
+
 /* 新股数据汇总表：左对齐 + V7 三态（认购中 / 已截止 / 已上市） */
 #ipo-compare-table .ipo-cmp-scroll th,
 #ipo-compare-table .ipo-cmp-scroll td{
@@ -1889,35 +1923,65 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 
 <!-- ═══════════════════════ TAB: IPO NEWS ═══════════════════════ -->
 <div id="tab-news" class="tab-content">
-<div class="page">
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
-    <div>
-      <div style="font-size:20px;font-weight:700;color:var(--t1);">新股资讯</div>
-      <div id="ipo-news-status" style="font-size:12px;color:var(--t3);margin-top:6px;min-height:16px;"></div>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span id="ipo-news-updated" style="font-size:12px;color:var(--t3);">尚未更新</span>
-      <button id="ipo-news-refresh-btn" class="nav-refresh-btn" onclick="refreshIpoNews(true)" style="position:static;right:auto;top:auto;transform:none;padding:8px 12px;border-radius:10px;">
-        <span class="nav-refresh-icon">↻</span>
-        <span>刷新资讯</span>
-      </button>
-    </div>
-  </div>
-
+<div class="page ipo-news-page">
   <div class="ipo-news-banner" id="ipo-news-banner">
     <div class="ipo-news-banner-viewport" id="ipo-news-banner-viewport">
       <div class="ipo-news-banner-track" id="ipo-news-banner-track"></div>
     </div>
   </div>
 
-  <div style="width:100%;">
-    <div style="background:var(--s1);border:1px solid var(--b1);border-radius:12px;overflow:hidden;">
-      <div style="padding:12px 14px;border-bottom:1px solid var(--s3);display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:14px;font-weight:700;color:var(--t1);">🇭🇰 香港 IPO</div>
-        <div id="ipo-news-hk-count" style="font-size:11px;color:var(--t3);">0 条</div>
-      </div>
-      <div id="ipo-news-hk-list" style="padding:8px 12px;"></div>
+  <section class="ipo-news-search-section" aria-label="新股资讯搜索">
+    <h2 class="ipo-news-search-heading">新股资讯搜集 <em>一键搜你想问</em></h2>
+    <div class="ipo-news-search-bar">
+      <input type="search" id="ipo-news-search-input" class="ipo-news-search-input"
+             placeholder="输入你想了解的「新股名称」或「股票代码」" autocomplete="off" />
+      <button type="button" id="ipo-news-search-btn" class="ipo-news-search-btn">立即搜索</button>
     </div>
+    <div class="ipo-news-toolbar" style="max-width:920px;margin:12px auto 0;">
+      <div id="ipo-news-status"></div>
+      <div class="ipo-news-toolbar-meta">
+        <span id="ipo-news-updated">尚未更新</span>
+        <button id="ipo-news-refresh-btn" class="nav-refresh-btn" type="button" onclick="refreshIpoNews(true)" style="position:static;right:auto;top:auto;transform:none;padding:6px 10px;border-radius:8px;">
+          <span class="nav-refresh-icon">↻</span>
+          <span>刷新</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div id="ipo-news-search-results-wrap" class="ipo-news-search-results-wrap" aria-live="polite">
+    <div id="ipo-news-search-results" class="ipo-news-search-results"></div>
+  </div>
+
+  <div id="ipo-news-grid" class="ipo-news-grid" aria-label="港股 IPO 资讯模块">
+    <article class="ipo-news-module-card" data-theme="ipo_news">
+      <span class="ipo-news-module-label">新股资讯</span>
+      <div class="ipo-news-module-body-wrap">
+        <div class="ipo-news-module-body" id="ipo-news-mod-ipo_news"></div>
+        <div class="ipo-news-module-fade" aria-hidden="true"></div>
+      </div>
+    </article>
+    <article class="ipo-news-module-card" data-theme="grey_market">
+      <span class="ipo-news-module-label">暗盘情报</span>
+      <div class="ipo-news-module-body-wrap">
+        <div class="ipo-news-module-body" id="ipo-news-mod-grey_market"></div>
+        <div class="ipo-news-module-fade" aria-hidden="true"></div>
+      </div>
+    </article>
+    <article class="ipo-news-module-card" data-theme="ipo_msg">
+      <span class="ipo-news-module-label">新股消息</span>
+      <div class="ipo-news-module-body-wrap">
+        <div class="ipo-news-module-body" id="ipo-news-mod-ipo_msg"></div>
+        <div class="ipo-news-module-fade" aria-hidden="true"></div>
+      </div>
+    </article>
+    <article class="ipo-news-module-card" data-theme="pricing">
+      <span class="ipo-news-module-label">新股定价</span>
+      <div class="ipo-news-module-body-wrap">
+        <div class="ipo-news-module-body" id="ipo-news-mod-pricing"></div>
+        <div class="ipo-news-module-fade" aria-hidden="true"></div>
+      </div>
+    </article>
   </div>
 </div>
 </div>
@@ -2963,7 +3027,17 @@ let ipoNewsLoading = false;
 let ipoNewsLoadedOnce = false;
 let ipoNewsRefreshPending = false;
 let ipoNewsLastDisplay = null;
-const IPO_NEWS_DISPLAY_CACHE_KEY = 'ipo_news_display_v2';
+const IPO_NEWS_DISPLAY_CACHE_KEY = 'ipo_news_display_v3';
+let ipoNewsAllItems = [];
+const IPO_NEWS_MODULE_MAX = 10;
+const IPO_NEWS_SEARCH_MAX = 10;
+/** 2×2 模块（与设计稿一致） */
+const IPO_NEWS_GRID_THEMES = [
+  { id: 'ipo_news', label: '新股资讯' },
+  { id: 'grey_market', label: '暗盘情报' },
+  { id: 'ipo_msg', label: '新股消息' },
+  { id: 'pricing', label: '新股定价' }
+];
 let ipoNewsBannerInited = false;
 let ipoNewsBannerIndex = 0;
 let ipoNewsBannerStep = 0;
@@ -3643,53 +3717,225 @@ async function ipoNewsFetchFinetItems(categoryId, limit = 8) {
   });
 }
 
-function ipoNewsRenderNewsRow(item, isLastInBlock) {
-  const border = isLastInBlock ? 'none' : '1px solid var(--s3)';
+function ipoNewsSleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function ipoNewsDedupeItems(items) {
+  const seen = new Set();
+  const out = [];
+  for (const it of items || []) {
+    const k = String(it.link || '').trim().toLowerCase() || String(it.title || '').trim().toLowerCase();
+    if (!k || seen.has(k)) continue;
+    seen.add(k);
+    out.push(it);
+  }
+  return out;
+}
+
+function ipoNewsBucketForGrid(theme) {
+  const t = String(theme || '').trim();
+  if (t === 'ipo_news') return 'ipo_news';
+  if (t === 'grey_market') return 'grey_market';
+  if (t === 'ipo_msg') return 'ipo_msg';
+  if (t === 'pricing') return 'pricing';
+  return null;
+}
+
+function ipoNewsMatchesKeyword(item, keyword) {
+  const k = String(keyword || '').trim().toLowerCase();
+  if (!k) return false;
+  const blob = `${item.title || ''} ${item.stockTag || ''} ${item.link || ''}`.toLowerCase();
+  return blob.includes(k);
+}
+
+function ipoNewsRenderModuleLink(item, isLast) {
+  const border = isLast ? 'border-bottom:none;' : '';
   return `
-    <a href="${ipoNewsEscapeHtml(item.link)}" target="_blank" rel="noopener noreferrer"
-       style="display:block;padding:10px 8px;border-bottom:${border};text-decoration:none;">
-      <div style="font-size:13px;line-height:1.5;color:var(--t1);font-weight:600;">${ipoNewsEscapeHtml(item.title)}</div>
-      <div style="font-size:11px;color:var(--t3);margin-top:6px;">${ipoNewsEscapeHtml(item.dateText)}${item.mediaSource ? ` · ${ipoNewsEscapeHtml(item.mediaSource)}` : ''}</div>
+    <a class="ipo-news-module-link" href="${ipoNewsEscapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" style="${border}">
+      <div class="ipo-news-module-title">${ipoNewsEscapeHtml(item.title)}</div>
+      <div class="ipo-news-module-meta">${ipoNewsEscapeHtml(item.dateText)}${item.mediaSource ? ` · ${ipoNewsEscapeHtml(item.mediaSource)}` : ''}</div>
     </a>`;
 }
 
-function ipoNewsGroupItemsByTheme(items) {
-  const sorted = ipoNewsSortByLatest(items || [], Date.now());
-  const buckets = new Map();
-  IPO_NEWS_THEMES.forEach(th => buckets.set(th.id, []));
-  buckets.set('other', []);
+function ipoNewsRenderGrid(items) {
+  ipoNewsAllItems = Array.isArray(items) ? items.slice() : [];
+  const buckets = {};
+  IPO_NEWS_GRID_THEMES.forEach((g) => { buckets[g.id] = []; });
+  const sorted = ipoNewsSortByLatest(ipoNewsAllItems, Date.now());
   for (const it of sorted) {
-    const id = buckets.has(it.theme) ? it.theme : 'other';
-    buckets.get(id).push(it);
+    const bid = ipoNewsBucketForGrid(it.theme);
+    if (!bid || !buckets[bid] || buckets[bid].length >= IPO_NEWS_MODULE_MAX) continue;
+    buckets[bid].push(it);
   }
-  const groups = [];
-  for (const th of IPO_NEWS_THEMES) {
-    const list = buckets.get(th.id) || [];
-    if (list.length) groups.push({ id: th.id, label: th.label, items: list });
+  for (const g of IPO_NEWS_GRID_THEMES) {
+    const el = document.getElementById(`ipo-news-mod-${g.id}`);
+    if (!el) continue;
+    const list = buckets[g.id] || [];
+    if (!list.length) {
+      el.innerHTML = `<div class="ipo-news-module-empty">暂无${ipoNewsEscapeHtml(g.label)}</div>`;
+      continue;
+    }
+    el.innerHTML = list.map((item, idx) => ipoNewsRenderModuleLink(item, idx === list.length - 1)).join('');
   }
-  const other = buckets.get('other') || [];
-  if (other.length) groups.push({ id: 'other', label: '其他新股资讯', items: other });
-  return groups;
 }
 
-function ipoNewsRenderList(el, items, emptyHtml) {
-  if (!el) return;
+function ipoNewsRenderSearchResults(items, keyword) {
+  const el = document.getElementById('ipo-news-search-results');
+  const wrap = document.getElementById('ipo-news-search-results-wrap');
+  if (!el || !wrap) return;
+  const kw = String(keyword || '').trim();
   if (!items || !items.length) {
-    if (emptyHtml) el.innerHTML = emptyHtml;
+    el.innerHTML = `<div class="ipo-news-search-empty">未找到与「${ipoNewsEscapeHtml(kw)}」相关的资讯</div>`;
+    wrap.classList.add('is-visible');
     return;
   }
-  const groups = ipoNewsGroupItemsByTheme(items);
-  const parts = [];
-  groups.forEach((grp, gi) => {
-    parts.push(`
-      <div style="padding:8px 4px 4px;${gi ? 'margin-top:6px;border-top:1px solid var(--s3);' : ''}">
-        <div style="font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.04em;">${ipoNewsEscapeHtml(grp.label)}</div>
-      </div>`);
-    grp.items.forEach((item, idx) => {
-      parts.push(ipoNewsRenderNewsRow(item, idx === grp.items.length - 1 && gi === groups.length - 1));
+  el.innerHTML = items.map((item, idx) => ipoNewsRenderModuleLink(item, idx === items.length - 1)).join('');
+  wrap.classList.add('is-visible');
+}
+
+function ipoNewsHideSearchResults() {
+  const wrap = document.getElementById('ipo-news-search-results-wrap');
+  if (wrap) wrap.classList.remove('is-visible');
+}
+
+function ipoNewsParseHtmlLinks(html, keyword, sourceName, max = 12) {
+  const out = [];
+  if (!html || html.length < 200) return out;
+  const kw = String(keyword || '').trim().toLowerCase();
+  const seen = new Set();
+  const re = /<a[^>]+href=["'](https?:\/\/[^"'#\s]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  let m;
+  while ((m = re.exec(html)) !== null && out.length < max * 3) {
+    const href = String(m[1]).replace(/&amp;/g, '&');
+    let title = String(m[2]).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+    if (title.length < 6 || href.length < 12) continue;
+    if (/\.(jpg|jpeg|png|gif|svg|css|js)(\?|$)/i.test(href)) continue;
+    if (seen.has(href)) continue;
+    const blob = `${title} ${href}`.toLowerCase();
+    if (kw && !blob.includes(kw) && !/ipo|新股|暗盘|招股|上市/i.test(title)) continue;
+    seen.add(href);
+    out.push({
+      title: title.slice(0, 500),
+      link: href,
+      dateText: sourceName ? `来源 ${sourceName}` : '未知时间',
+      ts: Date.now() - out.length * 60000,
+      mediaSource: sourceName || '',
+      theme: 'other'
     });
+  }
+  return out.slice(0, max);
+}
+
+function ipoNewsParseFutuSearchHtml(html, keyword) {
+  const out = [];
+  if (!html) return out;
+  const kw = String(keyword || '').trim().toLowerCase();
+  const seen = new Set();
+  const re = /href="(https:\/\/(?:news\.futunn\.com(?:\/hk)?\/post\/\d+|q\.futunn\.com\/feed\/\d+)[^"]*)"[^>]*>([\s\S]*?)<\/a>/gi;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    const href = m[1].trim();
+    let title = String(m[2]).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+    if (!title || title.length < 4 || seen.has(href)) continue;
+    if (kw && !title.toLowerCase().includes(kw)) continue;
+    seen.add(href);
+    out.push({
+      title: title.slice(0, 500),
+      link: href,
+      dateText: '富途牛牛',
+      ts: Date.now(),
+      mediaSource: '富途牛牛',
+      theme: ipoNewsDetectTheme(title)
+    });
+  }
+  return out;
+}
+
+async function ipoNewsSearchExternal(keyword) {
+  const q = String(keyword || '').trim();
+  if (!q) return [];
+  const sources = [
+    { name: '富途专题', url: String(window.IPO_NEWS_FUTU_TOPIC_URL || IPO_NEWS_FUTU_TOPIC_URL), kind: 'futu_topic' },
+    { name: '富途搜索', url: `https://www.futunn.com/hk/search/news?keyword=${encodeURIComponent(q)}`, kind: 'futu_search' },
+    { name: '星岛', url: `https://www.stheadline.com/search?q=${encodeURIComponent(q)}`, kind: 'generic' },
+    { name: '信报', url: 'https://inews.hket.com/sran009-2/%E6%96%B0%E8%82%A1IPO', kind: 'generic' },
+    { name: '老虎社区', url: 'https://www.laohu8.com/personal/4219291280354550/', kind: 'generic' },
+    { name: '老虎社区', url: 'https://www.laohu8.com/personal/4204869752663952/', kind: 'generic' }
+  ];
+  const merged = [];
+  for (let i = 0; i < sources.length; i++) {
+    const s = sources[i];
+    if (i > 0) await ipoNewsSleep(1100 + Math.floor(Math.random() * 400));
+    try {
+      const html = await ipoNewsFetchText(s.url, 45000);
+      if (!html) continue;
+      let batch = [];
+      if (s.kind === 'futu_topic') {
+        batch = ipoNewsParseFutuTopicHtml(html, Date.now(), IPO_NEWS_RECENT_DAYS_DEFAULT)
+          .filter((it) => ipoNewsMatchesKeyword(it, q))
+          .map((it) => ({
+            title: it.title,
+            link: it.link,
+            dateText: ipoNewsFormatPublishedDisplay(it.timeRaw, it.ts),
+            ts: it.ts,
+            mediaSource: it.media_source || '富途牛牛',
+            theme: it.theme
+          }));
+      } else if (s.kind === 'futu_search') {
+        batch = ipoNewsParseFutuSearchHtml(html, q);
+      } else {
+        batch = ipoNewsParseHtmlLinks(html, q, s.name, 12);
+      }
+      merged.push(...batch);
+    } catch (e) {
+      console.warn('[IPO News] 搜索源失败', s.name, e);
+    }
+  }
+  return merged;
+}
+
+async function ipoNewsRunSearch() {
+  const input = document.getElementById('ipo-news-search-input');
+  const btn = document.getElementById('ipo-news-search-btn');
+  const statusEl = document.getElementById('ipo-news-status');
+  const kw = String(input?.value || '').trim();
+  if (!kw) {
+    if (statusEl) statusEl.textContent = '请输入新股名称或股票代码';
+    ipoNewsHideSearchResults();
+    return;
+  }
+  if (btn) btn.disabled = true;
+  if (statusEl) statusEl.textContent = '正在搜索相关资讯（多源抓取，请稍候）…';
+  let results = ipoNewsAllItems.filter((it) => ipoNewsMatchesKeyword(it, kw));
+  try {
+    const extra = await ipoNewsSearchExternal(kw);
+    results = ipoNewsDedupeItems([...results, ...extra]);
+  } catch (e) {
+    console.warn('[IPO News] 搜索失败', e);
+  }
+  results = ipoNewsSortByLatest(results, Date.now()).slice(0, IPO_NEWS_SEARCH_MAX);
+  ipoNewsRenderSearchResults(results, kw);
+  if (statusEl) {
+    statusEl.textContent = results.length
+      ? `已找到 ${results.length} 条与「${kw}」相关的资讯`
+      : `未找到与「${kw}」相关的资讯`;
+  }
+  if (btn) btn.disabled = false;
+}
+
+function ipoNewsBindSearchUi() {
+  if (window.__ipoNewsSearchBound) return;
+  window.__ipoNewsSearchBound = true;
+  const btn = document.getElementById('ipo-news-search-btn');
+  const input = document.getElementById('ipo-news-search-input');
+  btn?.addEventListener('click', () => { ipoNewsRunSearch(); });
+  input?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      ipoNewsRunSearch();
+    }
   });
-  el.innerHTML = parts.join('');
 }
 
 function ipoNewsSerializeItemsForCache(items) {
@@ -3728,15 +3974,12 @@ function ipoNewsSaveDisplayCache(items, generatedAt) {
 }
 
 function ipoNewsHasVisibleList() {
-  const el = document.getElementById('ipo-news-hk-list');
-  return Boolean(el && el.querySelector('a[href]'));
+  return Boolean(document.querySelector('#ipo-news-grid a.ipo-news-module-link'));
 }
 
 function ipoNewsApplyDisplayList(hkFinal, meta) {
   if (!hkFinal || !hkFinal.length) return false;
-  ipoNewsRenderList(document.getElementById('ipo-news-hk-list'), hkFinal);
-  const hkCountEl = document.getElementById('ipo-news-hk-count');
-  if (hkCountEl) hkCountEl.textContent = `${hkFinal.length} 条`;
+  ipoNewsRenderGrid(hkFinal);
   const updatedEl = document.getElementById('ipo-news-updated');
   const ga = String((meta && meta.generatedAt) || '').trim();
   if (updatedEl) {
@@ -3822,6 +4065,7 @@ async function ipoNewsBuildFromBundled(bundled, nowTs, statusEl) {
 }
 
 function ensureIpoNewsLoaded() {
+  ipoNewsBindSearchUi();
   ipoNewsPaintCachedSnapshot();
   refreshIpoNews(true);
 }
@@ -3882,22 +4126,15 @@ async function refreshIpoNews(force = false) {
     } else if (showingStale || ipoNewsPaintCachedSnapshot()) {
       if (statusEl) statusEl.textContent = '本次未抓到新资讯，仍显示上次结果。';
     } else {
-      ipoNewsRenderList(
-        document.getElementById('ipo-news-hk-list'),
-        hkFinal,
-        emptyHint || undefined
-      );
-      const hkCountEl = document.getElementById('ipo-news-hk-count');
-      if (hkCountEl) hkCountEl.textContent = `${hkFinal.length} 条`;
+      ipoNewsRenderGrid(hkFinal);
+      if (statusEl && emptyHint) statusEl.innerHTML = emptyHint;
     }
 
     ipoNewsLoadedOnce = true;
   } catch (e) {
     console.error('refreshIpoNews failed:', e);
     if (!ipoNewsHasVisibleList() && !ipoNewsPaintCachedSnapshot()) {
-      ipoNewsRenderList(document.getElementById('ipo-news-hk-list'), IPO_NEWS_FALLBACK.hk);
-      const hkCountEl = document.getElementById('ipo-news-hk-count');
-      if (hkCountEl) hkCountEl.textContent = `${IPO_NEWS_FALLBACK.hk.length} 条`;
+      ipoNewsRenderGrid(IPO_NEWS_FALLBACK.hk);
     }
     if (statusEl) {
       statusEl.textContent = ipoNewsHasVisibleList()
