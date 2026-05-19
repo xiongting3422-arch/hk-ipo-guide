@@ -5,6 +5,7 @@
   "main": "ipo-futu-dbl.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "preview": "python3 -m http.server 5173",
     "futu-bridge": "node scripts/futu-opend-bridge.mjs"
   },
   "repository": {
