@@ -1,2 +1,6 @@
 .DS_Store
 node_modules/
+.venv/
+# Google 服务账号密钥（勿提交）
+service_account*.json
+service_account*.json.json

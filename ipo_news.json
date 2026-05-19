@@ -1,0 +1,160 @@
+{
+  "generatedAt": "2026-05-18 16:27:09",
+  "feed": "futu_ipo_topic_v1",
+  "scheduleSheet": "IPO新闻抓取",
+  "dataSource": "futu_news_topic",
+  "topicTitle": "新股、次新股直達快車",
+  "topicUrl": "https://news.futunn.com/hk/news-topics/172/stocks-ipo?lang=zh-hk",
+  "recentDays": 10.0,
+  "recentHours": 240.0,
+  "maxNewsAgeDays": 10,
+  "skipMonitoredFilter": true,
+  "preferScheduleOnly": false,
+  "monitoredCodes": [],
+  "stocksInWindow": [],
+  "items": [
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "暗盤情報 | 「工業機器人科技企業」翼菲科技現漲近77%，一手賺2340港元",
+      "time": "2026-05-18 12:00",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/73108170/gray-market-insights-yifai-technology-an-industrial-robotics-company-is",
+      "publishedAt": "2026-05-18 12:00",
+      "source": "富途資訊",
+      "stock": "新股、次新股直達快車",
+      "media_source": "富途資訊"
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股消息 | 羅博特科(300757.SZ)再次遞表港交所 在全球硅光智能製造設備市場排名第一",
+      "time": "2026-05-18 12:00",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/73052522/ipo-news-robotic-technology-300757-sz-has-resubmitted-its-listing",
+      "publishedAt": "2026-05-18 12:00",
+      "source": "智通財經",
+      "stock": "新股、次新股直達快車",
+      "media_source": "智通財經"
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股消息 | 菲仕技術二次遞表港交所 爲中國工業控制領域第三大專用電驅動解決方案供應商",
+      "time": "2026-05-18 12:00",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/73027089/ipo-news-physis-technology-re-submits-listing-application-to-hkex",
+      "publishedAt": "2026-05-18 12:00",
+      "source": "智通財經",
+      "stock": "新股、次新股直達快車",
+      "media_source": "智通財經"
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股首日 | 「AI藥物遞送第一股」劑泰科技-P首日高開逾173%，一手賺9090港元",
+      "time": "2026-05-18 12:00",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/72974569/ipo-first-day-ai-drug-delivery-leader-jitai-technology-p",
+      "publishedAt": "2026-05-18 12:00",
+      "source": "富途資訊",
+      "stock": "新股、次新股直達快車",
+      "media_source": "富途資訊"
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "暗盤情報 | 「港股合成致死腫瘤藥第一股」英派藥業現漲近43%，一手賺1720港元",
+      "time": "2026-05-18 12:00",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/72873989/grey-market-insights-impulse-therapeutics-the-first-synthetic-lethal-oncology",
+      "publishedAt": "2026-05-18 12:00",
+      "source": "富途資訊",
+      "stock": "新股、次新股直達快車",
+      "media_source": "富途資訊"
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "暗盤情報 | 「AI藥物遞送第一股」劑泰科技現漲近262%，一手賺13750港元",
+      "time": "2026-05-18 12:00",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/72874436/grey-market-insights-jitai-technology-the-first-ai-drug-delivery",
+      "publishedAt": "2026-05-18 12:00",
+      "source": "富途資訊",
+      "stock": "新股、次新股直達快車",
+      "media_source": "富途資訊"
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股消息 | 東聖實業遞表港交所 主營磷資源全生命週期梯級利用",
+      "time": "2026-05-18 12:00",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/72902588/ipo-news-dongsheng-industrial-files-for-listing-on-hkex-specializing",
+      "publishedAt": "2026-05-18 12:00",
+      "source": "智通財經",
+      "stock": "新股、次新股直達快車",
+      "media_source": "智通財經"
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股消息 | 創想三維通過港交所聆訊 爲全球消費級3D打印產品及服務提供商",
+      "time": "2026-05-18 12:00",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/72899809/ipo-news-creality-3d-has-passed-the-hong-kong-stock",
+      "publishedAt": "2026-05-18 12:00",
+      "source": "智通財經",
+      "stock": "新股、次新股直達快車",
+      "media_source": "智通財經"
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股消息 | 邁瑞醫療(300760.SZ)再度遞表港交所 爲中國醫療器械行業龍頭企業",
+      "time": "2026-05-18 12:00",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/72878720/ipo-news-mindray-medical-300760-sz-re-submits-listing-application",
+      "publishedAt": "2026-05-18 12:00",
+      "source": "智通財經",
+      "stock": "新股、次新股直達快車",
+      "media_source": "智通財經"
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股消息 | 華健未來遞表港交所 目前並無獲批進行商業銷售的產品",
+      "time": "2026-05-18 12:00",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/72877897/ipo-news-huajian-future-files-for-listing-on-the-hong",
+      "publishedAt": "2026-05-18 12:00",
+      "source": "智通財經",
+      "stock": "新股、次新股直達快車",
+      "media_source": "智通財經"
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股首日 | 「視覺感知產品及割草機器人公司」樂動機器人首日高開近103%，一手賺5428港元",
+      "time": "2026-05-18 12:00",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/72831244/ipo-first-day-ledong-robotics-a-company-specializing-in-visual",
+      "publishedAt": "2026-05-18 12:00",
+      "source": "富途資訊",
+      "stock": "新股、次新股直達快車",
+      "media_source": "富途資訊"
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股消息 | 鼎捷數智(300378.SZ)遞表港交所 爲中國製造業數智化解決方案市場最大國內提供商",
+      "time": "2026-05-18 12:00",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/72829821/ipo-news-dingjie-digital-intelligence-300378-sz-submits-listing-application",
+      "publishedAt": "2026-05-18 12:00",
+      "source": "智通財經",
+      "stock": "新股、次新股直達快車",
+      "media_source": "智通財經"
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股首日 | 「歷史超購王」翼菲科技首日高開近80%，一手賺2415港元",
+      "time": "2026-05-18 08:46",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://news.futunn.com/hk/post/73226104/ipo-first-day-yifei-technology-known-as-the-historical-oversubscription",
+      "publishedAt": "2026-05-18 08:46",
+      "source": "富途資訊",
+      "stock": "新股、次新股直達快車",
+      "media_source": "富途資訊"
+    }
+  ]
+}
