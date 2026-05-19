@@ -57,7 +57,7 @@ DEFAULT_FUTU_TOPIC_URL = (
 )
 FUTU_TOPIC_TITLE = "新股、次新股直達快車"
 FUTU_TOPIC_HREF_RE = re.compile(
-    r'href="(https://(?:news\.futunn\.com(?:/hk)?/post/\d+|q\.futunn\.com/feed/\d+)[^"]*)"',
+    r'href="(https://(?:news\.futunn\.com(?:/hk)?/post/\d+|q\.futunn\.com/(?:feed|discussion)/\d+)[^"]*)"',
     re.I,
 )
 
