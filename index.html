@@ -2963,7 +2963,7 @@ let ipoNewsLoading = false;
 let ipoNewsLoadedOnce = false;
 let ipoNewsRefreshPending = false;
 let ipoNewsLastDisplay = null;
-const IPO_NEWS_DISPLAY_CACHE_KEY = 'ipo_news_display_v1';
+const IPO_NEWS_DISPLAY_CACHE_KEY = 'ipo_news_display_v2';
 let ipoNewsBannerInited = false;
 let ipoNewsBannerIndex = 0;
 let ipoNewsBannerStep = 0;
@@ -3186,13 +3186,43 @@ async function ipoNewsFetchLocalJson(force) {
 
 const IPO_NEWS_FUTU_TOPIC_URL =
   (typeof window !== 'undefined' && window.IPO_NEWS_FUTU_TOPIC_URL) ||
-  'https://news.futunn.com/hk/news-topics/172/stocks-ipo?lang=zh-hk';
+  'https://news.futunn.com/news-topics/172/stocks-ipo?lang=zh-cn';
 const IPO_NEWS_RECENT_DAYS_DEFAULT = 10;
 const IPO_NEWS_FUTU_TOPIC_TITLE = '新股、次新股直達快車';
+/** 运营重点主题（简繁体） */
+const IPO_NEWS_FOCUS_RE = /新股首日|新股资讯|新股資訊|暗盘情报|暗盤情報|新股消息|新股定价|新股定價|港股\s*IPO\s*月报|港股\s*IPO\s*月報|热门\s*IPO|熱門\s*IPO/i;
 const IPO_NEWS_TITLE_RE = /新股|次新股|IPO|港股\s*IPO|热门\s*IPO|熱門\s*IPO|新股资讯|新股資訊|新股定价|新股定價|新股消息|新股首日|上市首日|暗盘|暗盤|招股|聆讯|聆訊|递表|遞表|孖展|配售|超购|超購|挂牌|掛牌|申购|申購|基石|破发|破發|暗盘交易|暗盤交易|首日表现|首日表現|打新|上市/i;
+/** 列表分组顺序（与运营主题一致） */
+const IPO_NEWS_THEMES = [
+  { id: 'first_day', label: '新股首日', keys: ['新股首日'] },
+  { id: 'ipo_news', label: '新股资讯', keys: ['新股资讯', '新股資訊'] },
+  { id: 'grey_market', label: '暗盘情报', keys: ['暗盘情报', '暗盤情報'] },
+  { id: 'ipo_msg', label: '新股消息', keys: ['新股消息'] },
+  { id: 'pricing', label: '新股定价', keys: ['新股定价', '新股定價'] },
+  { id: 'monthly', label: '港股IPO月报', keys: ['港股IPO月报', '港股IPO月報'] },
+  { id: 'hot', label: '热门IPO', keys: ['热门IPO', '熱門IPO'] }
+];
 
 function ipoNewsMatchesIpoKeywords(title) {
-  return IPO_NEWS_TITLE_RE.test(String(title || '').trim());
+  const t = String(title || '').trim();
+  if (IPO_NEWS_FOCUS_RE.test(t)) return true;
+  return IPO_NEWS_TITLE_RE.test(t);
+}
+
+function ipoNewsDetectTheme(title) {
+  const t = String(title || '').trim();
+  const head = (t.split('|')[0] || t).trim();
+  for (const th of IPO_NEWS_THEMES) {
+    for (const k of th.keys) {
+      if (head.includes(k) || t.includes(k)) return th.id;
+    }
+  }
+  return 'other';
+}
+
+function ipoNewsThemeLabel(themeId) {
+  const th = IPO_NEWS_THEMES.find(x => x.id === themeId);
+  return th ? th.label : '其他新股资讯';
 }
 
 function ipoNewsFormatGeneratedAt(nowTs) {
@@ -3212,7 +3242,22 @@ function ipoNewsParseFutuListTime(timeStr, nowTs) {
   const now = new Date(nowTs || Date.now());
   let ts = ipoNewsParseTime(raw);
   if (Number.isFinite(ts)) return ts;
-  let m = raw.match(/^(\d{1,2}):(\d{2})$/);
+  // 富途专题列表常见：05/18 10:30
+  let m = raw.match(/^(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})$/);
+  if (m) {
+    let year = now.getFullYear();
+    const mo = +m[1] - 1;
+    const da = +m[2];
+    const hh = +m[3];
+    const mi = +m[4];
+    let d = new Date(year, mo, da, hh, mi, 0);
+    if (d.getTime() > nowTs + 86400000) {
+      year -= 1;
+      d = new Date(year, mo, da, hh, mi, 0);
+    }
+    return d.getTime();
+  }
+  m = raw.match(/^(\d{1,2}):(\d{2})$/);
   if (m) {
     const d = new Date(now);
     d.setHours(+m[1], +m[2], 0, 0);
@@ -3238,6 +3283,26 @@ function ipoNewsParseFutuListTime(timeStr, nowTs) {
   return NaN;
 }
 
+/** 展示网页原文发布时间（非抓取/刷新时刻） */
+function ipoNewsFormatPublishedDisplay(timeRaw, ts) {
+  const raw = String(timeRaw || '').trim();
+  if (raw) {
+    const m = raw.match(/^(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})$/);
+    if (m && Number.isFinite(ts)) {
+      const d = new Date(ts);
+      const y = d.getFullYear();
+      const mo = String(+m[1]).padStart(2, '0');
+      const da = String(+m[2]).padStart(2, '0');
+      const hh = String(+m[3]).padStart(2, '0');
+      const mi = String(+m[4]).padStart(2, '0');
+      return `${y}-${mo}-${da} ${hh}:${mi}`;
+    }
+    return raw;
+  }
+  if (Number.isFinite(ts)) return ipoNewsDateTextFromTs(ts);
+  return '未知时间';
+}
+
 function ipoNewsParseFutuTopicHtml(html, nowTs, recentDays) {
   if (!html || html.length < 800) return [];
   const now = nowTs || Date.now();
@@ -3248,7 +3313,7 @@ function ipoNewsParseFutuTopicHtml(html, nowTs, recentDays) {
   const parts = html.split(/<div class="news-item list-item"/i);
   for (let i = 1; i < parts.length; i++) {
     const chunk = parts[i];
-    const hrefM = chunk.match(/href="(https:\/\/news\.futunn\.com\/hk\/post\/\d+[^"]*)"/i);
+    const hrefM = chunk.match(/href="(https:\/\/news\.futunn\.com(?:\/hk)?\/post\/\d+[^"]*)"/i);
     const titleM = chunk.match(/<p class="title[^"]*"[^>]*>\s*([^<]+?)\s*<\/p>/i);
     if (!hrefM || !titleM) continue;
     const href = hrefM[1].trim().split('"')[0];
@@ -3259,19 +3324,18 @@ function ipoNewsParseFutuTopicHtml(html, nowTs, recentDays) {
     const timeM = chunk.match(/<span class="time"[^>]*>\s*([^<]+?)\s*<\/span>/i);
     const sourceM = chunk.match(/<span class="source"[^>]*>\s*([^<]*?)\s*<\/span>/i);
     const timeTxt = timeM ? timeM[1].trim() : '';
-    let ts = ipoNewsParseFutuListTime(timeTxt, now);
-    if (!Number.isFinite(ts)) {
-      const d = new Date(now);
-      d.setHours(12, 0, 0, 0);
-      ts = d.getTime();
-    }
-    if (ts < cutoff) continue;
+    const ts = ipoNewsParseFutuListTime(timeTxt, now);
+    if (Number.isFinite(ts) && ts < cutoff) continue;
     const media = sourceM ? sourceM[1].replace(/\s+/g, ' ').trim() : '富途牛牛';
+    const theme = ipoNewsDetectTheme(title);
+    const publishedAt = ipoNewsFormatPublishedDisplay(timeTxt, ts);
     out.push({
       title: title.slice(0, 500),
       link: href,
-      publishedAt: ipoNewsFormatGeneratedAt(ts),
-      ts,
+      publishedAt,
+      timeRaw: timeTxt,
+      ts: Number.isFinite(ts) ? ts : NaN,
+      theme,
       media_source: media || '富途牛牛',
       source: 'futu_ipo_topic',
       stock: IPO_NEWS_FUTU_TOPIC_TITLE
@@ -3356,16 +3420,21 @@ function ipoNewsItemsFromJsonPayload(data) {
   const list = raw.map((it) => {
     const title = String(it.title || it.headline || '').trim();
     const link = String(it.link || it.url || '').trim();
+    const timeRaw = String(it.timeRaw || it.time_raw || '').trim();
     const dateRaw = it.publishedAt || it.dateText || it.published_at || it.time || '';
     let ts = typeof it.ts === 'number' && Number.isFinite(it.ts) ? it.ts : ipoNewsParseTime(String(dateRaw));
-    const dateText = Number.isFinite(ts) ? ipoNewsDateTextFromTs(ts) : (String(dateRaw).trim() || '未知时间');
+    if (!Number.isFinite(ts) && timeRaw) ts = ipoNewsParseFutuListTime(timeRaw, Date.now());
+    const theme = String(it.theme || '').trim() || ipoNewsDetectTheme(title);
+    const dateText = ipoNewsFormatPublishedDisplay(timeRaw || String(dateRaw).trim(), ts);
     const stockTag = String(it.stock_name || it.stock || '').trim();
     const mediaSource = String(it.media_source || it.source || '').trim();
     return {
       title: title || '未命名新闻',
       link: link || 'https://www.finet.hk/Ipo',
       dateText,
+      timeRaw: timeRaw || String(dateRaw).trim(),
       ts: Number.isFinite(ts) ? ts : NaN,
+      theme,
       stockTag,
       mediaSource
     };
@@ -3572,19 +3641,53 @@ async function ipoNewsFetchFinetItems(categoryId, limit = 8) {
   });
 }
 
+function ipoNewsRenderNewsRow(item, isLastInBlock) {
+  const border = isLastInBlock ? 'none' : '1px solid var(--s3)';
+  return `
+    <a href="${ipoNewsEscapeHtml(item.link)}" target="_blank" rel="noopener noreferrer"
+       style="display:block;padding:10px 8px;border-bottom:${border};text-decoration:none;">
+      <div style="font-size:13px;line-height:1.5;color:var(--t1);font-weight:600;">${ipoNewsEscapeHtml(item.title)}</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:6px;">${ipoNewsEscapeHtml(item.dateText)}${item.mediaSource ? ` · ${ipoNewsEscapeHtml(item.mediaSource)}` : ''}</div>
+    </a>`;
+}
+
+function ipoNewsGroupItemsByTheme(items) {
+  const sorted = ipoNewsSortByLatest(items || [], Date.now());
+  const buckets = new Map();
+  IPO_NEWS_THEMES.forEach(th => buckets.set(th.id, []));
+  buckets.set('other', []);
+  for (const it of sorted) {
+    const id = buckets.has(it.theme) ? it.theme : 'other';
+    buckets.get(id).push(it);
+  }
+  const groups = [];
+  for (const th of IPO_NEWS_THEMES) {
+    const list = buckets.get(th.id) || [];
+    if (list.length) groups.push({ id: th.id, label: th.label, items: list });
+  }
+  const other = buckets.get('other') || [];
+  if (other.length) groups.push({ id: 'other', label: '其他新股资讯', items: other });
+  return groups;
+}
+
 function ipoNewsRenderList(el, items, emptyHtml) {
   if (!el) return;
   if (!items || !items.length) {
     if (emptyHtml) el.innerHTML = emptyHtml;
     return;
   }
-  el.innerHTML = items.map((item, idx) => `
-    <a href="${ipoNewsEscapeHtml(item.link)}" target="_blank" rel="noopener noreferrer"
-       style="display:block;padding:10px 8px;border-bottom:${idx === items.length - 1 ? 'none' : '1px solid var(--s3)'};text-decoration:none;">
-      <div style="font-size:13px;line-height:1.5;color:var(--t1);font-weight:600;">${ipoNewsEscapeHtml(item.title)}</div>
-      <div style="font-size:11px;color:var(--t3);margin-top:6px;">${ipoNewsEscapeHtml(item.dateText)}${item.mediaSource ? ` · ${ipoNewsEscapeHtml(item.mediaSource)}` : ''}</div>
-    </a>
-  `).join('');
+  const groups = ipoNewsGroupItemsByTheme(items);
+  const parts = [];
+  groups.forEach((grp, gi) => {
+    parts.push(`
+      <div style="padding:8px 4px 4px;${gi ? 'margin-top:6px;border-top:1px solid var(--s3);' : ''}">
+        <div style="font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.04em;">${ipoNewsEscapeHtml(grp.label)}</div>
+      </div>`);
+    grp.items.forEach((item, idx) => {
+      parts.push(ipoNewsRenderNewsRow(item, idx === grp.items.length - 1 && gi === groups.length - 1));
+    });
+  });
+  el.innerHTML = parts.join('');
 }
 
 function ipoNewsSerializeItemsForCache(items) {
@@ -3592,7 +3695,9 @@ function ipoNewsSerializeItemsForCache(items) {
     title: it.title,
     link: it.link,
     dateText: it.dateText,
+    timeRaw: it.timeRaw || '',
     ts: Number.isFinite(it.ts) ? it.ts : NaN,
+    theme: it.theme || '',
     mediaSource: it.mediaSource || ''
   }));
 }

@@ -53,15 +53,23 @@ PUB_CSV_FETCH_TIMEOUT = float(
     os.environ.get("IPO_NEWS_CSV_TIMEOUT", "45").strip() or "45"
 )
 DEFAULT_FUTU_TOPIC_URL = (
-    "https://news.futunn.com/hk/news-topics/172/stocks-ipo?lang=zh-hk"
+    "https://news.futunn.com/news-topics/172/stocks-ipo?lang=zh-cn"
 )
 FUTU_TOPIC_TITLE = "新股、次新股直達快車"
+
+IPO_FOCUS_RE = re.compile(
+    r"新股首日|新股资讯|新股資訊|暗盘情报|暗盤情報|新股消息|"
+    r"新股定价|新股定價|港股\s*IPO\s*月报|港股\s*IPO\s*月報|"
+    r"热门\s*IPO|熱門\s*IPO",
+    re.I,
+)
 
 IPO_TITLE_RE = re.compile(
     r"新股|次新股|"
     r"IPO|"
     r"港股\s*IPO|热门\s*IPO|熱門\s*IPO|"
     r"新股资讯|新股資訊|新股定价|新股定價|新股消息|新股首日|"
+    r"暗盘情报|暗盤情報|"
     r"上市首日|暗盘|暗盤|"
     r"招股|聆讯|聆訊|递表|遞表|孖展|配售|超购|超購|"
     r"挂牌|掛牌|申购|申購|基石|破发|破發|"
@@ -255,7 +263,29 @@ def within_recent_days(pub: datetime, days: float) -> bool:
 
 
 def matches_ipo_keywords(title: str) -> bool:
-    return bool(IPO_TITLE_RE.search(str(title or "").strip()))
+    t = str(title or "").strip()
+    if IPO_FOCUS_RE.search(t):
+        return True
+    return bool(IPO_TITLE_RE.search(t))
+
+
+def detect_ipo_theme(title: str) -> str:
+    t = str(title or "").strip()
+    head = (t.split("|")[0] or t).strip()
+    themes = (
+        ("first_day", ("新股首日",)),
+        ("ipo_news", ("新股资讯", "新股資訊")),
+        ("grey_market", ("暗盘情报", "暗盤情報")),
+        ("ipo_msg", ("新股消息",)),
+        ("pricing", ("新股定价", "新股定價")),
+        ("monthly", ("港股IPO月报", "港股IPO月報")),
+        ("hot", ("热门IPO", "熱門IPO")),
+    )
+    for tid, keys in themes:
+        for k in keys:
+            if k in head or k in t:
+                return tid
+    return "other"
 
 
 def parse_futu_list_time(time_str: str, now: datetime | None = None) -> datetime | None:
@@ -267,6 +297,17 @@ def parse_futu_list_time(time_str: str, now: datetime | None = None) -> datetime
     fuzzy = _parse_time_fuzzy(raw) or _parse_relative_cn(raw) or _parse_futu_meta(raw)
     if fuzzy:
         return fuzzy
+    m = re.match(r"^(\d{1,2})/(\d{1,2})\s+(\d{1,2}):(\d{2})$", raw)
+    if m:
+        mo, d, hh, mm = int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))
+        year = now.year
+        try:
+            pub = datetime(year, mo, d, hh, mm)
+            if pub > now + timedelta(days=1):
+                pub = pub.replace(year=year - 1)
+            return pub
+        except ValueError:
+            return None
     m = re.match(r"^(\d{1,2}):(\d{2})$", raw)
     if m:
         hh, mm = int(m.group(1)), int(m.group(2))
@@ -319,7 +360,7 @@ def parse_futu_topic_html(html: str) -> list[dict[str, Any]]:
     chunks = re.split(r'<div class="news-item list-item"', html, flags=re.I)
     for chunk in chunks[1:]:
         href_m = re.search(
-            r'href="(https://news\.futunn\.com/hk/post/\d+[^"]*)"',
+            r'href="(https://news\.futunn\.com(?:/hk)?/post/\d+[^"]*)"',
             chunk,
             re.I,
         )
@@ -349,9 +390,9 @@ def parse_futu_topic_html(html: str) -> list[dict[str, Any]]:
         )
         time_txt = time_m.group(1).strip() if time_m else ""
         pub = parse_futu_list_time(time_txt, now)
-        if not pub:
-            pub = now.replace(hour=12, minute=0, second=0, microsecond=0)
-        if not within_recent_days(pub, RECENT_DAYS):
+        if pub and not within_recent_days(pub, RECENT_DAYS):
+            continue
+        if not pub and not time_txt:
             continue
         media = (
             re.sub(r"\s+", " ", source_m.group(1)).strip()
@@ -366,6 +407,7 @@ def parse_futu_topic_html(html: str) -> list[dict[str, Any]]:
                 "futu_ipo_topic",
                 FUTU_TOPIC_TITLE,
                 media_source=media,
+                time_raw=time_txt,
             )
         )
     return out
@@ -555,12 +597,17 @@ def read_stocks_from_pub_csv() -> list[Stock]:
 def _item_dict(
     title: str,
     link: str,
-    published_at: datetime,
+    published_at: datetime | None,
     source: str,
     stock_name: str,
     media_source: str = "",
+    time_raw: str = "",
 ) -> dict[str, Any]:
-    t = published_at.strftime("%Y-%m-%d %H:%M")
+    raw = (time_raw or "").strip()
+    if published_at:
+        t = published_at.strftime("%Y-%m-%d %H:%M")
+    else:
+        t = raw or ""
     media = (media_source or "").strip()
     obj: dict[str, Any] = {
         "stock_name": stock_name,
@@ -571,7 +618,12 @@ def _item_dict(
         "publishedAt": t,
         "source": media or source,
         "stock": stock_name,
+        "theme": detect_ipo_theme(title),
     }
+    if raw:
+        obj["time_raw"] = raw
+    if published_at:
+        obj["ts"] = int(published_at.timestamp() * 1000)
     if media:
         obj["media_source"] = media
     return obj
@@ -719,10 +771,11 @@ async def scrape_one_stock(page, stock: Stock) -> list[dict[str, Any]]:
 
 
 def _item_sort_key(it: dict[str, Any]) -> datetime:
-    return (
-        _parse_time_fuzzy(str(it.get("time") or it.get("publishedAt") or ""))
-        or datetime.min
-    )
+    ts_ms = it.get("ts")
+    if isinstance(ts_ms, (int, float)) and ts_ms > 0:
+        return datetime.fromtimestamp(ts_ms / 1000)
+    raw = str(it.get("time_raw") or it.get("time") or it.get("publishedAt") or "")
+    return _parse_time_fuzzy(raw) or parse_futu_list_time(raw) or datetime.min
 
 
 def _dedupe_items(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
