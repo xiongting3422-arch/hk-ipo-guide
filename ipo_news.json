@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-19 12:27:45",
+  "generatedAt": "2026-05-19 12:35:29",
   "feed": "futu_ipo_topic_v1",
   "dataSource": "futu_news_topic",
   "topicTitle": "新股、次新股直達快車",
@@ -28,6 +28,62 @@
     },
     {
       "stock_name": "新股、次新股直達快車",
+      "title": "新股资讯 | “AMOLED显示驱动芯片供应商”云英谷科技启动招股，拟5月27日上市，一手认购金额4203.98港元",
+      "time": "2026-05-18 08:45",
+      "publishedAt": "2026-05-18 08:45",
+      "time_raw": "05/18 08:45",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://q.futunn.com/feed/116592811376648?futusource=news_topic_page",
+      "source": "专栏",
+      "stock": "新股、次新股直達快車",
+      "media_source": "专栏",
+      "theme": "ipo_news",
+      "ts": 1779065100000
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股定价 | “历史超购王”翼菲科技今日上市，获近15000倍认购，每股定价30.5港元，暗盘一手赚2415港元",
+      "time": "2026-05-18 08:29",
+      "publishedAt": "2026-05-18 08:29",
+      "time_raw": "05/18 08:29",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://q.futunn.com/feed/116592747544980?futusource=news_topic_page",
+      "source": "专栏",
+      "stock": "新股、次新股直達快車",
+      "media_source": "专栏",
+      "theme": "pricing",
+      "ts": 1779064140000
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股资讯 | “智慧家庭产品提供商”华曦达启动招股，拟5月27日上市，一手认购金额3313.08港元",
+      "time": "2026-05-18 08:11",
+      "publishedAt": "2026-05-18 08:11",
+      "time_raw": "05/18 08:11",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://q.futunn.com/feed/116592679190536?futusource=news_topic_page",
+      "source": "专栏",
+      "stock": "新股、次新股直達快車",
+      "media_source": "专栏",
+      "theme": "ipo_news",
+      "ts": 1779063060000
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股资讯 | “营销和销售决策AI应用公司”深演智能启动招股，拟5月27日上市，一手认购金额5605.97港元",
+      "time": "2026-05-18 08:01",
+      "publishedAt": "2026-05-18 08:01",
+      "time_raw": "05/18 08:01",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://q.futunn.com/feed/116592637378564?futusource=news_topic_page",
+      "source": "专栏",
+      "stock": "新股、次新股直達快車",
+      "media_source": "专栏",
+      "theme": "ipo_news",
+      "ts": 1779062460000
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
       "title": "暗盘情报 | “工业机器人科技企业”翼菲科技现涨近77%，一手赚2340港元",
       "time": "2026-05-15 16:15",
       "publishedAt": "2026-05-15 16:15",
@@ -39,6 +95,20 @@
       "media_source": "富途资讯",
       "theme": "grey_market",
       "ts": 1778832900000
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股资讯 | “幽门螺杆菌新药研发商”丹诺医药-B启动招股，拟5月22日上市，一手认购金额3823.17港元",
+      "time": "2026-05-14 08:37",
+      "publishedAt": "2026-05-14 08:37",
+      "time_raw": "05/14 08:37",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://q.futunn.com/feed/116570131070980?futusource=news_topic_page",
+      "source": "专栏",
+      "stock": "新股、次新股直達快車",
+      "media_source": "专栏",
+      "theme": "ipo_news",
+      "ts": 1778719020000
     },
     {
       "stock_name": "新股、次新股直達快車",
@@ -84,6 +154,34 @@
     },
     {
       "stock_name": "新股、次新股直達快車",
+      "title": "新股定价 | 英派药业-B今日上市，获2282.4倍认购，每股定价20.1港元，暗盘一手赚超2400港元",
+      "time": "2026-05-13 08:08",
+      "publishedAt": "2026-05-13 08:08",
+      "time_raw": "05/13 08:08",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://q.futunn.com/feed/116564353680964?futusource=news_topic_page",
+      "source": "专栏",
+      "stock": "新股、次新股直達快車",
+      "media_source": "专栏",
+      "theme": "pricing",
+      "ts": 1778630880000
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股定价 | 剂泰科技-P今日上市，获逾6900倍认购，每股定价10.5港元，暗盘一手赚9450港元",
+      "time": "2026-05-13 07:47",
+      "publishedAt": "2026-05-13 07:47",
+      "time_raw": "05/13 07:47",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://q.futunn.com/feed/116564273398164?futusource=news_topic_page",
+      "source": "专栏",
+      "stock": "新股、次新股直達快車",
+      "media_source": "专栏",
+      "theme": "pricing",
+      "ts": 1778629620000
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
       "title": "暗盘情报 | “港股合成致死肿瘤药第一股”英派药业现涨超65%，一手赚2640港元",
       "time": "2026-05-12 17:23",
       "publishedAt": "2026-05-12 17:23",
@@ -112,6 +210,20 @@
     },
     {
       "stock_name": "新股、次新股直達快車",
+      "title": "新股资讯 | 港股“商业航天第一股”拓璞数控启动招股，拟5月20日上市，一手认购金额2665.61港元",
+      "time": "2026-05-12 08:57",
+      "publishedAt": "2026-05-12 08:57",
+      "time_raw": "05/12 08:57",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://q.futunn.com/feed/116558885552932?futusource=news_topic_page",
+      "source": "专栏",
+      "stock": "新股、次新股直達快車",
+      "media_source": "专栏",
+      "theme": "ipo_news",
+      "ts": 1778547420000
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
       "title": "新股消息 | 东圣实业递表港交所 主营磷资源全生命周期梯级利用",
       "time": "2026-05-12 08:39",
       "publishedAt": "2026-05-12 08:39",
@@ -123,6 +235,20 @@
       "media_source": "智通财经",
       "theme": "ipo_msg",
       "ts": 1778546340000
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股资讯 | “自动驾驶解决方案供应商”驭势科技启动招股，拟5月20日上市，一手认购金额3045.4港元",
+      "time": "2026-05-12 08:08",
+      "publishedAt": "2026-05-12 08:08",
+      "time_raw": "05/12 08:08",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://q.futunn.com/feed/116558692483876?futusource=news_topic_page",
+      "source": "专栏",
+      "stock": "新股、次新股直達快車",
+      "media_source": "专栏",
+      "theme": "ipo_news",
+      "ts": 1778544480000
     },
     {
       "stock_name": "新股、次新股直達快車",
@@ -179,6 +305,20 @@
       "media_source": "富途资讯",
       "theme": "first_day",
       "ts": 1778462400000
+    },
+    {
+      "stock_name": "新股、次新股直達快車",
+      "title": "新股定价 | 乐动机器人今日上市，获逾6700倍认购，每股定价26.36港元，暗盘一手赚7828港元",
+      "time": "2026-05-11 07:34",
+      "publishedAt": "2026-05-11 07:34",
+      "time_raw": "05/11 07:34",
+      "source_platform": "futu_ipo_topic",
+      "link": "https://q.futunn.com/feed/116552896086020?futusource=news_topic_page",
+      "source": "专栏",
+      "stock": "新股、次新股直達快車",
+      "media_source": "专栏",
+      "theme": "pricing",
+      "ts": 1778456040000
     },
     {
       "stock_name": "新股、次新股直達快車",

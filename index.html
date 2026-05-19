@@ -3189,6 +3189,8 @@ const IPO_NEWS_FUTU_TOPIC_URL =
   'https://news.futunn.com/news-topics/172/stocks-ipo?lang=zh-cn';
 const IPO_NEWS_RECENT_DAYS_DEFAULT = 10;
 const IPO_NEWS_FUTU_TOPIC_TITLE = '新股、次新股直達快車';
+/** 富途专题列表链接：帖子 + 专栏 feed（新股资讯/新股定价等多为 feed） */
+const IPO_NEWS_FUTU_HREF_RE = /href="(https:\/\/(?:news\.futunn\.com(?:\/hk)?\/post\/\d+|q\.futunn\.com\/feed\/\d+)[^"]*)"/i;
 /** 运营重点主题（简繁体） */
 const IPO_NEWS_FOCUS_RE = /新股首日|新股资讯|新股資訊|暗盘情报|暗盤情報|新股消息|新股定价|新股定價|港股\s*IPO\s*月报|港股\s*IPO\s*月報|热门\s*IPO|熱門\s*IPO/i;
 const IPO_NEWS_TITLE_RE = /新股|次新股|IPO|港股\s*IPO|热门\s*IPO|熱門\s*IPO|新股资讯|新股資訊|新股定价|新股定價|新股消息|新股首日|上市首日|暗盘|暗盤|招股|聆讯|聆訊|递表|遞表|孖展|配售|超购|超購|挂牌|掛牌|申购|申購|基石|破发|破發|暗盘交易|暗盤交易|首日表现|首日表現|打新|上市/i;
@@ -3313,7 +3315,7 @@ function ipoNewsParseFutuTopicHtml(html, nowTs, recentDays) {
   const parts = html.split(/<div class="news-item list-item"/i);
   for (let i = 1; i < parts.length; i++) {
     const chunk = parts[i];
-    const hrefM = chunk.match(/href="(https:\/\/news\.futunn\.com(?:\/hk)?\/post\/\d+[^"]*)"/i);
+    const hrefM = chunk.match(IPO_NEWS_FUTU_HREF_RE);
     const titleM = chunk.match(/<p class="title[^"]*"[^>]*>\s*([^<]+?)\s*<\/p>/i);
     if (!hrefM || !titleM) continue;
     const href = hrefM[1].trim().split('"')[0];

@@ -56,6 +56,10 @@ DEFAULT_FUTU_TOPIC_URL = (
     "https://news.futunn.com/news-topics/172/stocks-ipo?lang=zh-cn"
 )
 FUTU_TOPIC_TITLE = "新股、次新股直達快車"
+FUTU_TOPIC_HREF_RE = re.compile(
+    r'href="(https://(?:news\.futunn\.com(?:/hk)?/post/\d+|q\.futunn\.com/feed/\d+)[^"]*)"',
+    re.I,
+)
 
 IPO_FOCUS_RE = re.compile(
     r"新股首日|新股资讯|新股資訊|暗盘情报|暗盤情報|新股消息|"
@@ -359,11 +363,7 @@ def parse_futu_topic_html(html: str) -> list[dict[str, Any]]:
     seen_links: set[str] = set()
     chunks = re.split(r'<div class="news-item list-item"', html, flags=re.I)
     for chunk in chunks[1:]:
-        href_m = re.search(
-            r'href="(https://news\.futunn\.com(?:/hk)?/post/\d+[^"]*)"',
-            chunk,
-            re.I,
-        )
+        href_m = FUTU_TOPIC_HREF_RE.search(chunk)
         title_m = re.search(
             r'<p class="title[^"]*"[^>]*>\s*([^<]+?)\s*</p>',
             chunk,
