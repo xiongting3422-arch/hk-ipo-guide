@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 2,
+  "updatedAt": "2026-05-25T20:21:12+08:00",
+  "source": "https://q.futunn.com/nnq/recommend",
+  "filter": {
+    "days": 10,
+    "minEngagement": 1,
+    "highHeatThreshold": 50,
+    "section": "牛友交流"
+  },
+  "summary": {
+    "totalPosts": 17,
+    "positiveCount": 12,
+    "positivePct": 70.6,
+    "negativeCount": 2,
+    "negativePct": 11.8,
+    "neutralCount": 3,
+    "neutralPct": 17.6,
+    "highHeatPosts": 1,
+    "highHeatThreshold": 50
+  },
+  "topStocks": [
+    { "name": "华曦达", "code": "00901", "mentions": 3, "engagement": 128.5, "posts": 3 }
+  ],
+  "topKeywords": [{ "word": "暗盘", "count": 5 }],
+  "highHeatPostsList": [
+    {
+      "author": "牛友A",
+      "authorNickname": "牛友A",
+      "authorAvatar": "https://example.com/avatar.png",
+      "authorFollowers": 1200,
+      "source": "stock_comment",
+      "excerpt": "示例摘要",
+      "engagement": 88,
+      "likes": 50,
+      "comments": 20,
+      "shares": 18,
+      "sentiment": "positive",
+      "publishedAt": "2026-05-25T12:00:00+08:00",
+      "link": "https://q.futunn.com/nnq/post/example",
+      "relatedStock": { "code": "00901", "name": "华曦达" }
+    }
+  ],
+  "scrapeTargets": [
+    {
+      "code": "00901",
+      "name": "华曦达",
+      "subStart": "2026-05-18",
+      "listingDate": "2026-05-27",
+      "sortDate": "2026-05-27",
+      "sector": "数字视讯"
+    }
+  ],
+  "contentPool": {
+    "nnqFeedCount": 120,
+    "stockCommentCount": 45,
+    "mergedCount": 150,
+    "afterCleanCount": 80,
+    "highHeatCount": 6
+  },
+  "stockInsights": [
+    {
+      "code": "00901",
+      "name": "华曦达",
+      "mentions": 3,
+      "sentimentBreakdown": {
+        "bullish": { "count": 2, "pct": 66.7, "weight": 85.0 },
+        "bearish": { "count": 0, "pct": 0.0, "weight": 0.0 },
+        "watch": { "count": 1, "pct": 33.3, "weight": 12.0 },
+        "neutral": { "count": 0, "pct": 0.0, "weight": 0.0 },
+        "dominant": "bullish"
+      },
+      "weightedHeat": {
+        "rawEngagement": 80,
+        "weightedScore": 97.0,
+        "tiers": {
+          "lotteryShare": { "posts": 0, "weight": 3.0, "score": 0.0 },
+          "deepAnalysis": { "posts": 1, "weight": 2.5, "score": 62.5 },
+          "normalComment": { "posts": 2, "weight": 1.0, "score": 34.5 },
+          "likeOnly": { "posts": 0, "weight": 0.3, "score": 0.0 }
+        }
+      },
+      "basicTags": {
+        "ipoPeriod": "2026-05-18 ~ 2026-05-21",
+        "issuePe": "18.5x",
+        "sponsor": "中信建投",
+        "sector": "数字视讯",
+        "sectorGroup": "AI/科技",
+        "lotRateExpect": "约12%",
+        "source": "google_sheet"
+      },
+      "relatedKeywords": [
+        { "word": "暗盘", "coOccur": 2, "affinity": 0.67 },
+        { "word": "申购", "coOccur": 1, "affinity": 0.33 }
+      ]
+    }
+  ],
+  "keywordStockMap": [
+    {
+      "word": "暗盘",
+      "topStock": { "code": "00901", "name": "华曦达", "coOccur": 2, "affinity": 0.67 }
+    },
+    {
+      "word": "破发",
+      "topStock": { "code": "02723", "name": "深演智能", "coOccur": 1, "affinity": 1.0 }
+    }
+  ],
+  "marketInsights": {
+    "investorBehavior": {
+      "bullishSubscribe": { "count": 8, "pct": 47.1 },
+      "watchWait": { "count": 4, "pct": 23.5 },
+      "avoidSkip": { "count": 3, "pct": 17.6 },
+      "greyArbitrage": { "count": 2, "pct": 11.8 },
+      "method": "rule_based_v1"
+    },
+    "sectorHeat": [
+      {
+        "sectorGroup": "AI/科技",
+        "heatScore": 156.0,
+        "mentions": 12,
+        "postCount": 8,
+        "sentimentIdx": 0.35
+      },
+      {
+        "sectorGroup": "消费",
+        "heatScore": 42.0,
+        "mentions": 3,
+        "postCount": 2,
+        "sentimentIdx": -0.1
+      }
+    ]
+  },
+  "dailyTrend": [
+    {
+      "date": "2026-05-20",
+      "postCount": 2,
+      "heatScore": 69,
+      "weightedHeat": 88.5,
+      "sentiment": { "positivePct": 50.0, "negativePct": 0.0, "neutralPct": 50.0 }
+    },
+    {
+      "date": "2026-05-21",
+      "postCount": 0,
+      "heatScore": 0,
+      "weightedHeat": 0.0,
+      "sentiment": { "positivePct": 0.0, "negativePct": 0.0, "neutralPct": 0.0 }
+    }
+  ],
+  "riskAlerts": {
+    "keywordSpikes": [
+      {
+        "word": "破发",
+        "todayCount": 2,
+        "prevDayCount": 0,
+        "growthRate": null,
+        "severity": "medium",
+        "window": "1d"
+      }
+    ],
+    "stockSentimentSpikes": [
+      {
+        "code": "02723",
+        "name": "深演智能",
+        "negativeCountToday": 2,
+        "negativeCountPrev3dAvg": 0.3,
+        "growthRate": 5.67,
+        "flag": true,
+        "reason": "负面情绪近1日增速超阈值"
+      }
+    ],
+    "thresholds": { "keywordGrowthMin": 1.5, "stockNegGrowthMin": 2.0 }
+  },
+  "meta": {
+    "rawFetched": 220,
+    "afterFilter": 17,
+    "analyticsVersion": "v2"
+  }
+}

@@ -1,0 +1,467 @@
+{
+  "date": "2026-05-26",
+  "dailyTrend": [
+    {
+      "date": "2026-04-27",
+      "postCount": 0,
+      "heatScore": 0,
+      "weightedHeat": 0,
+      "sentiment": {
+        "positivePct": 0.0,
+        "negativePct": 0.0,
+        "neutralPct": 0.0
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-04-28",
+      "postCount": 0,
+      "heatScore": 0,
+      "weightedHeat": 0,
+      "sentiment": {
+        "positivePct": 0.0,
+        "negativePct": 0.0,
+        "neutralPct": 0.0
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-04-29",
+      "postCount": 3,
+      "heatScore": 170,
+      "weightedHeat": 500.8,
+      "sentiment": {
+        "positivePct": 33.3,
+        "negativePct": 0.0,
+        "neutralPct": 66.7
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-04-30",
+      "postCount": 8,
+      "heatScore": 821,
+      "weightedHeat": 4247.2,
+      "sentiment": {
+        "positivePct": 37.5,
+        "negativePct": 0.0,
+        "neutralPct": 62.5
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-01",
+      "postCount": 2,
+      "heatScore": 67,
+      "weightedHeat": 184.7,
+      "sentiment": {
+        "positivePct": 50.0,
+        "negativePct": 0.0,
+        "neutralPct": 50.0
+      },
+      "riskKeywordCounts": [
+        {
+          "word": "坑",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-05-02",
+      "postCount": 1,
+      "heatScore": 19,
+      "weightedHeat": 89.7,
+      "sentiment": {
+        "positivePct": 100.0,
+        "negativePct": 0.0,
+        "neutralPct": 0.0
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-03",
+      "postCount": 1,
+      "heatScore": 22,
+      "weightedHeat": 93.7,
+      "sentiment": {
+        "positivePct": 0.0,
+        "negativePct": 0.0,
+        "neutralPct": 100.0
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-04",
+      "postCount": 4,
+      "heatScore": 107,
+      "weightedHeat": 337.2,
+      "sentiment": {
+        "positivePct": 25.0,
+        "negativePct": 0.0,
+        "neutralPct": 75.0
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-05",
+      "postCount": 5,
+      "heatScore": 191,
+      "weightedHeat": 658.3,
+      "sentiment": {
+        "positivePct": 60.0,
+        "negativePct": 0.0,
+        "neutralPct": 40.0
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-06",
+      "postCount": 7,
+      "heatScore": 188,
+      "weightedHeat": 699.0,
+      "sentiment": {
+        "positivePct": 28.6,
+        "negativePct": 0.0,
+        "neutralPct": 71.4
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-07",
+      "postCount": 0,
+      "heatScore": 0,
+      "weightedHeat": 0,
+      "sentiment": {
+        "positivePct": 0.0,
+        "negativePct": 0.0,
+        "neutralPct": 0.0
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-08",
+      "postCount": 6,
+      "heatScore": 212,
+      "weightedHeat": 738.0,
+      "sentiment": {
+        "positivePct": 66.7,
+        "negativePct": 16.7,
+        "neutralPct": 16.7
+      },
+      "riskKeywordCounts": [
+        {
+          "word": "坑",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-05-09",
+      "postCount": 1,
+      "heatScore": 24,
+      "weightedHeat": 120.4,
+      "sentiment": {
+        "positivePct": 0.0,
+        "negativePct": 0.0,
+        "neutralPct": 100.0
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-10",
+      "postCount": 2,
+      "heatScore": 46,
+      "weightedHeat": 224.3,
+      "sentiment": {
+        "positivePct": 50.0,
+        "negativePct": 0.0,
+        "neutralPct": 50.0
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-11",
+      "postCount": 6,
+      "heatScore": 344,
+      "weightedHeat": 1437.5,
+      "sentiment": {
+        "positivePct": 66.7,
+        "negativePct": 0.0,
+        "neutralPct": 33.3
+      },
+      "riskKeywordCounts": [
+        {
+          "word": "破发",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-05-12",
+      "postCount": 13,
+      "heatScore": 441,
+      "weightedHeat": 1850.6,
+      "sentiment": {
+        "positivePct": 69.2,
+        "negativePct": 0.0,
+        "neutralPct": 30.8
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-13",
+      "postCount": 8,
+      "heatScore": 236,
+      "weightedHeat": 757.5,
+      "sentiment": {
+        "positivePct": 50.0,
+        "negativePct": 0.0,
+        "neutralPct": 50.0
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-14",
+      "postCount": 9,
+      "heatScore": 263,
+      "weightedHeat": 944.3,
+      "sentiment": {
+        "positivePct": 44.4,
+        "negativePct": 11.1,
+        "neutralPct": 44.4
+      },
+      "riskKeywordCounts": [
+        {
+          "word": "坑",
+          "count": 1
+        },
+        {
+          "word": "破发",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-05-15",
+      "postCount": 8,
+      "heatScore": 710,
+      "weightedHeat": 4891.6,
+      "sentiment": {
+        "positivePct": 62.5,
+        "negativePct": 0.0,
+        "neutralPct": 37.5
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-16",
+      "postCount": 2,
+      "heatScore": 643,
+      "weightedHeat": 6024.6,
+      "sentiment": {
+        "positivePct": 50.0,
+        "negativePct": 0.0,
+        "neutralPct": 50.0
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-17",
+      "postCount": 1,
+      "heatScore": 35,
+      "weightedHeat": 213.7,
+      "sentiment": {
+        "positivePct": 100.0,
+        "negativePct": 0.0,
+        "neutralPct": 0.0
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-18",
+      "postCount": 11,
+      "heatScore": 538,
+      "weightedHeat": 1805.1,
+      "sentiment": {
+        "positivePct": 36.4,
+        "negativePct": 9.1,
+        "neutralPct": 54.5
+      },
+      "riskKeywordCounts": [
+        {
+          "word": "坑",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-05-19",
+      "postCount": 8,
+      "heatScore": 258,
+      "weightedHeat": 1182.6,
+      "sentiment": {
+        "positivePct": 37.5,
+        "negativePct": 0.0,
+        "neutralPct": 62.5
+      },
+      "riskKeywordCounts": [
+        {
+          "word": "破发",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-05-20",
+      "postCount": 14,
+      "heatScore": 481,
+      "weightedHeat": 1919.6,
+      "sentiment": {
+        "positivePct": 14.3,
+        "negativePct": 21.4,
+        "neutralPct": 64.3
+      },
+      "riskKeywordCounts": [
+        {
+          "word": "破发",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "date": "2026-05-21",
+      "postCount": 11,
+      "heatScore": 391,
+      "weightedHeat": 1717.8,
+      "sentiment": {
+        "positivePct": 63.6,
+        "negativePct": 0.0,
+        "neutralPct": 36.4
+      },
+      "riskKeywordCounts": [
+        {
+          "word": "坑",
+          "count": 2
+        },
+        {
+          "word": "破发",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "postCount": 2,
+      "heatScore": 57,
+      "weightedHeat": 357.7,
+      "sentiment": {
+        "positivePct": 50.0,
+        "negativePct": 50.0,
+        "neutralPct": 0.0
+      },
+      "riskKeywordCounts": [
+        {
+          "word": "破发",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-05-23",
+      "postCount": 3,
+      "heatScore": 100,
+      "weightedHeat": 622.6,
+      "sentiment": {
+        "positivePct": 33.3,
+        "negativePct": 0.0,
+        "neutralPct": 66.7
+      },
+      "riskKeywordCounts": []
+    },
+    {
+      "date": "2026-05-24",
+      "postCount": 4,
+      "heatScore": 131,
+      "weightedHeat": 723.1,
+      "sentiment": {
+        "positivePct": 25.0,
+        "negativePct": 50.0,
+        "neutralPct": 25.0
+      },
+      "riskKeywordCounts": [
+        {
+          "word": "坑",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "date": "2026-05-25",
+      "postCount": 11,
+      "heatScore": 269,
+      "weightedHeat": 1329.2,
+      "sentiment": {
+        "positivePct": 27.3,
+        "negativePct": 0.0,
+        "neutralPct": 72.7
+      },
+      "riskKeywordCounts": [
+        {
+          "word": "破发",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "date": "2026-05-26",
+      "postCount": 33,
+      "heatScore": 450,
+      "weightedHeat": 1741.0,
+      "sentiment": {
+        "positivePct": 24.2,
+        "negativePct": 3.0,
+        "neutralPct": 72.7
+      },
+      "riskKeywordCounts": [
+        {
+          "word": "破发",
+          "count": 2
+        }
+      ]
+    }
+  ],
+  "stockNegativeDaily": [
+    {
+      "code": "06871",
+      "count": 1
+    },
+    {
+      "code": "03310",
+      "count": 2
+    },
+    {
+      "code": "02723",
+      "count": 2
+    },
+    {
+      "code": "00901",
+      "count": 1
+    },
+    {
+      "code": "06872",
+      "count": 1
+    },
+    {
+      "code": "01511",
+      "count": 1
+    },
+    {
+      "code": "02431",
+      "count": 1
+    },
+    {
+      "code": "02432",
+      "count": 1
+    }
+  ]
+}

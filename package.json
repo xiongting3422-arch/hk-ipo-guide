@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "preview": "python3 -m http.server 5173",
-    "futu-bridge": "node scripts/futu-opend-bridge.mjs"
+    "build:sentiment": "npm run build --prefix ipo-sentiment-dashboard",
+    "futu-bridge": "node scripts/futu-opend-bridge.mjs",
+    "nnq-heat:sync": "node scripts/nnq-heat-pipeline.mjs",
+    "nnq-heat:sheet": "node scripts/nnq-heat-pipeline.mjs --sheet-only",
+    "nnq-heat:schedule": "node scripts/nnq-heat-scheduler.mjs"
   },
   "repository": {
     "type": "git",

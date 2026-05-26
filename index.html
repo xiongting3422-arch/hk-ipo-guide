@@ -991,8 +991,195 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 
 /* ━━━━━━━━━ RESPONSIVE ━━━━━━━━━ */
 @media(max-width:1024px){.stat-grid{grid-template-columns:repeat(3,1fr);}.grey-hero{grid-template-columns:1fr;}}
-@media(max-width:768px){.header-inner,.page{padding-left:16px;padding-right:16px;}.tab-nav{padding-left:16px;padding-right:20px;}.tab-nav-inner{padding:0;}.tab-btn{padding:14px 14px;font-size:13px;}.stat-grid{grid-template-columns:repeat(2,1fr);}.drawer{width:100%;}.grey-hero{grid-template-columns:1fr;}}
+@media(max-width:768px){.header-inner,.page{padding-left:16px;padding-right:16px;}.tab-nav{padding-left:16px;padding-right:20px;}.tab-nav-inner{padding:0;}.tab-btn{padding:14px 14px;font-size:13px;}.stat-grid{grid-template-columns:repeat(2,1fr);}.drawer{width:100%;}.grey-hero{grid-template-columns:1fr;}.nnq-heat-panels{grid-template-columns:1fr!important;}}
+
+/* ━━━━━━━━━ NNQ HEAT DASHBOARD ━━━━━━━━━ */
+.nnq-heat-section{margin-top:48px;padding-top:8px;border-top:1px solid var(--s3);}
+.nnq-heat-meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12px;color:var(--t3);margin:10px 0 18px;line-height:1.5;}
+.nnq-heat-meta a{color:var(--accent);font-weight:600;}
+.nnq-heat-stat-grid{margin-bottom:28px;}
+.nnq-heat-panels{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+.nnq-heat-panel{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:18px 18px 16px;min-width:0;}
+.nnq-heat-panel-title{font-size:15px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.nnq-heat-panel-desc{font-size:12px;color:var(--t3);margin-bottom:14px;line-height:1.5;}
+.nnq-heat-loading,.nnq-heat-empty{padding:28px 18px;text-align:center;color:var(--t3);font-size:13px;border:1px dashed var(--s3);border-radius:12px;background:var(--s1);}
+.nnq-heat-spinner{width:28px;height:28px;border:3px solid var(--s3);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+.nnq-heat-rank-list{display:flex;flex-direction:column;gap:10px;}
+.nnq-heat-rank-row{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;}
+.nnq-heat-rank-idx{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--t3);text-align:center;}
+.nnq-heat-rank-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:5px;line-height:1.35;}
+.nnq-heat-code{margin-left:6px;font-size:11px;font-family:'DM Mono',monospace;color:var(--t3);font-weight:500;}
+.nnq-heat-bar-track{height:6px;background:var(--s3);border-radius:999px;overflow:hidden;}
+.nnq-heat-bar-fill{height:100%;background:linear-gradient(90deg,#fb923c,#f97316);border-radius:999px;}
+.nnq-heat-rank-num{font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--accent);text-align:right;}
+.nnq-heat-rank-sub{font-size:11px;color:var(--t3);text-align:right;margin-top:2px;}
+.nnq-heat-kw-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.nnq-heat-kw-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:#fff;border:1px solid rgba(249,115,22,.22);color:#9a3412;font-weight:700;line-height:1;}
+.nnq-heat-kw-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);font-weight:500;}
+.nnq-heat-hot-section{margin-top:8px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:18px 18px 14px;}
+.nnq-heat-hot-list{display:flex;flex-direction:column;gap:10px;}
+.nnq-heat-hot-row{background:#fff;border:1px solid var(--b1);border-radius:10px;padding:12px 14px;}
+.nnq-heat-hot-excerpt{font-size:13px;line-height:1.65;color:var(--t2);margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.nnq-heat-hot-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:8px;font-size:11px;color:var(--t3);}
+.nnq-heat-hot-detail{font-family:'DM Mono',monospace;}
+.nnq-heat-samples{margin-top:8px;}
+.nnq-heat-subtitle{font-size:13px;font-weight:800;color:var(--t2);margin-bottom:12px;}
+.nnq-heat-post-card{background:#fff;border:1px solid var(--b1);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+.nnq-heat-post-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px;}
+.nnq-heat-post-author{font-size:13px;font-weight:800;color:var(--t1);}
+.nnq-heat-sent-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;}
+.nnq-heat-post-eng{font-size:11px;color:var(--t3);font-family:'DM Mono',monospace;margin-left:auto;}
+.nnq-heat-post-link{font-size:11px;font-weight:600;color:var(--accent);}
+.nnq-heat-post-text{font-size:13px;line-height:1.7;color:var(--t2);white-space:pre-wrap;word-break:break-word;}
+.nnq-heat-post-time{font-size:11px;color:var(--t3);margin-top:8px;}
+.nnq-heat-v2{margin-top:28px;display:flex;flex-direction:column;gap:20px;}
+.nnq-heat-v2-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.04em;background:rgba(249,115,22,.12);color:#ea580c;margin-left:8px;}
+.nnq-heat-behavior-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+.nnq-heat-behavior-item{background:#fff;border:1px solid var(--b1);border-radius:10px;padding:12px 10px;text-align:center;}
+.nnq-heat-behavior-pct{font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--t1);line-height:1.2;}
+.nnq-heat-behavior-label{font-size:11px;color:var(--t2);margin-top:6px;line-height:1.35;font-weight:600;}
+.nnq-heat-behavior-sub{font-size:10px;color:var(--t3);margin-top:3px;}
+.nnq-heat-trend-chart{display:flex;align-items:flex-end;gap:6px;height:120px;padding:8px 4px 0;border-bottom:1px solid var(--b1);}
+.nnq-heat-trend-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;}
+.nnq-heat-trend-bar{width:100%;max-width:28px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#fb923c,#f97316);min-height:2px;transition:height .2s;}
+.nnq-heat-trend-bar--sent{background:linear-gradient(180deg,#4ade80,#16a34a);opacity:.35;position:absolute;bottom:0;left:0;right:0;border-radius:6px 6px 2px 2px;}
+.nnq-heat-trend-bar-wrap{position:relative;width:100%;max-width:28px;flex:1;display:flex;align-items:flex-end;justify-content:center;}
+.nnq-heat-trend-date{font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;white-space:nowrap;}
+.nnq-heat-trend-val{font-size:9px;color:var(--t2);font-family:'DM Mono',monospace;}
+.nnq-heat-stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.nnq-heat-stock-card{background:#fff;border:1px solid var(--b1);border-radius:12px;padding:14px 14px 12px;min-width:0;}
+.nnq-heat-stock-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;}
+.nnq-heat-stock-name{font-size:14px;font-weight:800;color:var(--t1);line-height:1.3;}
+.nnq-heat-stock-dominant{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0;}
+.nnq-heat-stock-dominant--bullish{color:#16a34a;background:rgba(22,163,74,.1);}
+.nnq-heat-stock-dominant--bearish{color:#dc2626;background:rgba(220,38,38,.1);}
+.nnq-heat-stock-dominant--watch{color:#d97706;background:rgba(217,119,6,.12);}
+.nnq-heat-stock-dominant--neutral{color:#52525b;background:rgba(82,82,91,.08);}
+.nnq-heat-sent-rows{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
+.nnq-heat-sent-row{display:grid;grid-template-columns:42px 1fr 36px;gap:6px;align-items:center;font-size:11px;}
+.nnq-heat-sent-row-label{color:var(--t2);font-weight:600;}
+.nnq-heat-sent-row-pct{font-family:'DM Mono',monospace;color:var(--t3);text-align:right;font-size:10px;}
+.nnq-heat-tag-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:11px;color:var(--t2);margin-bottom:8px;}
+.nnq-heat-tag-grid span{color:var(--t3);}
+.nnq-heat-tier-row{display:flex;flex-wrap:wrap;gap:6px;font-size:10px;color:var(--t3);}
+.nnq-heat-tier-chip{padding:2px 7px;border-radius:6px;background:var(--s2);border:1px solid var(--b1);}
+.nnq-heat-kwmap-list{display:flex;flex-direction:column;gap:8px;}
+.nnq-heat-kwmap-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto;gap:8px;align-items:center;font-size:12px;padding:8px 10px;background:#fff;border:1px solid var(--b1);border-radius:8px;}
+.nnq-heat-kwmap-word{font-weight:700;color:#9a3412;}
+.nnq-heat-kwmap-stock{color:var(--t1);font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nnq-heat-kwmap-aff{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);}
+.nnq-heat-risk-box{border-radius:12px;padding:14px 16px;border:1px solid rgba(220,38,38,.25);background:rgba(220,38,38,.04);}
+.nnq-heat-risk-box--ok{border-color:var(--b1);background:var(--s1);}
+.nnq-heat-risk-item{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.06);font-size:12px;}
+.nnq-heat-risk-item:last-child{border-bottom:none;padding-bottom:0;}
+.nnq-heat-risk-sev{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;}
+.nnq-heat-risk-sev--high{color:#fff;background:#dc2626;}
+.nnq-heat-risk-sev--medium{color:#92400e;background:rgba(217,119,6,.2);}
+.nnq-heat-risk-sev--low{color:var(--t2);background:var(--s2);}
+/* v4 layout: 市场总览 → 个股分析 → 话题拆解 → 内容聚合 */
+.nnq-heat-layout{display:flex;flex-direction:column;gap:28px;}
+.nnq-heat-zone{display:flex;flex-direction:column;gap:14px;}
+.nnq-heat-zone-head{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:800;color:var(--t1);letter-spacing:.02em;}
+.nnq-heat-zone-step{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:rgba(249,115,22,.12);color:#ea580c;font-size:11px;font-family:'DM Mono',monospace;flex-shrink:0;}
+.nnq-heat-zone-sub{font-size:12px;color:var(--t3);font-weight:500;margin-left:auto;}
+.nnq-heat-overview-grid{display:grid;grid-template-columns:minmax(200px,240px) minmax(0,1fr) minmax(220px,280px);gap:16px;}
+.nnq-heat-main-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,340px);gap:20px;align-items:start;}
+.nnq-heat-board-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+.nnq-heat-board-tab{padding:7px 14px;border-radius:999px;border:1px solid var(--b1);background:#fff;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .15s;}
+.nnq-heat-board-tab:hover{border-color:rgba(249,115,22,.35);color:var(--t1);}
+.nnq-heat-board-tab.active{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.45);color:#c2410c;}
+.nnq-heat-board-pane{display:none;}
+.nnq-heat-board-pane.active{display:block;}
+.nnq-heat-pie-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.nnq-heat-pie-legend{display:flex;flex-direction:column;gap:6px;width:100%;}
+.nnq-heat-pie-leg{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;color:var(--t2);}
+.nnq-heat-pie-dot{width:8px;height:8px;border-radius:999px;flex-shrink:0;margin-right:6px;}
+.nnq-heat-line-chart{position:relative;height:150px;padding:8px 4px 22px;border-bottom:1px solid var(--b1);}
+.nnq-heat-line-chart svg{width:100%;height:100%;display:block;}
+.nnq-heat-line-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:11px;color:var(--t3);}
+.nnq-heat-line-legend span{display:inline-flex;align-items:center;gap:5px;}
+.nnq-heat-line-legend i{display:inline-block;width:12px;height:3px;border-radius:999px;}
+.nnq-heat-stock-card--compact .nnq-heat-sent-rows{margin-bottom:8px;}
+.nnq-heat-stock-kws{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0;}
+.nnq-heat-stock-kw{font-size:10px;padding:2px 7px;border-radius:999px;background:var(--s2);border:1px solid var(--b1);color:var(--t2);}
+.nnq-heat-kw-panel{position:sticky;top:12px;max-height:calc(100vh - 120px);overflow:auto;}
+.nnq-heat-kw-cat{margin-bottom:16px;}
+.nnq-heat-kw-cat-title{font-size:12px;font-weight:800;color:var(--t1);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.nnq-heat-kw-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:9px 10px;border:1px solid var(--b1);border-radius:10px;background:#fff;margin-bottom:6px;font-size:12px;}
+.nnq-heat-kw-item--risk{border-color:rgba(220,38,38,.35);background:rgba(220,38,38,.04);}
+.nnq-heat-kw-item-word{font-weight:800;color:#9a3412;grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.nnq-heat-kw-item-word--risk{color:#b91c1c;}
+.nnq-heat-kw-item-meta{font-size:11px;color:var(--t3);}
+.nnq-heat-kw-growth{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;}
+.nnq-heat-kw-growth--up{color:#dc2626;}
+.nnq-heat-kw-growth--down{color:#16a34a;}
+.nnq-heat-content-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.nnq-heat-consensus-card,.nnq-heat-ai-card{background:#fff;border:1px solid var(--b1);border-radius:12px;padding:14px 14px 12px;min-width:0;}
+.nnq-heat-consensus-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.nnq-heat-consensus-name{font-size:14px;font-weight:800;color:var(--t1);}
+.nnq-heat-consensus-body{font-size:12px;line-height:1.65;color:var(--t2);}
+.nnq-heat-consensus-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.nnq-heat-consensus-col{padding:8px 10px;border-radius:8px;font-size:11px;line-height:1.55;}
+.nnq-heat-consensus-col--yes{background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.15);}
+.nnq-heat-consensus-col--no{background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.12);}
+.nnq-heat-ai-card{border-left:3px solid #f97316;}
+.nnq-heat-ai-head{font-size:13px;font-weight:800;color:var(--t1);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.nnq-heat-ai-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(249,115,22,.12);color:#ea580c;}
+.nnq-heat-ai-block{margin-bottom:8px;font-size:12px;line-height:1.6;color:var(--t2);}
+.nnq-heat-ai-block strong{display:block;font-size:11px;color:var(--t1);margin-bottom:3px;}
+.nnq-heat-sector-card{background:#fff;border:1px solid var(--b1);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+@media(max-width:1100px){.nnq-heat-overview-grid{grid-template-columns:1fr 1fr;}.nnq-heat-overview-grid .nnq-heat-panel:first-child{grid-column:1/-1;}.nnq-heat-main-row{grid-template-columns:1fr;}.nnq-heat-kw-panel{position:static;max-height:none;}.nnq-heat-content-grid{grid-template-columns:1fr;}}
+@media(max-width:768px){.nnq-heat-behavior-grid{grid-template-columns:repeat(2,1fr);}.nnq-heat-stock-grid{grid-template-columns:1fr;}.nnq-heat-overview-grid{grid-template-columns:1fr;}.nnq-heat-radar-grid{grid-template-columns:1fr!important;}}
+/* 打新雷达 & 风险高亮条 */
+.nnq-heat-radar-module{margin-bottom:16px;}
+.nnq-heat-radar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.nnq-heat-radar-card{background:#fff;border:1px solid var(--b1);border-radius:12px;padding:12px 10px 10px;text-align:center;min-width:0;}
+.nnq-heat-radar-head{text-align:left;margin-bottom:4px;}
+.nnq-heat-radar-sub{font-size:10px;color:var(--t3);margin-top:3px;}
+.nnq-heat-radar-svg{display:block;margin:0 auto;}
+.nnq-heat-radar-foot{font-size:9px;color:var(--t3);line-height:1.45;margin-top:6px;text-align:left;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.nnq-heat-risk-strip-wrap{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.nnq-heat-risk-strip{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:12px;border:1px solid var(--b1);background:var(--s1);}
+.nnq-heat-risk-strip--ok{border-color:rgba(22,163,74,.25);background:rgba(22,163,74,.05);}
+.nnq-heat-risk-strip--medium{border-color:rgba(217,119,6,.35);background:rgba(217,119,6,.06);}
+.nnq-heat-risk-strip--high{border-color:rgba(220,38,38,.4);background:rgba(220,38,38,.07);}
+.nnq-heat-risk-strip-icon{width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;font-size:14px;}
+.nnq-heat-risk-strip--ok .nnq-heat-risk-strip-icon{background:rgba(22,163,74,.15);color:#16a34a;}
+.nnq-heat-risk-strip--medium .nnq-heat-risk-strip-icon{background:rgba(217,119,6,.18);color:#b45309;}
+.nnq-heat-risk-strip--high .nnq-heat-risk-strip-icon{background:rgba(220,38,38,.15);color:#dc2626;}
+.nnq-heat-risk-strip-main{min-width:0;flex:1;}
+.nnq-heat-risk-strip-title{font-size:13px;font-weight:800;color:var(--t1);display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:4px;}
+.nnq-heat-risk-strip-sub{font-size:11px;color:var(--t3);margin-top:2px;}
+.nnq-heat-risk-strip-triggers{font-size:11px;color:var(--t2);margin-bottom:4px;line-height:1.5;}
+.nnq-heat-risk-strip-concerns{font-size:11px;color:var(--t3);line-height:1.55;}
+.nnq-heat-risk-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(220,38,38,.12);color:#b91c1c;}
+.nnq-heat-post-gen{margin-bottom:16px;}
+.nnq-heat-post-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
+.nnq-heat-post-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+.nnq-heat-btn{padding:8px 14px;border-radius:999px;border:1px solid var(--b1);background:#fff;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;}
+.nnq-heat-btn:hover{border-color:rgba(249,115,22,.4);color:var(--t1);}
+.nnq-heat-btn--primary{background:linear-gradient(90deg,#fb923c,#f97316);border-color:transparent;color:#fff;}
+.nnq-heat-btn--primary:hover{opacity:.92;color:#fff;}
+.nnq-heat-btn:disabled{opacity:.55;cursor:not-allowed;}
+.nnq-heat-post-preview{width:100%;box-sizing:border-box;border:1px solid var(--b1);border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.65;color:var(--t1);background:#fff;resize:vertical;font-family:inherit;min-height:220px;}
+.nnq-heat-post-status{font-size:11px;color:var(--t3);margin-top:8px;}
+.nnq-heat-post-src{font-size:11px;color:var(--t3);}
+.nnq-heat-kw-item--clickable,.nnq-heat-topic-trigger{cursor:pointer;transition:background .15s,border-color .15s;}
+.nnq-heat-kw-item--clickable:hover{border-color:rgba(249,115,22,.45);background:rgba(249,115,22,.04);}
+.nnq-heat-topic-trigger:hover{color:#ea580c;}
+.nnq-heat-modal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;}
+.nnq-heat-modal--open{display:flex;}
+.nnq-heat-modal-backdrop{position:absolute;inset:0;background:rgba(15,15,18,.45);backdrop-filter:blur(2px);}
+.nnq-heat-modal-panel{position:relative;z-index:1;width:min(560px,100%);max-height:min(90vh,720px);overflow:auto;background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:20px 20px 16px;box-shadow:0 24px 60px rgba(0,0,0,.18);}
+.nnq-heat-modal-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border:none;border-radius:999px;background:var(--s2);font-size:20px;line-height:1;cursor:pointer;color:var(--t2);}
+.nnq-heat-modal-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:14px;padding-right:36px;}
+.nnq-heat-modal-body{margin-bottom:12px;}
+.nnq-heat-topic-section{margin-bottom:12px;font-size:13px;line-height:1.6;color:var(--t2);}
+.nnq-heat-topic-section strong{display:block;color:var(--t1);margin-bottom:6px;font-size:13px;}
+.nnq-heat-topic-list{margin:0;padding-left:18px;}
+.nnq-heat-topic-list li{margin-bottom:4px;}
 </style>
+<link rel="stylesheet" href="./ipo-sentiment-dashboard.css?v=20260526hotprofile">
 </head>
 <body>
 <div class="ambient"></div>
@@ -1729,6 +1916,13 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   </div>
   <!-- ══════════════════════════════════════════════════════════════ -->
 
+  <!-- ── 牛牛圈讨论热度看板 ── -->
+  <section id="nnq-heat-section" class="nnq-heat-section">
+    <div class="sec-title" style="margin-bottom:0;">
+      <span class="sec-icon">💬</span>港股 IPO 舆情分析看板
+    </div>
+    <div id="nnq-heat-root"></div>
+  </section>
 
   <!-- 已上市新股表格已移至首日表现榜单 -->
 </div>
@@ -2072,6 +2266,7 @@ window.__IPO_SHEET_CONFIG__.gids = Object.assign(
   window.__IPO_SHEET_CONFIG__.gids || {},
 );
 // 可选 V11：AI 补全（表格「核心优势/主要压力」为空时） window.__IPO_AI_CONFIG__ = { apiKey: '…', model: 'gpt-4o-mini' };
+// 牛牛圈发文助手复用同一配置；也可单独设置 baseUrl / chatPath（OpenAI-compatible）
 </script>
 <script src="./ipo-live-data.js?v=38"></script>
 <script>
@@ -2986,6 +3181,12 @@ function switchTab(name) {
       if (typeof renderGreyMarket === 'function') renderGreyMarket();
       if (typeof renderRecentPerformance === 'function') renderRecentPerformance();
     } catch (e) { console.warn('grey tab refresh', e); }
+  }
+  if (name === 'listed') {
+    try {
+      document.dispatchEvent(new CustomEvent('ipo-tab-change', { detail: { name } }));
+      if (typeof ensureNnqHeatLoaded === 'function') ensureNnqHeatLoaded();
+    } catch (e) { console.warn('nnq heat tab refresh', e); }
   }
 }
 
@@ -6930,6 +7131,8 @@ window.CAL_STOCKS = CAL_STOCKS;
 window.STOCKS = STOCKS;
 </script>
 <script src="./ipo-google-sheet.js?v=11"></script>
+<script>window.process=window.process||{env:{NODE_ENV:'production'}};</script>
+<script src="./ipo-sentiment-dashboard.js?v=20260526hotprofile"></script>
 <script>
 /* Initial silent load — Google 表格 CSV 为主数据源；空字段由 fetchLiveMarginData 内 AASTOCKS/富途逻辑补全 */
 (async () => {

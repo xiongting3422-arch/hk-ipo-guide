@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>港股 IPO 舆情分析看板</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --s1: #fafafa;
+        --s3: #f4f4f5;
+        --b1: #e4e4e7;
+        --t1: #18181b;
+        --t2: #52525b;
+        --t3: #71717a;
+        --accent: #f97316;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC',
+          'Microsoft YaHei', sans-serif;
+        background: #fff;
+        color: var(--t1);
+      }
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 24px 64px;
+      }
+      h1 {
+        font-size: 22px;
+        font-weight: 800;
+        margin: 0 0 8px;
+      }
+      .subtitle {
+        font-size: 13px;
+        color: var(--t2);
+        margin-bottom: 28px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>💬 港股 IPO 舆情分析看板</h1>
+      <p class="subtitle">数据来源：富途牛牛圈 · 读取 ./nnq-heat.json</p>
+      <div id="root"></div>
+    </div>
+    <script type="module" src="/src/standalone.tsx"></script>
+  </body>
+</html>
