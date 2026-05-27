@@ -1179,7 +1179,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 .nnq-heat-topic-list{margin:0;padding-left:18px;}
 .nnq-heat-topic-list li{margin-bottom:4px;}
 </style>
-<link rel="stylesheet" href="./ipo-sentiment-dashboard.css?v=20260526hotprofile">
+<link rel="stylesheet" href="./ipo-sentiment-dashboard.css?v=20260527boardgrid">
 </head>
 <body>
 <div class="ambient"></div>
@@ -3219,8 +3219,8 @@ let ipoNewsLoading = false;
 let ipoNewsLoadedOnce = false;
 let ipoNewsRefreshPending = false;
 let ipoNewsLastDisplay = null;
-const IPO_NEWS_DISPLAY_CACHE_KEY = 'ipo_news_display_v5';
-const IPO_NEWS_BUILD_ID = '20260519c';
+const IPO_NEWS_DISPLAY_CACHE_KEY = 'ipo_news_display_v6';
+const IPO_NEWS_BUILD_ID = '20260527news';
 let ipoNewsAllItems = [];
 let ipoNewsGridItems = [];
 let ipoNewsLocalPool = [];
@@ -4010,8 +4010,8 @@ function ipoNewsMergeHkLists(...lists) {
   return ipoNewsSortByLatest(out, Date.now());
 }
 
-/** 单模块内合并：新条目优先，不足时用上次结果补齐至上限 */
-function ipoNewsMergeBucketLists(primary, fallback) {
+/** 单模块内合并：新条目优先，不足时用后续列表补齐至上限 */
+function ipoNewsMergeBucketLists(primary, ...fallbacks) {
   const out = [];
   const seen = new Set();
   const add = (list) => {
@@ -4026,8 +4026,20 @@ function ipoNewsMergeBucketLists(primary, fallback) {
     }
   };
   add(primary);
-  add(fallback);
+  for (const fb of fallbacks) add(fb);
   return out;
+}
+
+/** 四宫格合并：按主题优先 live → 本地 json → 上次展示 */
+function ipoNewsMergeGridSources(live, local, previous) {
+  const liveB = ipoNewsBucketItems(live);
+  const localB = ipoNewsBucketItems(local);
+  const prevB = ipoNewsBucketItems(previous);
+  const flat = [];
+  for (const g of IPO_NEWS_GRID_THEMES) {
+    flat.push(...ipoNewsMergeBucketLists(liveB[g.id], localB[g.id], prevB[g.id]));
+  }
+  return ipoNewsMergeHkLists(flat);
 }
 
 function ipoNewsHasGridContent(items) {
@@ -4071,7 +4083,12 @@ function ipoNewsRenderGrid(items) {
     flat.push(...merged);
     const el = document.getElementById(`ipo-news-mod-${g.id}`);
     if (!el) continue;
-    if (!merged.length) continue;
+    if (!merged.length) {
+      if (!el.querySelector('a.ipo-news-module-link')) {
+        el.innerHTML = '<div class="ipo-news-module-empty">暂无最新资讯</div>';
+      }
+      continue;
+    }
     el.innerHTML = merged.map((item, idx) => ipoNewsRenderModuleLink(item, idx === merged.length - 1)).join('');
   }
   ipoNewsGridItems = ipoNewsMergeHkLists(flat, ipoNewsLocalPool, ipoNewsGridItems);
@@ -4361,7 +4378,8 @@ function ipoNewsPaintCachedSnapshot() {
   return ipoNewsApplyDisplayList(hkFinal, { generatedAt: cached.generatedAt, stale: false });
 }
 
-async function ipoNewsBuildFromBundled(bundled, nowTs, statusEl) {
+async function ipoNewsBuildFromBundled(bundled, nowTs, statusEl, opts) {
+  const options = opts && typeof opts === 'object' ? opts : {};
   let hk = [];
   let generatedAt = '';
   let emptyHint = '';
@@ -4373,7 +4391,8 @@ async function ipoNewsBuildFromBundled(bundled, nowTs, statusEl) {
       let raw = parsed.list.slice();
       const ageDays = parsed.recentDays || parsed.maxNewsAgeDays || 10;
       if (!parsed.skipMonitoredFilter) raw = ipoNewsFilterItemsByMonitored(raw, parsed);
-      raw = ipoNewsFilterByMaxAge(raw, ageDays);
+      /* 本地 ipo_news.json 已在抓取端做过时效筛选；展示快照不再二次按「今日」过滤，避免模块被清空 */
+      if (!options.skipAgeFilter) raw = ipoNewsFilterByMaxAge(raw, ageDays);
       hk = raw;
       generatedAt = parsed.generatedAt;
       if (!hk.length && parsed.list.length) {
@@ -4422,20 +4441,24 @@ async function ipoNewsBuildFromBundled(bundled, nowTs, statusEl) {
 
 async function ensureIpoNewsLoaded() {
   ipoNewsBindSearchUi();
+  if (ipoNewsLoadedOnce && ipoNewsHasVisibleList()) return;
+  if (!ipoNewsHasVisibleList()) ipoNewsPaintCachedSnapshot();
   try {
     const bundled = await ipoNewsFetchLocalJson(true);
     if (bundled) {
-      const built = await ipoNewsBuildFromBundled(bundled, Date.now(), null);
+      const built = await ipoNewsBuildFromBundled(bundled, Date.now(), null, { skipAgeFilter: true });
       if (built.hkFinal.length) {
         if (!ipoNewsLocalPool.length) ipoNewsLocalPool = built.hkFinal.slice();
         ipoNewsApplyDisplayList(built.hkFinal, { generatedAt: built.generatedAt, stale: false });
+        ipoNewsLoadedOnce = true;
       }
     }
   } catch (e) {
     console.warn('[IPO News] 预加载 ipo_news.json 失败', e);
   }
-  if (!ipoNewsGridItems.length) ipoNewsPaintCachedSnapshot();
-  refreshIpoNews(true);
+  if (!ipoNewsHasVisibleList()) ipoNewsPaintCachedSnapshot();
+  if (!ipoNewsHasVisibleList()) ipoNewsRenderGrid(IPO_NEWS_FALLBACK.hk);
+  if (ipoNewsHasVisibleList()) ipoNewsLoadedOnce = true;
 }
 
 async function refreshIpoNews(force = false) {
@@ -4456,10 +4479,10 @@ async function refreshIpoNews(force = false) {
     let liveHk = [];
 
     const localBundled = await ipoNewsFetchLocalJson(true);
-    const localBuilt = await ipoNewsBuildFromBundled(localBundled, nowTs, null);
+    const localBuilt = await ipoNewsBuildFromBundled(localBundled, nowTs, null, { skipAgeFilter: true });
     if (localBuilt.hkFinal.length) ipoNewsLocalPool = localBuilt.hkFinal.slice();
 
-    if (force || !ipoNewsLoadedOnce) {
+    if (force) {
       if (!showingStale && localBuilt.hkFinal.length) {
         ipoNewsApplyDisplayList(localBuilt.hkFinal, {
           generatedAt: localBuilt.generatedAt,
@@ -4482,7 +4505,8 @@ async function refreshIpoNews(force = false) {
 
     const built = await ipoNewsBuildFromBundled(bundled, nowTs, null);
     let { hkFinal, generatedAt } = built;
-    hkFinal = ipoNewsMergeHkLists(localBuilt.hkFinal, liveHk, hkFinal, gridSnapshot);
+    hkFinal = ipoNewsMergeGridSources(liveHk, localBuilt.hkFinal, gridSnapshot);
+    if (!hkFinal.length) hkFinal = ipoNewsMergeHkLists(localBuilt.hkFinal, gridSnapshot);
 
     if (hkFinal.length) {
       ipoNewsApplyDisplayList(hkFinal, { generatedAt, stale: false });
@@ -4511,13 +4535,20 @@ async function refreshIpoNews(force = false) {
 
 
 function ipoNewsWarmDisplayCache() {
-  try { localStorage.removeItem('ipo_news_display_v4'); } catch (_) {}
+  try {
+    localStorage.removeItem('ipo_news_display_v4');
+    localStorage.removeItem('ipo_news_display_v5');
+  } catch (_) {}
   ipoNewsFetchLocalJson(true).then(async (bundled) => {
     if (!bundled) return;
-    const built = await ipoNewsBuildFromBundled(bundled, Date.now(), null);
-    if (built.hkFinal.length) ipoNewsLocalPool = built.hkFinal.slice();
-    if (!ipoNewsPaintCachedSnapshot() && document.getElementById('tab-news')?.classList.contains('active')) {
+    const built = await ipoNewsBuildFromBundled(bundled, Date.now(), null, { skipAgeFilter: true });
+    if (built.hkFinal.length) {
+      ipoNewsLocalPool = built.hkFinal.slice();
+      ipoNewsSaveDisplayCache(built.hkFinal, built.generatedAt);
+    }
+    if (document.getElementById('tab-news')?.classList.contains('active') && !ipoNewsHasVisibleList()) {
       ipoNewsApplyDisplayList(built.hkFinal, { generatedAt: built.generatedAt, stale: false });
+      ipoNewsLoadedOnce = true;
     }
   }).catch(() => {});
 }
@@ -4525,10 +4556,7 @@ function ipoNewsWarmDisplayCache() {
 window.addEventListener('pageshow', () => {
   if (document.getElementById('tab-news')?.classList.contains('active')) {
     ipoNewsPaintCachedSnapshot();
-    if (!ipoNewsHasVisibleList()) {
-      ipoNewsLoadedOnce = false;
-      refreshIpoNews(true);
-    }
+    if (!ipoNewsHasVisibleList()) ensureIpoNewsLoaded();
   }
 });
 
@@ -5303,6 +5331,58 @@ function calGoToday() {
   renderTimeline();
 }
 
+/** 打新时间表 Tab 时间轴：最多展示标的数（仅 renderCalendar，不改 CAL_STOCKS / MASTER） */
+const CAL_SCHEDULE_DISPLAY_MAX = 10;
+
+function _codeFromScheduleSheetRow(row) {
+  if (!row || typeof row !== 'object') return null;
+  return _normalizeStockCode(row['股票代码'] || row['代码'] || row['代号'] || row.code || '');
+}
+
+function _nameFromScheduleSheetRow(row) {
+  if (!row || typeof row !== 'object') return '';
+  return String(row['股票名称'] || row['名称'] || row['IPO名称'] || row.name || '').trim();
+}
+
+/** 与 Sheet「打新时间表」自上而下顺序一致，取前 N 只有效名称+代码的标的 */
+function getScheduleTopDisplayCodes(maxN) {
+  const limit = maxN != null ? maxN : CAL_SCHEDULE_DISPLAY_MAX;
+  const rows = Array.isArray(window.__IPO_SCHEDULE_SHEET_ROWS__) ? window.__IPO_SCHEDULE_SHEET_ROWS__ : [];
+  const codes = [];
+  const seen = new Set();
+  rows.forEach(row => {
+    const name = _nameFromScheduleSheetRow(row);
+    const code = _codeFromScheduleSheetRow(row);
+    if (!name || !code || seen.has(code)) return;
+    seen.add(code);
+    codes.push(code);
+  });
+  return codes.slice(0, limit);
+}
+
+function _calStockAnchorDate(s) {
+  hydrateCalStockDates(s);
+  return s.listDateObj || s.darkDateObj || s.subEndDate || s.subStartDate || s.pricingDate || s.resultsDate || null;
+}
+
+/** 打新时间表时间轴渲染用：始终最多 10 只，优先 Sheet 自上而下，较久远的行自然落在第 11 位及以后而不展示 */
+function getCalStocksForScheduleDisplay() {
+  const topCodes = getScheduleTopDisplayCodes(CAL_SCHEDULE_DISPLAY_MAX);
+  if (topCodes.length) {
+    const byCode = Object.fromEntries(CAL_STOCKS.map(s => [String(s.code).padStart(5, '0'), s]));
+    const picked = topCodes.map(c => byCode[c]).filter(Boolean);
+    if (picked.length) return picked;
+  }
+  return [...CAL_STOCKS]
+    .slice()
+    .sort((a, b) => {
+      const ta = (_calStockAnchorDate(a) || new Date(0)).getTime();
+      const tb = (_calStockAnchorDate(b) || new Date(0)).getTime();
+      return tb - ta;
+    })
+    .slice(0, CAL_SCHEDULE_DISPLAY_MAX);
+}
+
 function renderCalendar() {
   const DAYS    = 15;
   const LABEL_W = 170;
@@ -5375,7 +5455,7 @@ function renderCalendar() {
     4: {label:'已上市',   barBg:'rgba(148,163,184,.12)',barBd:'rgba(148,163,184,.45)',barTxt:'#475569',hdrTxt:'#64748b', hdrBd:'rgba(148,163,184,.4)', leftBd:'#94a3b8'},
   };
 
-  const sorted = [...CAL_STOCKS].sort((a,b) => calPriority(a) - calPriority(b));
+  const sorted = [...getCalStocksForScheduleDisplay()].sort((a,b) => calPriority(a) - calPriority(b));
 
   // Count per group for badge
   const grpCount = {};
@@ -7002,6 +7082,13 @@ async function refreshData(opts = {}) {
   }
   if (typeof window.scrollToToday === 'function') scrollToToday({ behavior: 'auto' });
 
+  /* ── 新股资讯：仅在用户点击刷新时抓取富途并更新四宫格 ── */
+  try {
+    if (typeof refreshIpoNews === 'function') refreshIpoNews(true);
+  } catch (e) {
+    console.warn('[IPO News] refresh on nav refresh', e);
+  }
+
   /* ── Update stat cards from last fetched data (or trigger fetch) ── */
   if (window._lastHalfNewStats) {
     updateStatCards(window._lastHalfNewStats);
@@ -7132,7 +7219,7 @@ window.STOCKS = STOCKS;
 </script>
 <script src="./ipo-google-sheet.js?v=11"></script>
 <script>window.process=window.process||{env:{NODE_ENV:'production'}};</script>
-<script src="./ipo-sentiment-dashboard.js?v=20260526hotprofile"></script>
+<script src="./ipo-sentiment-dashboard.js?v=20260527boardgrid"></script>
 <script>
 /* Initial silent load — Google 表格 CSV 为主数据源；空字段由 fetchLiveMarginData 内 AASTOCKS/富途逻辑补全 */
 (async () => {
@@ -9788,8 +9875,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ipoNewsLoadedOnce = false;
   if (document.getElementById('tab-news')?.classList.contains('active')) {
     ensureIpoNewsBanner();
-    ipoNewsPaintCachedSnapshot();
-    refreshIpoNews(true);
+    ensureIpoNewsLoaded();
   }
 });
 </script>

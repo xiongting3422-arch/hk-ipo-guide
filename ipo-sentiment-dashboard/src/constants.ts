@@ -1,5 +1,5 @@
 export const JSON_FILE = './nnq-heat.json';
-export const BUILD_ID = '20260526-hot-profile';
+export const BUILD_ID = '20260527-board-grid';
 
 export const PIE_COLORS = {
   bullish: '#22c55e',

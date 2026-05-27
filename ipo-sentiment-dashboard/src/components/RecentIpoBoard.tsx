@@ -22,7 +22,11 @@ interface Props {
   filterMeta?: SheetFilterMeta;
 }
 
-type ViewMode = 'card' | 'list';
+function breakConcernMeta(pct: number) {
+  if (pct >= 25) return { label: `${pct}%`, tone: 'high' as const };
+  if (pct > 0) return { label: `${pct}%`, tone: 'mid' as const };
+  return { label: '低', tone: 'low' as const };
+}
 
 function SentimentMiniBar({ row }: { row: EnrichedBoardRow }) {
   const b = row.bullishPct;
@@ -41,58 +45,6 @@ function SentimentMiniBar({ row }: { row: EnrichedBoardRow }) {
   );
 }
 
-function LiteCard({
-  row,
-  onOpen,
-}: {
-  row: EnrichedBoardRow;
-  onOpen: (c: EnrichedSheetCard) => void;
-}) {
-  const e = row.enriched;
-  const breakLabel =
-    e.breakConcernPct >= 25 ? `${e.breakConcernPct}%` : e.breakConcernPct > 0 ? `${e.breakConcernPct}%` : '低';
-  const breakCls =
-    e.breakConcernPct >= 25 ? 'isd-ipo-lite-break--high' : e.breakConcernPct > 0 ? 'isd-ipo-lite-break--mid' : '';
-
-  return (
-    <article
-      className="isd-ipo-lite-card"
-      onClick={() => onOpen(e)}
-      onKeyDown={(ev) => ev.key === 'Enter' && onOpen(e)}
-      role="button"
-      tabIndex={0}
-    >
-      <div className="isd-ipo-lite-head">
-        <div className="isd-ipo-lite-title">
-          <div className="isd-sheet-name">
-            {row.name}
-            <span className="isd-code">{row.code}</span>
-          </div>
-          <div className="isd-sheet-tags">
-            {row.statusTags.map((t) => (
-              <span
-                key={t}
-                className={`isd-sheet-tag isd-sheet-tag--${t === '近期上市' ? 'listed' : 'default'}`}
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        </div>
-        <div className="isd-ipo-lite-heat">
-          <strong>{Math.round(row.heatIndex)}</strong>
-          <span>热度</span>
-        </div>
-      </div>
-      <div className={`isd-sheet-sent-hi isd-sheet-sent-hi--${e.sentimentHighlightCls}`}>
-        {e.sentimentHighlight}
-        {!e.hasSentiment && <span className="isd-sheet-no-sent"> · 暂无社区帖</span>}
-      </div>
-      <div className={`isd-ipo-lite-break ${breakCls}`}>破发担忧 {breakLabel}</div>
-    </article>
-  );
-}
-
 function ListRowItem({
   row,
   onOpen,
@@ -102,10 +54,11 @@ function ListRowItem({
 }) {
   const [showCo, setShowCo] = useState(false);
   const e = row.enriched;
+  const breakMeta = breakConcernMeta(e.breakConcernPct);
 
   return (
     <div
-      className={`isd-stock-row isd-stock-row--v2${row.riskTags.length ? ' isd-stock-row--risk' : ''}`}
+      className={`isd-stock-row isd-stock-row--v2 isd-stock-row--grid${row.riskTags.length ? ' isd-stock-row--risk' : ''}`}
       onClick={() => onOpen(e)}
       onKeyDown={(ev) => ev.key === 'Enter' && onOpen(e)}
       role="button"
@@ -117,29 +70,39 @@ function ListRowItem({
             {row.name}
             <span className="isd-code">{row.code}</span>
             {row.statusTags.map((t) => (
-              <span key={t} className="isd-board-status-tag">
+              <span
+                key={t}
+                className={`isd-board-status-tag${t === '近期上市' ? ' isd-board-status-tag--listed' : ''}`}
+              >
                 {t}
               </span>
             ))}
           </div>
           <div className={`isd-board-sent-hi isd-board-sent-hi--${e.sentimentHighlightCls}`}>
             {e.sentimentHighlight}
+            {!e.hasSentiment && <span className="isd-sheet-no-sent"> · 暂无社区帖</span>}
           </div>
         </div>
-        <div className="isd-stock-metrics isd-stock-metrics--dual">
-          <div>
+        <div className="isd-stock-metrics isd-stock-metrics--triple">
+          <div className="isd-stock-metric">
             <div className="isd-heat-num">{Math.round(row.heatIndex)}</div>
             <div className="isd-heat-label">热度</div>
           </div>
-          <div>
+          <div className="isd-stock-metric">
             <div className="isd-heat-num isd-heat-num--muted">{e.sentimentSpread}</div>
             <div className="isd-heat-label">{row.disagreementLevel}</div>
+          </div>
+          <div className="isd-stock-metric">
+            <div className={`isd-board-break-chip isd-board-break-chip--${breakMeta.tone}`}>
+              {breakMeta.label}
+            </div>
+            <div className="isd-heat-label">破发担忧</div>
           </div>
         </div>
       </div>
 
       <div className="isd-board-fund">
-        <span>{row.sectorGroup}</span>
+        <span className="isd-board-fund-sector">{row.sectorGroup}</span>
         <span
           className="isd-board-sponsor"
           title={e.sponsorBreakRate != null ? `近1年破发率 ${Math.round(e.sponsorBreakRate * 100)}%` : undefined}
@@ -172,30 +135,61 @@ function ListRowItem({
       <div className="isd-board-sent-row">
         <SentimentMiniBar row={row} />
         <div className="isd-board-sent-pct">
-          <span>{fmtPct(row.bullishPct)}</span>
-          <span>{fmtPct(row.bearishPct)}</span>
-          <span>{fmtPct(row.watchPct)}</span>
+          <span title="看多">{fmtPct(row.bullishPct)}</span>
+          <span title="看空">{fmtPct(row.bearishPct)}</span>
+          <span title="观望">{fmtPct(row.watchPct)}</span>
         </div>
       </div>
 
-      {row.riskTags.length > 0 && (
-        <div className="isd-board-risk-tags">
-          {row.riskTags.map((t) => (
-            <span key={t} className="isd-board-risk-tag">
-              {t}
-            </span>
-          ))}
+      {(row.riskTags.length > 0 || row.tipLine) && (
+        <div className="isd-board-foot">
+          {row.riskTags.length > 0 && (
+            <div className="isd-board-risk-tags">
+              {row.riskTags.map((t) => (
+                <span key={t} className="isd-board-risk-tag">
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
+          {row.tipLine && <div className="isd-board-tip">{row.tipLine}</div>}
         </div>
       )}
+    </div>
+  );
+}
 
-      <div className="isd-board-tip">{row.tipLine}</div>
+function ListSection({
+  title,
+  count,
+  rows,
+  onOpen,
+}: {
+  title?: string;
+  count?: number;
+  rows: EnrichedBoardRow[];
+  onOpen: (c: EnrichedSheetCard) => void;
+}) {
+  if (!rows.length) return null;
+  return (
+    <div className="isd-board-list-section">
+      {title && (
+        <div className="isd-board-list-section-head">
+          <strong>{title}</strong>
+          {count != null && <span>{count} 只</span>}
+        </div>
+      )}
+      <div className="isd-stock-list">
+        {rows.map((row) => (
+          <ListRowItem key={row.enriched.matchKey || row.code} row={row} onOpen={onOpen} />
+        ))}
+      </div>
     </div>
   );
 }
 
 export function RecentIpoBoard({ cards, boards, data, filterMeta }: Props) {
   const meta = filterMeta || {};
-  const [view, setView] = useState<ViewMode>('card');
   const [tab, setTab] = useState<BoardTab>('heat');
   const [sector, setSector] = useState('all');
   const [sortMode, setSortMode] = useState<BoardSortMode>('heat');
@@ -203,10 +197,16 @@ export function RecentIpoBoard({ cards, boards, data, filterMeta }: Props) {
 
   const enriched = useMemo(() => buildRecentIpoRows(cards, boards, data), [cards, boards, data]);
   const sectors = useMemo(() => uniqueBoardSectors(enriched), [enriched]);
-
   const filtered = useMemo(() => filterBoardBySector(enriched, sector), [enriched, sector]);
 
-  const cardGroups = useMemo(() => groupCardViewRows(filtered), [filtered]);
+  const heatGroups = useMemo(
+    () =>
+      groupCardViewRows(filtered).map((g) => ({
+        ...g,
+        items: sortBoardRows(g.items, sortMode),
+      })),
+    [filtered, sortMode],
+  );
 
   const listRows = useMemo(() => {
     let list = boardRowsForTab(boards, filtered, tab);
@@ -215,6 +215,22 @@ export function RecentIpoBoard({ cards, boards, data, filterMeta }: Props) {
     }
     return list;
   }, [boards, filtered, tab, sortMode]);
+
+  const hasHeatContent = heatGroups.some((g) => g.items.length > 0);
+
+  const sectorSections = useMemo(() => {
+    if (tab !== 'sector') return [];
+    return boards.sector
+      .filter((g) => sector === 'all' || g.sectorGroup === sector)
+      .map((g) => ({
+        sectorGroup: g.sectorGroup,
+        rows: sortBoardRows(
+          filtered.filter((r) => r.sectorGroup === g.sectorGroup),
+          sortMode,
+        ),
+      }))
+      .filter((g) => g.rows.length > 0);
+  }, [tab, boards.sector, sector, filtered, sortMode]);
 
   return (
     <section className="isd-zone isd-zone--ipo-board">
@@ -226,27 +242,21 @@ export function RecentIpoBoard({ cards, boards, data, filterMeta }: Props) {
           {meta.visibleCount != null ? ` · ${filtered.length}/${meta.visibleCount} 只` : ''}
         </span>
       </div>
-      <p className="isd-module-sub">
-        表格基本面 + 社区舆情一体展示，卡片视图快速扫盘，列表视图深度对比
-      </p>
+      <p className="isd-module-sub">表格基本面 + 社区舆情一体展示，按榜单对比、点击行查看打新策略</p>
 
       <div className="isd-card">
-        <div className="isd-ipo-board-toolbar">
-          <div className="isd-view-toggle">
-            <button
-              type="button"
-              className={`isd-view-btn${view === 'card' ? ' isd-view-btn--active' : ''}`}
-              onClick={() => setView('card')}
-            >
-              卡片视图
-            </button>
-            <button
-              type="button"
-              className={`isd-view-btn${view === 'list' ? ' isd-view-btn--active' : ''}`}
-              onClick={() => setView('list')}
-            >
-              列表视图
-            </button>
+        <div className="isd-ipo-board-toolbar isd-ipo-board-toolbar--list">
+          <div className="isd-tabs isd-tabs--board">
+            {BOARD_TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={`isd-tab${tab === t.id ? ' isd-tab--active' : ''}`}
+                onClick={() => setTab(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
 
           <div className="isd-board-filters">
@@ -261,7 +271,7 @@ export function RecentIpoBoard({ cards, boards, data, filterMeta }: Props) {
                 ))}
               </select>
             </label>
-            {view === 'list' && (
+            {tab !== 'sector' && (
               <label>
                 排序
                 <select value={sortMode} onChange={(e) => setSortMode(e.target.value as BoardSortMode)}>
@@ -278,74 +288,38 @@ export function RecentIpoBoard({ cards, boards, data, filterMeta }: Props) {
           </div>
         </div>
 
-        {view === 'card' ? (
-          !cardGroups.length ? (
-            <div className="isd-empty">当前筛选条件下无匹配新股</div>
-          ) : (
-            cardGroups.map((g) => (
-              <div key={g.title} className="isd-sheet-group">
-                <h3 className="isd-sheet-group-title">{g.title}</h3>
-                <div className="isd-ipo-lite-grid">
-                  {g.items.map((row) => (
-                    <LiteCard key={row.enriched.matchKey || row.code} row={row} onOpen={setActive} />
-                  ))}
-                </div>
-              </div>
+        {tab === 'heat' ? (
+          hasHeatContent ? (
+            heatGroups.map((g) => (
+              <ListSection
+                key={g.title}
+                title={g.title}
+                count={g.items.length}
+                rows={g.items}
+                onOpen={setActive}
+              />
             ))
+          ) : (
+            <div className="isd-empty">当前筛选条件下无匹配新股</div>
           )
+        ) : tab === 'sector' ? (
+          sectorSections.length ? (
+            sectorSections.map((g) => (
+              <ListSection
+                key={g.sectorGroup}
+                title={g.sectorGroup}
+                count={g.rows.length}
+                rows={g.rows}
+                onOpen={setActive}
+              />
+            ))
+          ) : (
+            <div className="isd-empty">暂无赛道数据</div>
+          )
+        ) : listRows.length ? (
+          <ListSection rows={listRows} onOpen={setActive} />
         ) : (
-          <>
-            <div className="isd-tabs">
-              {BOARD_TABS.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={`isd-tab${tab === t.id ? ' isd-tab--active' : ''}`}
-                  onClick={() => setTab(t.id)}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-
-            {tab === 'sector' ? (
-              <div className="isd-sector-board">
-                {boards.sector.length ? (
-                  boards.sector
-                    .filter((g) => sector === 'all' || g.sectorGroup === sector)
-                    .map((g) => {
-                      const groupRows = sortBoardRows(
-                        filtered.filter((r) => r.sectorGroup === g.sectorGroup),
-                        sortMode,
-                      );
-                      if (!groupRows.length) return null;
-                      return (
-                        <div key={g.sectorGroup} className="isd-sector-group">
-                          <div className="isd-sector-group-head">
-                            <strong>{g.sectorGroup}</strong>
-                            <span>
-                              热度 {Math.round(g.heatScore)} · {groupRows.length} 只
-                            </span>
-                          </div>
-                          {groupRows.map((row) => (
-                            <ListRowItem key={row.code} row={row} onOpen={setActive} />
-                          ))}
-                        </div>
-                      );
-                    })
-                ) : (
-                  <div className="isd-empty">暂无赛道数据</div>
-                )}
-              </div>
-            ) : (
-              <div className="isd-stock-list">
-                {listRows.map((row) => (
-                  <ListRowItem key={row.code} row={row} onOpen={setActive} />
-                ))}
-                {!listRows.length && <div className="isd-empty">暂无榜单数据</div>}
-              </div>
-            )}
-          </>
+          <div className="isd-empty">暂无榜单数据</div>
         )}
       </div>
 

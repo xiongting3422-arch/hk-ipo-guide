@@ -488,9 +488,23 @@
 
 .isd-stock-list,
 .isd-sector-board {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+}
+
+@media (max-width: 1100px) {
+  .isd-stock-list,
+  .isd-sector-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .isd-stock-list,
+  .isd-sector-board {
+    grid-template-columns: 1fr;
+  }
 }
 
 .isd-stock-row {
@@ -498,6 +512,8 @@
   border: 1px solid var(--b1, #e4e4e7);
   border-radius: 10px;
   padding: 12px 14px;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .isd-stock-row--risk {
@@ -1515,6 +1531,68 @@
   box-shadow: 0 2px 8px rgba(249, 115, 22, 0.08);
 }
 
+.isd-stock-row--grid {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.isd-stock-row--grid .isd-stock-head {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.isd-stock-row--grid .isd-stock-metrics--triple {
+  width: 100%;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--b1, #e4e4e7);
+}
+
+.isd-stock-row--grid .isd-stock-metric {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+.isd-stock-row--grid .isd-heat-num {
+  font-size: 18px;
+}
+
+.isd-stock-row--grid .isd-board-break-chip {
+  font-size: 13px;
+}
+
+.isd-stock-row--grid .isd-board-fund {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+
+.isd-stock-row--grid .isd-board-sent-row {
+  margin-top: auto;
+  margin-bottom: 0;
+}
+
+.isd-stock-row--grid .isd-board-foot {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--s3, #f4f4f5);
+}
+
+.isd-stock-row--grid .isd-board-tip {
+  font-size: 10px;
+  line-height: 1.45;
+}
+
 .isd-stock-titleblock {
   flex: 1;
   min-width: 0;
@@ -1680,6 +1758,100 @@
   margin-bottom: 14px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--b1, #e4e4e7);
+}
+
+.isd-ipo-board-toolbar--list {
+  align-items: flex-end;
+}
+
+.isd-tabs--board {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.isd-board-list-section + .isd-board-list-section {
+  margin-top: 18px;
+}
+
+.isd-board-list-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+
+.isd-board-list-section-head strong {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--t1, #18181b);
+}
+
+.isd-board-list-section-head span {
+  font-size: 11px;
+  color: var(--t3, #71717a);
+}
+
+.isd-stock-metrics--triple {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.isd-stock-metric {
+  text-align: right;
+  min-width: 52px;
+}
+
+.isd-board-break-chip {
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.isd-board-break-chip--low {
+  color: var(--t3, #71717a);
+}
+
+.isd-board-break-chip--mid {
+  color: #d97706;
+}
+
+.isd-board-break-chip--high {
+  color: #dc2626;
+}
+
+.isd-board-status-tag--listed {
+  color: #15803d;
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.isd-board-fund-sector {
+  font-weight: 600;
+  color: var(--t2, #52525b);
+}
+
+.isd-board-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding-top: 2px;
+}
+
+.isd-board-foot .isd-board-risk-tags {
+  margin: 0;
+}
+
+.isd-board-foot .isd-board-tip {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .isd-view-toggle {
