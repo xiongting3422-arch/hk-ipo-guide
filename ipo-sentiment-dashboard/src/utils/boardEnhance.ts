@@ -1,4 +1,5 @@
 import type { NnqHeatData, SheetIpoCard, StockBoardRow, StockBoards } from '../types';
+import { buildScheduleOrderMap, compareScheduleOrder } from './boardSchedule';
 import {
   enrichAllSheetCards,
   enrichSheetCard,
@@ -122,6 +123,47 @@ export function groupCardViewRows(rows: EnrichedBoardRow[]): { title: string; it
   if (pending.length) groups.push({ title: '待上市 / 招股中', items: byHeat(pending) });
   if (recent.length) groups.push({ title: '近期上市', items: byHeat(recent) });
   return groups;
+}
+
+export const BOARD_DISPLAY_MAX = 6;
+
+function isRecruitingStock(row: EnrichedBoardRow): boolean {
+  const st = row.enriched.sheetStatus || '';
+  return st === '招股中' || st === '即将招股';
+}
+
+function isPendingListingStock(row: EnrichedBoardRow): boolean {
+  return row.enriched.sheetStatus === '待上市';
+}
+
+function isRecentListedStock(row: EnrichedBoardRow): boolean {
+  return row.enriched.sheetStatus === '已上市';
+}
+
+function sortBoardDisplayList(rows: EnrichedBoardRow[], orderMap: Map<string, number>): EnrichedBoardRow[] {
+  return [...rows].sort((a, b) =>
+    compareScheduleOrder(a.code, b.code, orderMap, a.heatIndex, b.heatIndex),
+  );
+}
+
+/** 平铺看板：招股中/即将招股 → 待上市 → 近期上市；组内按打新时间表顺序 */
+export function selectBoardDisplayRows(
+  rows: EnrichedBoardRow[],
+  data?: NnqHeatData,
+): EnrichedBoardRow[] {
+  const orderMap = buildScheduleOrderMap(data);
+  const recruiting = sortBoardDisplayList(rows.filter(isRecruitingStock), orderMap);
+  const pending = sortBoardDisplayList(rows.filter(isPendingListingStock), orderMap);
+  const recent = sortBoardDisplayList(rows.filter(isRecentListedStock), orderMap);
+  return [...recruiting, ...pending, ...recent].slice(0, BOARD_DISPLAY_MAX);
+}
+
+/** 看板卡片主状态标签（与 sheetStatus 一致） */
+export function boardPrimaryStatusTag(row: EnrichedBoardRow): string {
+  const st = row.enriched.sheetStatus;
+  if (st === '已上市') return '近期上市';
+  if (st === '招股中' || st === '即将招股' || st === '待上市') return st;
+  return row.statusTags[0] || '—';
 }
 
 export function buildEnrichedBoardRows(

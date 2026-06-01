@@ -4,9 +4,10 @@ import { buildPostContext, callAiPostGenerator, generatePostLocal } from '../uti
 
 interface Props {
   data: NnqHeatData;
+  hideHead?: boolean;
 }
 
-export function AiPostGenerator({ data }: Props) {
+export function AiPostGenerator({ data, hideHead }: Props) {
   const [text, setText] = useState('');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,10 +44,12 @@ export function AiPostGenerator({ data }: Props) {
 
   return (
     <section className="isd-zone isd-zone--post">
-      <div className="isd-zone-head">
-        <span className="isd-step">5</span>
-        AI 生成分析贴
-      </div>
+      {!hideHead && (
+        <div className="isd-zone-head">
+          <span className="isd-step">5</span>
+          AI 生成分析贴
+        </div>
+      )}
       <div className="isd-card isd-post-card">
         <p className="isd-post-desc">
           一键读取当前看板数据，生成包含市场总结、热门股票、机会点、风险点的牛牛圈分析文。

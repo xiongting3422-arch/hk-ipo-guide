@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { JSON_FILE } from './constants';
+import { DASHBOARD_PANELS, JSON_FILE } from './constants';
 import { AiPostGenerator } from './components/AiPostGenerator';
+import { DashboardShell } from './components/DashboardShell';
 import { HotContent } from './components/HotContent';
 import { KeywordPanel } from './components/KeywordPanel';
 import { MarketOverview } from './components/MarketOverview';
 import { RecentIpoBoard } from './components/RecentIpoBoard';
+import type { DashboardPanelId } from './constants';
 import type { NnqHeatData } from './types';
 import {
   aggregateMarketSentiment,
@@ -73,22 +75,51 @@ export function Dashboard({ forceKey = 0 }: DashboardProps) {
   const boards = buildStockBoards(data);
   const insights = buildHotPostInsights(data);
   const sheetCards = getSheetIpoCards(data);
+  const filterMeta = data.sheetFilter;
+
+  const resolveSubtitle = (id: DashboardPanelId) => {
+    if (id === 'board') {
+      const base = DASHBOARD_PANELS.find((p) => p.id === 'board')?.subtitle ?? '';
+      if (filterMeta?.pastDays != null) {
+        return `${base} · 近${filterMeta.pastDays}天已招股/上市 + 未来${filterMeta.futureDays ?? 7}天即将招股`;
+      }
+      return base;
+    }
+    return DASHBOARD_PANELS.find((p) => p.id === id)?.subtitle ?? '';
+  };
+
+  const renderPanel = (id: DashboardPanelId) => {
+    switch (id) {
+      case 'overview':
+        return <MarketOverview data={data} sentiment={sentiment} hideHead />;
+      case 'board':
+        return (
+          <RecentIpoBoard
+            cards={sheetCards}
+            boards={boards}
+            data={data}
+            filterMeta={filterMeta}
+            hideHead
+          />
+        );
+      case 'keywords':
+        return <KeywordPanel data={data} hideHead />;
+      case 'hot':
+        return <HotContent insights={insights} hideHead />;
+      case 'ai':
+        return <AiPostGenerator data={data} hideHead />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="isd-root">
-      <MarketOverview data={data} sentiment={sentiment} />
-
-      <RecentIpoBoard
-        cards={sheetCards}
-        boards={boards}
-        data={data}
-        filterMeta={data.sheetFilter}
+      <DashboardShell
+        panels={DASHBOARD_PANELS}
+        renderPanel={renderPanel}
+        resolveSubtitle={resolveSubtitle}
       />
-
-      <KeywordPanel data={data} />
-
-      <HotContent insights={insights} />
-      <AiPostGenerator data={data} />
     </div>
   );
 }

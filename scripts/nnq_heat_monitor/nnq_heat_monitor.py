@@ -37,10 +37,9 @@ from ipo_sheet_loader import load_ipo_master_from_sheet
 from post_pool import (
     build_pool_stats,
     dedupe_authors_latest,
-    dedupe_similar_text,
-    merge_post_pools,
+    unified_clean_merged_pool,
 )
-from sheet_targets import select_scrape_targets
+from sheet_targets import select_scrape_targets_from_env
 from stock_comment_scraper import fetch_stock_comments_with_login
 
 try:
@@ -615,7 +614,7 @@ async def run_async() -> dict[str, Any]:
         from sheet_ipo_sync import load_sheet_ipo_rows
 
         sheet_rows = load_sheet_ipo_rows()
-        scrape_targets = select_scrape_targets(sheet_rows)
+        scrape_targets = select_scrape_targets_from_env(sheet_rows)
         LOG.info("Sheet 定向抓取目标 %s 只", len(scrape_targets))
     except Exception as exc:
         LOG.warning("上市新股 Sheet 明细拉取失败: %s", exc)
@@ -640,11 +639,13 @@ async def run_async() -> dict[str, Any]:
         except Exception as exc:
             LOG.warning("个股评论区抓取失败: %s", exc)
 
-    merged_raw = merge_post_pools(raw_nnq, raw_stock)
-    merged_raw = dedupe_similar_text(merged_raw)
+    merged_raw = unified_clean_merged_pool(raw_nnq, raw_stock)
     filtered = filter_posts(merged_raw, days, MIN_ENGAGEMENT)
     before_noise = len(filtered)
     filtered, scored_posts = filter_valid_posts(filtered, window=days)
+    if filtered:
+        LOG.info("补全作者资料（头像/昵称/粉丝）%s 条", len(filtered))
+        filtered = enrich_posts_profiles(filtered)
     analytics = build_analytics(filtered, scored_posts)
 
     repo = _repo_root()
@@ -678,7 +679,7 @@ async def run_async() -> dict[str, Any]:
             "feedType": FEED_TYPE,
             "section": "牛友交流",
             "heatScoringVersion": "v3",
-            "contentPoolVersion": "v1",
+            "contentPoolVersion": "v2",
             "updateIntervalHours": int(os.environ.get("NNQ_HEAT_UPDATE_HOURS", "6").strip() or "6"),
         },
         **analytics,

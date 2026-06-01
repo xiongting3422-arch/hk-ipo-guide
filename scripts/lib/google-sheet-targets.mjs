@@ -33,14 +33,15 @@ function cell(row, keys) {
   return '';
 }
 
-function parseCsv(text) {
+function parseCsvMatrix(text) {
   const rows = [];
   let row = [];
   let field = '';
   let inQuotes = false;
-  for (let i = 0; i < text.length; i += 1) {
-    const ch = text[i];
-    const next = text[i + 1];
+  const src = String(text || '').replace(/^\uFEFF/, '');
+  for (let i = 0; i < src.length; i += 1) {
+    const ch = src[i];
+    const next = src[i + 1];
     if (inQuotes) {
       if (ch === '"' && next === '"') {
         field += '"';
@@ -71,14 +72,41 @@ function parseCsv(text) {
     row.push(field);
     if (row.some((c) => String(c).trim())) rows.push(row);
   }
-  if (!rows.length) return [];
-  const headers = rows[0].map((h) => String(h).trim());
-  return rows.slice(1).map((cols) => {
-    const obj = {};
-    headers.forEach((h, idx) => {
-      obj[h] = cols[idx] != null ? String(cols[idx]).trim() : '';
+  return rows;
+}
+
+function isTransposed(matrix) {
+  if (matrix.length < 2) return false;
+  return normKey(matrix[0]?.[0] || '') === '股票名称' && normKey(matrix[1]?.[0] || '') === '股票代码';
+}
+
+function pivotTransposed(matrix) {
+  const nRows = matrix.length;
+  const nCols = Math.max(...matrix.map((r) => r.length), 0);
+  const out = [];
+  for (let j = 1; j < nCols; j += 1) {
+    const row = {};
+    for (let i = 0; i < nRows; i += 1) {
+      const key = normKey(matrix[i]?.[0] || '');
+      if (!key) continue;
+      row[key] = String(matrix[i]?.[j] ?? '').trim();
+    }
+    if (Object.values(row).some((v) => String(v).trim())) out.push(row);
+  }
+  return out;
+}
+
+function parseCsvRows(text) {
+  const matrix = parseCsvMatrix(text).filter((r) => r.some((c) => String(c).trim()));
+  if (!matrix.length) return [];
+  if (isTransposed(matrix)) return pivotTransposed(matrix);
+  const headers = matrix[0].map((h) => normKey(h));
+  return matrix.slice(1).map((line) => {
+    const row = {};
+    headers.forEach((h, i) => {
+      if (h) row[h] = String(line[i] ?? '').trim();
     });
-    return obj;
+    return row;
   });
 }
 
@@ -128,7 +156,7 @@ export async function fetchListedSheetRows(options = {}) {
   if (!res.ok) throw new Error(`Sheet CSV HTTP ${res.status}`);
   const text = await res.text();
   if (text.trim().startsWith('<')) throw new Error('Sheet 返回 HTML 而非 CSV');
-  return parseCsv(text);
+  return parseCsvRows(text);
 }
 
 function passesSheetTimeFilter(subStart, subEnd, listing, today = new Date()) {
@@ -184,4 +212,41 @@ export function selectScrapeTargets(rows, options = {}) {
   }
   parsed.sort((a, b) => (a.sortDate < b.sortDate ? 1 : a.sortDate > b.sortDate ? -1 : 0));
   return parsed.slice(0, Math.max(1, limit));
+}
+
+function snapshotSortKey(row) {
+  for (const key of ['listingDateParsed', 'subEndDate', 'subStartDate']) {
+    const val = row[key];
+    if (val) return val;
+  }
+  return '';
+}
+
+/** 上市新股 tab 全量快照（与 Python build_sheet_listed_snapshot 字段对齐） */
+export function buildSheetListedSnapshot(rows) {
+  const items = [];
+  for (const raw of rows) {
+    const row = rowToSheetIpo(raw);
+    if (!row) continue;
+    items.push({
+      code: row.code,
+      name: row.name,
+      matchKey: `${row.code}|${row.name}`,
+      subStart: row.subStart || '',
+      subEnd: row.subEnd || '',
+      listingDate: row.listingDate || '',
+      ipoPeriod: row.subStart && row.subEnd ? `${row.subStart}~${row.subEnd}` : row.subStart || row.subEnd || '',
+      subStartDate: row.subStartDate,
+      subEndDate: row.subEndDate,
+      listingDateParsed: row.listingDateParsed,
+    });
+  }
+  items.sort((a, b) => (snapshotSortKey(a) < snapshotSortKey(b) ? 1 : snapshotSortKey(a) > snapshotSortKey(b) ? -1 : 0));
+  return {
+    syncedAt: new Date().toISOString(),
+    sourceTab: '上市新股',
+    spreadsheetTitle: '港股IPO打新指南信息收集',
+    totalCount: items.length,
+    items,
+  };
 }

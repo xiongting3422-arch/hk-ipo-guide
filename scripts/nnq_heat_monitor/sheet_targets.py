@@ -2,12 +2,21 @@
 """从 Google Sheet「上市新股」筛选定向抓取目标。"""
 from __future__ import annotations
 
+import os
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
 from sheet_ipo_sync import _parse_date_flexible, passes_sheet_time_filter, row_to_sheet_ipo
 
 TZ_CN = timezone(timedelta(hours=8))
+
+
+def target_limit_from_env(default: int = 20) -> int:
+    raw = os.environ.get("NNQ_STOCK_TARGET_LIMIT", str(default)).strip()
+    try:
+        return max(1, int(raw))
+    except ValueError:
+        return default
 
 
 def _coerce_date(val: Any) -> date | None:
@@ -88,3 +97,20 @@ def select_scrape_targets(
 
     parsed.sort(key=lambda r: (r.get("sortDate") or "", r["code"]), reverse=True)
     return parsed[: max(1, limit)]
+
+
+def select_scrape_targets_from_env(
+    sheet_rows: list[dict[str, str]],
+    *,
+    past_days: int = 30,
+    future_days: int = 7,
+    today: date | None = None,
+) -> list[dict[str, Any]]:
+    """按环境变量 NNQ_STOCK_TARGET_LIMIT 选取定向抓取目标。"""
+    return select_scrape_targets(
+        sheet_rows,
+        limit=target_limit_from_env(),
+        past_days=past_days,
+        future_days=future_days,
+        today=today,
+    )

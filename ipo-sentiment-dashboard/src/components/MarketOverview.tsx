@@ -8,6 +8,7 @@ import type { NnqHeatData } from '../types';
 interface Props {
   data: NnqHeatData;
   sentiment: MarketSentiment;
+  hideHead?: boolean;
 }
 
 function fmtHeat(n: number): string {
@@ -473,17 +474,19 @@ function SectorBars({ sectors }: { sectors: SectorHeatRow[] }) {
   );
 }
 
-export function MarketOverview({ data, sentiment }: Props) {
+export function MarketOverview({ data, sentiment, hideHead }: Props) {
   const trend = data.dailyTrend || [];
   const sectors = getSectorHeatFromSheet(data);
   const days = data.filter?.days || trend.length || 30;
 
   return (
     <section className="isd-zone">
-      <div className="isd-zone-head">
-        <span className="isd-step">1</span>
-        市场总览
-      </div>
+      {!hideHead && (
+        <div className="isd-zone-head">
+          <span className="isd-step">1</span>
+          市场总览
+        </div>
+      )}
       <div className="isd-overview-grid">
         <SentimentPie sentiment={sentiment} />
         <TrendChart trend={trend} max={getTrendMax(data)} days={days} />

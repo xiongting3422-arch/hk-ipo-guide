@@ -85,6 +85,12 @@ def dedupe_authors_latest(posts: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return list(by_author.values())
 
 
+def unified_clean_merged_pool(*pools: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """合并 NNQ 关键词帖与个股评论区，去重相似正文（统一内容池清洗入口）。"""
+    merged = merge_post_pools(*pools)
+    return dedupe_similar_text(merged)
+
+
 def build_pool_stats(
     *,
     nnq_count: int,

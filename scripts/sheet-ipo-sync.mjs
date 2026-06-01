@@ -34,4 +34,4 @@ if (py.status !== 0) {
 }
 
 fs.writeFileSync(jsonPath, `${py.stdout.trim()}\n`, 'utf-8');
-console.log(`Updated ${jsonPath} with sheetIpoUniverse + sectorHeatFromSheet`);
+console.log(`Updated ${jsonPath} with sheetIpoUniverse, sheetListedSnapshot, sectorHeatFromSheet`);

@@ -1,5 +1,50 @@
 export const JSON_FILE = './nnq-heat.json';
-export const BUILD_ID = '20260527-board-grid';
+export const BUILD_ID = '20260527-board-v11';
+
+export type DashboardPanelId = 'overview' | 'board' | 'keywords' | 'hot' | 'ai';
+
+export const DASHBOARD_PANELS = [
+  {
+    id: 'overview' as const,
+    step: '1',
+    label: '市场总览',
+    navLabel: '市场总览',
+    icon: '📊',
+    subtitle: '整体情绪、加权热度趋势与赛道热度分布',
+  },
+  {
+    id: 'board' as const,
+    step: '2',
+    label: '近期新股看板',
+    navLabel: '近期新股',
+    icon: '📋',
+    subtitle: '表格基本面 + 社区舆情一体展示',
+  },
+  {
+    id: 'keywords' as const,
+    step: '3',
+    label: '关键词分析',
+    navLabel: '关键词',
+    icon: '🔍',
+    subtitle: '社区 IPO 讨论内容聚合，展示真实帖文与高互动讨论',
+  },
+  {
+    id: 'hot' as const,
+    step: '4',
+    label: '高热内容聚合',
+    navLabel: '高热内容',
+    icon: '🔥',
+    subtitle: '同发布者仅保留 1 条最新高互动帖，结构化提炼核心信息',
+  },
+  {
+    id: 'ai' as const,
+    step: '5',
+    label: 'AI 生成分析贴',
+    navLabel: 'AI 生成',
+    icon: '✨',
+    subtitle: '一键读取当前看板数据，生成适合牛牛圈发布的分析短文',
+  },
+];
 
 export const PIE_COLORS = {
   bullish: '#22c55e',

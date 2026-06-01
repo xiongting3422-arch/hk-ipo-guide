@@ -21,6 +21,8 @@ declare global {
       publishBase?: string;
       gids?: { listed?: number | string };
     };
+    __IPO_LISTED_SHEET_ROWS__?: Record<string, string>[];
+    __IPO_SCHEDULE_SHEET_ROWS__?: Record<string, string>[];
   }
 }
 
@@ -183,6 +185,38 @@ function parseCsvRows(text: string): Record<string, string>[] {
     });
     return row;
   });
+}
+
+function rowHasContent(row: Record<string, string>): boolean {
+  return Object.values(row).some((v) => String(v || '').trim());
+}
+
+/** 合并浏览器已加载的 Sheet 行（listed 优先，schedule 补全） */
+export function collectWindowSheetRows(): Record<string, string>[] {
+  const byCode = new Map<string, Record<string, string>>();
+  const merge = (rows: Record<string, string>[] | undefined) => {
+    for (const raw of rows || []) {
+      if (!rowHasContent(raw)) continue;
+      const parsed = rowToSheetIpo(raw);
+      if (!parsed) continue;
+      const prev = byCode.get(parsed.code);
+      byCode.set(parsed.code, prev ? { ...prev, ...raw } : raw);
+    }
+  };
+  merge(typeof window !== 'undefined' ? window.__IPO_LISTED_SHEET_ROWS__ : undefined);
+  merge(typeof window !== 'undefined' ? window.__IPO_SCHEDULE_SHEET_ROWS__ : undefined);
+  return [...byCode.values()];
+}
+
+async function resolveSheetSourceRows(): Promise<Record<string, string>[]> {
+  try {
+    const csv = await fetchListedSheetCsv();
+    const rows = parseCsvRows(csv);
+    if (rows.length) return rows;
+  } catch {
+    /* fall through */
+  }
+  return collectWindowSheetRows();
 }
 
 function rowToSheetIpo(row: Record<string, string>) {
@@ -398,10 +432,11 @@ export async function fetchListedSheetCsv(): Promise<string> {
 }
 
 export async function enrichDataWithSheet(data: NnqHeatData): Promise<NnqHeatData> {
-  if (data.sheetIpoUniverse?.length) return data;
+  const rows = await resolveSheetSourceRows();
+  if (!rows.length) {
+    return data.sheetIpoUniverse?.length ? data : data;
+  }
   try {
-    const csv = await fetchListedSheetCsv();
-    const rows = parseCsvRows(csv);
     const block = buildSheetUniverseFromRows(rows, data.stockInsights || []);
     return {
       ...data,

@@ -11,6 +11,7 @@ import {
 
 interface Props {
   data: NnqHeatData;
+  hideHead?: boolean;
 }
 
 function InteractionBar({ post }: { post: CommunityPostSnippet }) {
@@ -87,7 +88,7 @@ function HighEngagementRow({ post }: { post: CommunityPostSnippet }) {
   );
 }
 
-export function KeywordPanel({ data }: Props) {
+export function KeywordPanel({ data, hideHead }: Props) {
   const topics = useMemo(() => buildHotDiscussionTopics(data), [data]);
   const categories = useMemo(() => buildKeywordTopicCategories(data), [data]);
   const hotPosts = useMemo(() => buildHighEngagementPosts(data), [data]);
@@ -95,11 +96,15 @@ export function KeywordPanel({ data }: Props) {
 
   return (
     <section className="isd-zone">
-      <div className="isd-zone-head">
-        <span className="isd-step">3</span>
-        关键词分析
-      </div>
-      <p className="isd-module-sub">社区 IPO 讨论内容聚合，展示真实帖文与高互动讨论</p>
+      {!hideHead && (
+        <>
+          <div className="isd-zone-head">
+            <span className="isd-step">3</span>
+            关键词分析
+          </div>
+          <p className="isd-module-sub">社区 IPO 讨论内容聚合，展示真实帖文与高互动讨论</p>
+        </>
+      )}
 
       <div className="isd-kw-summary isd-card">
         <div className="isd-kw-summary-title">7日高频讨论话题</div>

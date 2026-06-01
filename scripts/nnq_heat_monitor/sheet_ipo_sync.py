@@ -2,6 +2,7 @@
 """Google Sheet「上市新股」与社区舆情关联、时间窗过滤、赛道聚合。"""
 from __future__ import annotations
 
+import os
 import re
 from datetime import date, datetime, timedelta, timezone
 from typing import Any, Literal
@@ -248,6 +249,56 @@ def load_sheet_ipo_rows() -> list[dict[str, Any]]:
     return out
 
 
+def _iso_field(val: Any) -> str | None:
+    if isinstance(val, date):
+        return val.isoformat()
+    if val is None:
+        return None
+    s = str(val).strip()
+    return s or None
+
+
+def _snapshot_sort_key(row: dict[str, Any]) -> str:
+    for key in ("listingDateParsed", "subEndDate", "subStartDate"):
+        val = row.get(key)
+        if isinstance(val, date):
+            return val.isoformat()
+        if val:
+            return str(val)
+    return ""
+
+
+def build_sheet_listed_snapshot(
+    sheet_rows: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """上市新股 tab 全量快照（code/name/招股/上市日期），供前端与 pipeline 向前兼容读取。"""
+    rows = sheet_rows if sheet_rows is not None else load_sheet_ipo_rows()
+    items: list[dict[str, Any]] = []
+    for row in rows:
+        items.append(
+            {
+                "code": row["code"],
+                "name": row["name"],
+                "matchKey": row.get("matchKey") or _match_key(row["code"], row["name"]),
+                "subStart": row.get("subStart") or "",
+                "subEnd": row.get("subEnd") or "",
+                "listingDate": row.get("listingDate") or "",
+                "ipoPeriod": row.get("ipoPeriod") or "",
+                "subStartDate": _iso_field(row.get("subStartDate")),
+                "subEndDate": _iso_field(row.get("subEndDate")),
+                "listingDateParsed": _iso_field(row.get("listingDateParsed")),
+            }
+        )
+    items.sort(key=_snapshot_sort_key, reverse=True)
+    return {
+        "syncedAt": datetime.now(TZ_CN).isoformat(),
+        "sourceTab": "上市新股",
+        "spreadsheetTitle": "港股IPO打新指南信息收集",
+        "totalCount": len(items),
+        "items": items,
+    }
+
+
 def build_sheet_ipo_universe(
     stock_insights: list[dict[str, Any]] | None = None,
     *,
@@ -373,7 +424,16 @@ def enrich_payload_with_sheet(
         payload.get("stockInsights") or [],
         sheet_rows=sheet_rows,
     )
+    snapshot = build_sheet_listed_snapshot(sheet_rows)
     payload.update(block)
+    payload["sheetListedSnapshot"] = snapshot
+    payload["sheetSync"] = {
+        "syncedAt": snapshot["syncedAt"],
+        "sourceTab": snapshot["sourceTab"],
+        "spreadsheetTitle": snapshot["spreadsheetTitle"],
+        "totalCount": snapshot["totalCount"],
+        "updateIntervalHours": int(os.environ.get("NNQ_HEAT_UPDATE_HOURS", "6").strip() or "6"),
+    }
     if block.get("sectorHeatFromSheet"):
         mi = payload.setdefault("marketInsights", {})
         mi["sectorHeatFromSheet"] = block["sectorHeatFromSheet"]

@@ -774,12 +774,14 @@ def build_nnq_heat_v2(
         for s in stock_insights[:10]
     ]
 
-    from sheet_ipo_sync import build_sheet_ipo_universe
+    from sheet_ipo_sync import build_sheet_ipo_universe, build_sheet_listed_snapshot
 
     sheet_block = build_sheet_ipo_universe(
         stock_insights,
         sheet_rows=sheet_rows,
     )
+    snapshot = build_sheet_listed_snapshot(sheet_rows)
+    update_hours = int(os.environ.get("NNQ_HEAT_UPDATE_HOURS", "6").strip() or "6")
 
     return {
         "schemaVersion": 2,
@@ -796,6 +798,14 @@ def build_nnq_heat_v2(
         "riskHighlightBars": risk_bars,
         "topicAnalysisIndex": topic_index,
         **sheet_block,
+        "sheetListedSnapshot": snapshot,
+        "sheetSync": {
+            "syncedAt": snapshot["syncedAt"],
+            "sourceTab": snapshot["sourceTab"],
+            "spreadsheetTitle": snapshot["spreadsheetTitle"],
+            "totalCount": snapshot["totalCount"],
+            "updateIntervalHours": update_hours,
+        },
     }
 
 

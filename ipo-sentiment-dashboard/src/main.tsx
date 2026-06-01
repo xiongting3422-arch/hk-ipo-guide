@@ -34,7 +34,7 @@ function boot() {
   mount();
   document.addEventListener('ipo-tab-change', (e) => {
     const tab = (e as CustomEvent<{ name?: string }>).detail?.name;
-    if (tab === 'listed') mount();
+    if (tab === 'listed') mount(true);
   });
 }
 

@@ -2,6 +2,7 @@ import type { PostInsight } from '../types';
 
 interface Props {
   insights: PostInsight[];
+  hideHead?: boolean;
 }
 
 function formatFollowers(count: number): string {
@@ -19,14 +20,18 @@ function displayName(item: PostInsight): string {
   return item.authorNickname || item.title || '牛友';
 }
 
-export function HotContent({ insights }: Props) {
+export function HotContent({ insights, hideHead }: Props) {
   return (
     <section className="isd-zone">
-      <div className="isd-zone-head">
-        <span className="isd-step">4</span>
-        高热内容聚合
-      </div>
-      <p className="isd-module-sub">同发布者仅保留1条最新高互动帖，结构化提炼核心信息</p>
+      {!hideHead && (
+        <>
+          <div className="isd-zone-head">
+            <span className="isd-step">4</span>
+            高热内容聚合
+          </div>
+          <p className="isd-module-sub">同发布者仅保留1条最新高互动帖，结构化提炼核心信息</p>
+        </>
+      )}
 
       <div className="isd-hot-grid">
         {insights.length ? (

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * NNQ 舆情数据管道：Sheet 定向目标 + 牛牛圈 + 个股评论区 → nnq-heat.json
+ * NNQ 舆情数据管道：Google Sheet 上市新股 → 定向个股评论 + 牛牛圈 IPO 帖 → nnq-heat.json
  *
  * 用法:
  *   node scripts/nnq-heat-pipeline.mjs
@@ -9,13 +9,14 @@
  * 环境变量:
  *   FUTU_LOGIN_UID / FUTU_LOGIN_PASSWORD  富途登录（完整抓取必填）
  *   NNQ_HEAT_JSON_OUT                     输出路径，默认 ./nnq-heat.json
- *   NNQ_HEAT_UPDATE_HOURS                 写入 filter.updateIntervalHours，默认 6
+ *   NNQ_HEAT_UPDATE_HOURS                 调度间隔（小时），默认 6
+ *   NNQ_STOCK_TARGET_LIMIT                Sheet 定向抓取新股数量，默认 20
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadScrapeTargetsFromSheet } from './lib/sheet-targets.mjs';
+import { loadScrapeTargetsFromSheet, loadSheetListedSnapshot } from './lib/sheet-targets.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
@@ -29,8 +30,11 @@ function log(msg) {
 
 async function previewTargets() {
   try {
-    const targets = await loadScrapeTargetsFromSheet();
-    log(`Sheet 定向抓取目标 ${targets.length} 只`);
+    const [targets, snapshot] = await Promise.all([
+      loadScrapeTargetsFromSheet(),
+      loadSheetListedSnapshot(),
+    ]);
+    log(`Sheet 上市新股共 ${snapshot.totalCount} 条 · 定向抓取 ${targets.length} 只`);
     targets.slice(0, 5).forEach((t) => log(`  · ${t.name} (${t.code}) ${t.sortDate}`));
   } catch (e) {
     log(`Sheet 目标预览失败: ${e.message}`);
@@ -76,6 +80,16 @@ async function main() {
     console.error(`未找到输出文件 ${jsonOut}`);
     process.exit(1);
   }
+
+  log('刷新 Sheet universe / sheetListedSnapshot…');
+  const sync = spawnSync('node', [path.join(repoRoot, 'scripts', 'sheet-ipo-sync.mjs'), jsonOut], {
+    cwd: repoRoot,
+    stdio: 'inherit',
+  });
+  if (sync.status !== 0) {
+    process.exit(sync.status || 1);
+  }
+
   log(`完成 → ${jsonOut}`);
 }
 
