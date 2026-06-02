@@ -1,0 +1,59 @@
+{
+  "updatedAt": "2026-06-02T07:52:24.126Z",
+  "home": [
+    {
+      "id": "home-slide-01",
+      "src": "./assets/images/ipo-home-banner/slide-01-2x.png",
+      "alt": "剂泰科技-P 暗盘涨幅 319%，一手赚 16750",
+      "width": 2800,
+      "height": 280,
+      "enabled": true,
+      "order": 0
+    }
+  ],
+  "news": [
+    {
+      "id": "news-slot-1",
+      "src": "./assets/images/ipo-news/banner/slot-1.png",
+      "enabled": true,
+      "order": 0
+    },
+    {
+      "id": "news-mpwbo28fjo68",
+      "src": "./assets/images/ipo-news/banner/news-mpwbo27lwic4-1780385684556.png",
+      "enabled": true,
+      "order": 1
+    },
+    {
+      "id": "news-slot-2",
+      "src": "./assets/images/ipo-news/banner/slot-2.png",
+      "enabled": true,
+      "order": 2
+    },
+    {
+      "id": "news-mpwbo4yst96h",
+      "src": "./assets/images/ipo-news/banner/news-mpwbo4xuv1h1-1780385688097.png",
+      "enabled": true,
+      "order": 3
+    },
+    {
+      "id": "news-slot-3",
+      "src": "./assets/images/ipo-news/banner/slot-3.png",
+      "enabled": true,
+      "order": 4
+    },
+    {
+      "id": "news-slot-4",
+      "src": "./assets/images/ipo-news/banner/slot-4.png",
+      "enabled": true,
+      "order": 5,
+      "href": "https://invest.futuhk.com/ipo_season"
+    },
+    {
+      "id": "news-mpwbo7bmc71y",
+      "src": "./assets/images/ipo-news/banner/news-mpwbo7alqjcj-1780385691150.png",
+      "enabled": true,
+      "order": 6
+    }
+  ]
+}
