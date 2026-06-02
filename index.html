@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@900&family=Noto+Sans+SC:wght@400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="./auth.js?v=7"></script>
+<script src="./ipo-banners.js?v=2"></script>
 <style>
     /* ── Embedded fonts from IPO-1080*1080 folder ─────────────────────────── */
     @font-face {
@@ -1351,11 +1352,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   <!-- IPO 主页 Banner：纯图轮播，尺寸以图片 intrinsic 宽高为准（见 IPO_HOME_BANNERS） -->
   <div class="ipo-home-banner" role="region" aria-label="暗盘亮点" id="ipo-home-banner">
     <div class="ipo-home-banner-viewport" id="ipo-home-banner-viewport">
-      <div class="ipo-home-banner-track" id="ipo-home-banner-track">
-        <div class="ipo-home-banner-slide">
-          <img src="./assets/images/ipo-home-banner/slide-01-2x.png?v=20260527v3" alt="剂泰科技-P 暗盘涨幅 319%，一手赚 16750" width="2800" height="280" decoding="async">
-        </div>
-      </div>
+      <div class="ipo-home-banner-track" id="ipo-home-banner-track"></div>
     </div>
   </div>
 
@@ -3199,17 +3196,9 @@ function applyLeaderboardGroup(mode) {
   applyLeaderboardSort(mode);
 }
 
-/* ━━━━━━━━━ IPO HOME BANNER（纯图轮播 · 2800×280） ━━━━━━━━━ */
-const IPO_HOME_BANNER_BUILD = '20260527v3';
-/** 每张 PNG：assets/images/ipo-home-banner/slide-XX-2x.png · 必须 2800×280（可用 sips -g pixelWidth 验证） */
-const IPO_HOME_BANNERS = [
-  {
-    src: './assets/images/ipo-home-banner/slide-01-2x.png',
-    alt: '剂泰科技-P 暗盘涨幅 319%，一手赚 16750',
-    width: 2800,
-    height: 280,
-  },
-];
+/* ━━━━━━━━━ IPO HOME BANNER（纯图轮播 · 配置见 data/site-banners.json） ━━━━━━━━━ */
+/** @type {string} */ let IPO_HOME_BANNER_BUILD = '';
+/** @type {Array<{src:string,alt?:string,width?:number,height?:number}>} */ let IPO_HOME_BANNERS = [];
 let ipoHomeBannerIndex = 0;
 let ipoHomeBannerTimer = null;
 
@@ -3389,25 +3378,26 @@ const IPO_NEWS_GRID_THEMES = [
   { id: 'pricing', label: '新股定价' }
 ];
 let ipoNewsBannerInited = false;
+let ipoNewsBannerConfigVer = '';
 let ipoNewsBannerIndex = 0;
 let ipoNewsBannerStep = 0;
 let ipoNewsBannerTimer = null;
 let ipoNewsBannerResetTimer = null;
 
-/**
- * 新股资讯轮播：图片放在 assets/images/ipo-news/banner/，按从左到右槽位 slot-1 … slot-4。
- * 单张建议 ≤500KB、约 1:1 方图；覆盖同名文件后 push 即更新线上。
- * 轮播会再拼接前 4 张的副本用于无缝滚动（张数若改须同步调整下方 slice 与数组）。
- */
-const IPO_NEWS_BANNER_IMAGES = [
-  { src: './assets/images/ipo-news/banner/slot-1.png' },
-  { src: './assets/images/ipo-news/banner/slot-2.png' },
-  { src: './assets/images/ipo-news/banner/slot-3.png' },
-  {
-    src: './assets/images/ipo-news/banner/slot-4.png',
-    href: 'https://invest.futuhk.com/ipo_season'
-  }
-];
+/** 新股资讯轮播：配置见 data/site-banners.json（管理后台可上传，无需改代码） */
+/** @type {Array<{src:string,href?:string}>} */ let IPO_NEWS_BANNER_IMAGES = [];
+
+function ipoNewsBannerVisibleCount() {
+  return Math.min(4, Math.max(1, IPO_NEWS_BANNER_IMAGES.length));
+}
+
+function resetIpoNewsBanner() {
+  ipoNewsBannerInited = false;
+  ipoNewsBannerIndex = 0;
+  const track = document.getElementById('ipo-news-banner-track');
+  if (track) track.innerHTML = '';
+  stopIpoNewsBanner();
+}
 
 function ipoNewsBannerMove(animated) {
   const track = document.getElementById('ipo-news-banner-track');
@@ -3452,14 +3442,27 @@ function startIpoNewsBanner() {
   }, 2600);
 }
 
+function ipoNewsBannerImgSrc(src) {
+  const ver = IPO_HOME_BANNER_BUILD || Date.now();
+  const base = src || '';
+  if (!base) return '';
+  return base + (base.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(ver);
+}
+
 function ensureIpoNewsBanner() {
   const track = document.getElementById('ipo-news-banner-track');
   if (!track) return;
 
-  if (!ipoNewsBannerInited) {
-    const loopItems = [...IPO_NEWS_BANNER_IMAGES, ...IPO_NEWS_BANNER_IMAGES.slice(0, 4)];
+  if (!IPO_NEWS_BANNER_IMAGES.length) return;
+
+  const ver = IPO_HOME_BANNER_BUILD || '';
+  const needRebuild = !ipoNewsBannerInited || ipoNewsBannerConfigVer !== ver;
+
+  if (needRebuild) {
+    const vis = ipoNewsBannerVisibleCount();
+    const loopItems = [...IPO_NEWS_BANNER_IMAGES, ...IPO_NEWS_BANNER_IMAGES.slice(0, vis)];
     track.innerHTML = loopItems.map((item, i) => {
-      const img = `<img src="${item.src}" alt="IPO 资讯轮播图" loading="eager" decoding="async" fetchpriority="${i < 4 ? 'high' : 'low'}">`;
+      const img = `<img src="${ipoNewsBannerImgSrc(item.src)}" alt="IPO 资讯轮播图" loading="eager" decoding="async" fetchpriority="${i < vis ? 'high' : 'low'}">`;
       if (item.href) {
         return `
           <div class="ipo-news-banner-item">
@@ -3476,14 +3479,18 @@ function ensureIpoNewsBanner() {
       `;
     }).join('');
 
-    track.addEventListener('mouseenter', stopIpoNewsBanner);
-    track.addEventListener('mouseleave', startIpoNewsBanner);
-    window.addEventListener('resize', () => {
-      if (!document.getElementById('tab-news')?.classList.contains('active')) return;
-      ipoNewsBannerMeasure();
-      startIpoNewsBanner();
-    });
-    ipoNewsBannerInited = true;
+    if (!ipoNewsBannerInited) {
+      track.addEventListener('mouseenter', stopIpoNewsBanner);
+      track.addEventListener('mouseleave', startIpoNewsBanner);
+      window.addEventListener('resize', () => {
+        if (!document.getElementById('tab-news')?.classList.contains('active')) return;
+        ipoNewsBannerMeasure();
+        startIpoNewsBanner();
+      });
+      ipoNewsBannerInited = true;
+    }
+    ipoNewsBannerConfigVer = ver;
+    ipoNewsBannerIndex = 0;
   }
 
   requestAnimationFrame(() => {
@@ -10026,7 +10033,8 @@ async function downloadCompareTable() {
 }
 
 /* ─── Init ─── */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadSiteBanners();
   const previewTab = new URLSearchParams(location.search).get('tab');
   if (previewTab && document.getElementById('tab-' + previewTab)) {
     switchTab(previewTab);
