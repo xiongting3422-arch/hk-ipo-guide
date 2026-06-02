@@ -3197,8 +3197,8 @@ function applyLeaderboardGroup(mode) {
 }
 
 /* ━━━━━━━━━ IPO HOME BANNER（纯图轮播 · 配置见 data/site-banners.json） ━━━━━━━━━ */
-/** @type {string} */ let IPO_HOME_BANNER_BUILD = '';
-/** @type {Array<{src:string,alt?:string,width?:number,height?:number}>} */ let IPO_HOME_BANNERS = [];
+/** @type {string} */ var IPO_HOME_BANNER_BUILD = window.IPO_HOME_BANNER_BUILD || '';
+/** @type {Array<{src:string,alt?:string,width?:number,height?:number}>} */ var IPO_HOME_BANNERS = window.IPO_HOME_BANNERS || [];
 let ipoHomeBannerIndex = 0;
 let ipoHomeBannerTimer = null;
 
@@ -3385,7 +3385,7 @@ let ipoNewsBannerTimer = null;
 let ipoNewsBannerResetTimer = null;
 
 /** 新股资讯轮播：配置见 data/site-banners.json（管理后台可上传，无需改代码） */
-/** @type {Array<{src:string,href?:string}>} */ let IPO_NEWS_BANNER_IMAGES = [];
+/** @type {Array<{src:string,href?:string}>} */ var IPO_NEWS_BANNER_IMAGES = window.IPO_NEWS_BANNER_IMAGES || [];
 
 function ipoNewsBannerVisibleCount() {
   return Math.min(4, Math.max(1, IPO_NEWS_BANNER_IMAGES.length));
