@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-02T08:47:51.131Z",
+  "updatedAt": "2026-06-02T09:49:15.180Z",
   "home": [
     {
       "id": "home-slide-01",
@@ -54,6 +54,12 @@
       "src": "./assets/images/ipo-news/banner/news-mpwbo7alqjcj-1780385691150.png",
       "enabled": true,
       "order": 6
+    },
+    {
+      "id": "news-mpwggje9ng1o",
+      "src": "./assets/images/ipo-news/banner/news-mpwggjdh6fxe-1780393731628.png",
+      "enabled": true,
+      "order": 7
     }
   ]
 }
