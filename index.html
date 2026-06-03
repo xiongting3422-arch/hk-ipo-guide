@@ -3201,6 +3201,7 @@ function applyLeaderboardGroup(mode) {
 /** @type {Array<{src:string,alt?:string,width?:number,height?:number}>} */ var IPO_HOME_BANNERS = window.IPO_HOME_BANNERS || [];
 let ipoHomeBannerIndex = 0;
 let ipoHomeBannerTimer = null;
+let ipoHomeBannerResetTimer = null;
 
 function ipoHomeBannerEsc(s) {
   return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
@@ -3218,14 +3219,25 @@ function stopIpoHomeBanner() {
     clearInterval(ipoHomeBannerTimer);
     ipoHomeBannerTimer = null;
   }
+  if (ipoHomeBannerResetTimer) {
+    clearTimeout(ipoHomeBannerResetTimer);
+    ipoHomeBannerResetTimer = null;
+  }
 }
 
+/** 始终向左滑动：末尾拼接首张副本，复位时无动画跳回起点 */
 function startIpoHomeBanner() {
   stopIpoHomeBanner();
   if (IPO_HOME_BANNERS.length < 2) return;
   ipoHomeBannerTimer = setInterval(() => {
-    ipoHomeBannerIndex = (ipoHomeBannerIndex + 1) % IPO_HOME_BANNERS.length;
+    ipoHomeBannerIndex += 1;
     ipoHomeBannerMove(true);
+    if (ipoHomeBannerIndex >= IPO_HOME_BANNERS.length) {
+      ipoHomeBannerResetTimer = setTimeout(() => {
+        ipoHomeBannerIndex = 0;
+        ipoHomeBannerMove(false);
+      }, 560);
+    }
   }, 5000);
 }
 
@@ -3256,10 +3268,14 @@ function renderIpoHomeBanner() {
   const track = document.getElementById('ipo-home-banner-track');
   const viewport = document.getElementById('ipo-home-banner-viewport');
   if (!track || !IPO_HOME_BANNERS.length) return;
+  stopIpoHomeBanner();
   const ver = IPO_HOME_BANNER_BUILD;
   const maxW = Math.max(...IPO_HOME_BANNERS.map((b) => b.width || 2800));
   if (viewport) viewport.style.setProperty('--ipo-banner-max-w', `${maxW}px`);
-  track.innerHTML = IPO_HOME_BANNERS.map((b) => {
+  const loopBanners = IPO_HOME_BANNERS.length >= 2
+    ? [...IPO_HOME_BANNERS, IPO_HOME_BANNERS[0]]
+    : IPO_HOME_BANNERS;
+  track.innerHTML = loopBanners.map((b) => {
     const src = `${b.src}?v=${ver}`;
     const w = b.width || 2800;
     const h = b.height || 280;
