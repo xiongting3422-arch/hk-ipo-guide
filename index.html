@@ -12,7 +12,8 @@
 <link rel="canonical" href="https://xiongting3422-arch.github.io/hk-ipo-guide/">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@900&family=Noto+Sans+SC:wght@400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="./auth.js?v=7"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="./auth.js?v=8"></script>
 <script src="./ipo-banners.js?v=3"></script>
 <style>
     /* ── Embedded fonts from IPO-1080*1080 folder ─────────────────────────── */
@@ -697,6 +698,52 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 .ipo-news-module-meta{font-size:11px;color:var(--t3);margin-top:5px;}
 .ipo-news-module-empty{padding:24px 12px 32px;font-size:12px;color:var(--t3);text-align:center;}
 
+/* ━━━━━━━━━ DATA DASHBOARD TAB ━━━━━━━━━ */
+#tab-dashboard{background:#fff;}
+.dashboard-page{max-width:1200px;margin:0 auto;padding:32px 32px 72px;}
+.dashboard-page-title{font-size:22px;font-weight:800;color:var(--t1);letter-spacing:.02em;margin:0 0 24px;text-align:center;}
+.dashboard-verdict-panel{background:linear-gradient(135deg,#fff7ed 0%,#fff 55%,#f0f9ff 100%);border:1px solid rgba(249,115,22,.18);border-radius:var(--r-lg);padding:24px 26px 22px;margin-bottom:24px;box-shadow:0 4px 24px rgba(249,115,22,.08);position:relative;overflow:hidden;}
+.dashboard-verdict-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#fb923c,#38bdf8);}
+.dashboard-style-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.dashboard-style-badge{display:inline-flex;align-items:center;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.04em;color:#c2410c;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.22);}
+.dashboard-style-badge:nth-child(3n+2){color:#0f766e;background:rgba(13,148,136,.1);border-color:rgba(13,148,136,.22);}
+.dashboard-style-badge:nth-child(3n){color:#6d28d9;background:rgba(124,58,237,.1);border-color:rgba(124,58,237,.22);}
+.dashboard-summary-verdict{font-size:20px;font-weight:800;line-height:1.65;color:var(--t1);margin:0;letter-spacing:.01em;}
+.dashboard-charts-grid{display:grid;grid-template-columns:minmax(0,0.95fr) minmax(0,1.35fr);gap:20px;margin-bottom:28px;}
+.dashboard-chart-panel{background:#fff;border:1px solid #ebebeb;border-radius:var(--r-lg);box-shadow:0 4px 24px rgba(15,23,42,.06);padding:18px 16px 12px;position:relative;overflow:hidden;}
+.dashboard-chart-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#fb923c);}
+.dashboard-chart-panel--dist::before{background:linear-gradient(90deg,#38bdf8,var(--accent));}
+.dashboard-chart-panel-title{font-size:14px;font-weight:800;color:var(--t1);margin:0 0 4px;padding:0 4px;}
+.dashboard-chart-panel-sub{font-size:11px;color:var(--t3);margin:0 0 8px;padding:0 4px;line-height:1.5;}
+#dashboard-pie-chart{width:100%;height:360px;}
+#dashboard-dist-chart{width:100%;height:360px;}
+.dashboard-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:40px;}
+.dashboard-card{background:linear-gradient(145deg,#fafafa 0%,#fff 100%);border:1px solid #ebebeb;border-radius:var(--r);padding:22px 20px 20px;box-shadow:0 2px 12px rgba(15,23,42,.04);transition:border-color .2s,box-shadow .2s,transform .2s;position:relative;overflow:hidden;}
+.dashboard-card:hover{border-color:rgba(249,115,22,.35);box-shadow:0 8px 28px rgba(249,115,22,.1);transform:translateY(-2px);}
+.dashboard-card::after{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--accent);opacity:.85;}
+.dashboard-card:nth-child(2)::after{background:var(--teal);}
+.dashboard-card:nth-child(3)::after{background:var(--purple);}
+.dashboard-card-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:20px;background:rgba(249,115,22,.1);color:var(--accent);margin-bottom:12px;}
+.dashboard-card:nth-child(2) .dashboard-card-tag{background:rgba(13,148,136,.1);color:var(--teal);}
+.dashboard-card:nth-child(3) .dashboard-card-tag{background:rgba(124,58,237,.1);color:var(--purple);}
+.dashboard-card-title{font-size:16px;font-weight:800;color:var(--t1);margin:0 0 10px;line-height:1.4;}
+.dashboard-card-body{font-size:13px;color:var(--t2);line-height:1.75;margin:0;}
+.dashboard-inject{background:#f9f9f9;border:1px solid #ebebeb;border-radius:var(--r-lg);padding:24px 22px;}
+.dashboard-inject-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.dashboard-inject-head h2{font-size:16px;font-weight:800;color:var(--t1);margin:0;}
+.dashboard-inject-hint{font-size:12px;color:var(--t3);}
+.dashboard-inject textarea{width:100%;min-height:160px;padding:14px 16px;border:1px solid var(--b1);border-radius:10px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.55;color:var(--t1);background:#fff;resize:vertical;transition:border-color .2s,box-shadow .2s;}
+.dashboard-inject textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(249,115,22,.12);}
+.dashboard-inject textarea.is-error{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.1);}
+.dashboard-inject-actions{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap;}
+.dashboard-inject-btn{padding:11px 28px;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;transition:background .15s,transform .1s;box-shadow:0 2px 8px rgba(249,115,22,.25);}
+.dashboard-inject-btn:hover{background:#ea580c;}
+.dashboard-inject-btn:active{transform:scale(.98);}
+.dashboard-inject-status{font-size:13px;color:var(--green);font-weight:600;opacity:0;transition:opacity .25s;}
+.dashboard-inject-status.is-visible{opacity:1;}
+.dashboard-inject-status.is-error{color:var(--red);}
+@media(max-width:960px){.dashboard-charts-grid{grid-template-columns:1fr;}.dashboard-cards{grid-template-columns:1fr;}.dashboard-page{padding:24px 16px 56px;}#dashboard-pie-chart,#dashboard-dist-chart{height:320px;}.dashboard-summary-verdict{font-size:17px;}}
+
 /* 新股数据汇总表：左对齐 + V7 三态（认购中 / 已截止 / 已上市） */
 #ipo-compare-table .ipo-cmp-scroll th,
 #ipo-compare-table .ipo-cmp-scroll td{
@@ -1333,6 +1380,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
     <button class="tab-btn" onclick="switchTab('grey')">新股暗盘</button>
     <button class="tab-btn" onclick="switchTab('calendar')">打新时间表</button>
     <button class="tab-btn" onclick="switchTab('news')">新股资讯</button>
+    <button class="tab-btn" onclick="switchTab('dashboard')">数据看板</button>
   </div>
 </nav>
 </div>
@@ -2206,6 +2254,79 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
       </div>
     </article>
   </div>
+</div>
+</div>
+
+<!-- ═══════════════════════ TAB: DATA DASHBOARD ═══════════════════════ -->
+<div id="tab-dashboard" class="tab-content">
+<div class="page dashboard-page">
+  <h1 class="dashboard-page-title">IPO 策略看板</h1>
+
+  <section class="dashboard-verdict-panel" aria-label="配售流派与核心结论">
+    <div class="dashboard-style-tags" id="dashboard-style-tags">
+      <span class="dashboard-style-badge">—</span>
+    </div>
+    <p class="dashboard-summary-verdict" id="dashboard-summary-verdict">粘贴 JSON 并注入，即可在此展示核心策略结论</p>
+  </section>
+
+  <div class="dashboard-charts-grid">
+    <div class="dashboard-chart-panel">
+      <h2 class="dashboard-chart-panel-title">筹码总分配</h2>
+      <p class="dashboard-chart-panel-sub">甲组 vs 乙组 · 总拿走手数占比</p>
+      <div id="dashboard-pie-chart" role="img" aria-label="甲组乙组筹码分配环形饼图"></div>
+    </div>
+    <div class="dashboard-chart-panel dashboard-chart-panel--dist">
+      <h2 class="dashboard-chart-panel-title">申购胜率与人数分布</h2>
+      <p class="dashboard-chart-panel-sub">淡蓝柱 = 有效申请人数 · 橙色线 = 档位中签率</p>
+      <div id="dashboard-dist-chart" role="img" aria-label="认购档位人数与中签率双轴图"></div>
+    </div>
+  </div>
+
+  <div class="dashboard-cards" id="dashboard-cards" aria-label="核心投资观点">
+    <article class="dashboard-card">
+      <span class="dashboard-card-tag" id="dashboard-tag-0">策略</span>
+      <h3 class="dashboard-card-title" id="dashboard-title-0">—</h3>
+      <p class="dashboard-card-body" id="dashboard-body-0">—</p>
+    </article>
+    <article class="dashboard-card">
+      <span class="dashboard-card-tag" id="dashboard-tag-1">风险</span>
+      <h3 class="dashboard-card-title" id="dashboard-title-1">—</h3>
+      <p class="dashboard-card-body" id="dashboard-body-1">—</p>
+    </article>
+    <article class="dashboard-card">
+      <span class="dashboard-card-tag" id="dashboard-tag-2">展望</span>
+      <h3 class="dashboard-card-title" id="dashboard-title-2">—</h3>
+      <p class="dashboard-card-body" id="dashboard-body-2">—</p>
+    </article>
+  </div>
+
+  <section class="dashboard-inject" aria-label="注入分析规律">
+    <div class="dashboard-inject-head">
+      <h2>注入新规律</h2>
+      <span class="dashboard-inject-hint">粘贴 Claude 生成的 JSON，点击按钮即时刷新图表与观点</span>
+    </div>
+    <textarea id="dashboard-json-input" spellcheck="false" placeholder='示例 JSON 格式：
+{
+  "style_tags": ["甲组厚铺", "乙组薄给", "顶格友好"],
+  "summary_verdict": "顶层设计明显向甲组倾斜筹码，乙组散户中签率被系统性压低。",
+  "pie_chart": {
+    "甲组总拿走手数": 68500,
+    "乙组总拿走手数": 31500
+  },
+  "categories": ["甲尾10%", "甲组中位", "甲组顶格", "乙组大户", "乙组散户"],
+  "applicants": [4200, 8600, 1200, 3400, 28000],
+  "win_rates": [18.5, 8.2, 2.1, 0.45, 0.08],
+  "core_insights": [
+    "核心观点1：甲组顶格档位仍具结构性优势。",
+    "核心观点2：乙组散户档位中签率趋近于零。",
+    "核心观点3：建议资金向甲组中位档集中。"
+  ]
+}'></textarea>
+    <div class="dashboard-inject-actions">
+      <button type="button" class="dashboard-inject-btn" id="dashboard-inject-btn">注入新规律</button>
+      <span class="dashboard-inject-status" id="dashboard-inject-status" aria-live="polite"></span>
+    </div>
+  </section>
 </div>
 </div>
 
@@ -3363,6 +3484,538 @@ function switchTab(name) {
       if (typeof ensureNnqHeatLoaded === 'function') ensureNnqHeatLoaded();
     } catch (e) { console.warn('nnq heat tab refresh', e); }
   }
+  if (name === 'dashboard') {
+    try {
+      if (typeof ensureDashboardCharts === 'function') ensureDashboardCharts();
+      if (typeof dashboardPieChart !== 'undefined' && dashboardPieChart) dashboardPieChart.resize();
+      if (typeof dashboardDistChart !== 'undefined' && dashboardDistChart) dashboardDistChart.resize();
+    } catch (e) { console.warn('dashboard tab refresh', e); }
+  }
+}
+
+/* ━━━━━━━━━ DATA DASHBOARD ━━━━━━━━━ */
+const DASHBOARD_CARD_TAGS = ['策略', '风险', '展望'];
+const DASHBOARD_CARD_TITLES = ['策略要点', '风险提示', '趋势展望'];
+const DASHBOARD_PIE_COLORS = ['#f97316', '#38bdf8', '#a78bfa', '#34d399'];
+
+const DASHBOARD_DEFAULT = {
+  styleTags: ['甲组厚铺', '乙组薄给', '顶格友好'],
+  summaryVerdict: '顶层设计明显向甲组倾斜筹码，乙组散户中签率被系统性压低；建议资金向甲组中位档集中配置。',
+  pieChart: [
+    { name: '甲组总拿走手数', value: 68500 },
+    { name: '乙组总拿走手数', value: 31500 }
+  ],
+  distribution: {
+    categories: ['甲尾 10%', '甲组中位', '甲组顶格', '乙组大户', '乙组散户'],
+    applicants: [4200, 8600, 1200, 3400, 28000],
+    winRates: [18.5, 8.2, 2.1, 0.45, 0.08]
+  },
+  insights: [
+    { tag: '策略', title: '甲组门槛效应显著', content: '当甲组申购人数超过 3 万人时，平均中签率通常跌破 8%。' },
+    { tag: '风险', title: '超额认购稀释中签', content: '百倍超额认购下，顶格申购实际中签率也可能低于 1%。' },
+    { tag: '展望', title: '2026 配售竞争加剧', content: '热门赛道 IPO 甲组竞争持续加剧，分散申购策略更为关键。' }
+  ]
+};
+
+let dashboardPieChart = null;
+let dashboardDistChart = null;
+let dashboardCurrentData = null;
+
+function cleanInsightText(raw) {
+  if (raw == null) return '—';
+  let s = String(raw).trim();
+  if (!s) return '—';
+  s = s.replace(/^核心观点\s*[1-3一二三]\s*[：:.、]\s*/i, '');
+  s = s.replace(/^【?(策略|风险|展望)】?\s*[：:.、]\s*/, '');
+  return s.trim() || '—';
+}
+
+function pickFirstDefined(obj, keys) {
+  if (!obj || typeof obj !== 'object') return undefined;
+  for (let i = 0; i < keys.length; i++) {
+    const v = obj[keys[i]];
+    if (v != null && v !== '') return v;
+  }
+  return undefined;
+}
+
+function normalizeStringList(raw) {
+  if (raw == null) return [];
+  if (Array.isArray(raw)) return raw.map(v => String(v).trim()).filter(Boolean);
+  if (typeof raw === 'string') {
+    return raw.split(/[,，、|/]/).map(s => s.trim()).filter(Boolean);
+  }
+  return [];
+}
+
+function parsePieChart(raw) {
+  if (!raw) return null;
+  const A_KEYS = ['甲组总拿走手数', '甲组', 'group_a_total_lots', 'group_a_lots', 'groupA', 'a_lots', '甲组手数', 'group_a'];
+  const B_KEYS = ['乙组总拿走手数', '乙组', 'group_b_total_lots', 'group_b_lots', 'groupB', 'b_lots', '乙组手数', 'group_b'];
+
+  if (Array.isArray(raw)) {
+    const rows = raw.map(item => {
+      if (typeof item === 'number') return null;
+      if (typeof item === 'string') return null;
+      return {
+        name: item.name ?? item.label ?? item.category ?? '—',
+        value: Number(item.value ?? item.lots ?? item.count ?? item.手数)
+      };
+    }).filter(d => d && d.name && Number.isFinite(d.value) && d.value >= 0);
+    return rows.length ? rows : null;
+  }
+
+  if (typeof raw === 'object') {
+    let aVal;
+    let bVal;
+    for (let i = 0; i < A_KEYS.length; i++) {
+      if (raw[A_KEYS[i]] != null) { aVal = Number(raw[A_KEYS[i]]); break; }
+    }
+    for (let i = 0; i < B_KEYS.length; i++) {
+      if (raw[B_KEYS[i]] != null) { bVal = Number(raw[B_KEYS[i]]); break; }
+    }
+    if (Number.isFinite(aVal) && Number.isFinite(bVal)) {
+      return [
+        { name: '甲组总拿走手数', value: aVal },
+        { name: '乙组总拿走手数', value: bVal }
+      ];
+    }
+    const entries = Object.entries(raw)
+      .map(([name, value]) => ({ name, value: Number(value) }))
+      .filter(d => Number.isFinite(d.value) && d.value >= 0);
+    return entries.length ? entries : null;
+  }
+  return null;
+}
+
+function parseDistributionChart(raw) {
+  if (!raw) return null;
+
+  if (Array.isArray(raw) && raw.length) {
+    const categories = [];
+    const applicants = [];
+    const winRates = [];
+    raw.forEach(row => {
+      if (!row || typeof row !== 'object') return;
+      categories.push(String(row.category ?? row.tier ?? row.label ?? row.name ?? row.档位 ?? '—'));
+      applicants.push(Number(row.applicants ?? row.effective_applicants ?? row.applicant_count ?? row.人数 ?? 0));
+      winRates.push(Number(row.win_rates ?? row.win_rate ?? row.winRate ?? row.rate ?? row.中签率 ?? 0));
+    });
+    if (categories.length) return { categories, applicants, winRates };
+    return null;
+  }
+
+  if (typeof raw !== 'object') return null;
+  const categories = pickFirstDefined(raw, ['categories', 'category', 'labels', 'tiers', 'xAxis', '档位']) ?? [];
+  const applicants = pickFirstDefined(raw, ['applicants', 'effective_applicants', 'applicant_count', 'applicant_counts', '人数', 'counts']) ?? [];
+  const winRates = pickFirstDefined(raw, ['win_rates', 'winRates', 'win_rate', 'allocation_rate', 'rates', '中签率']) ?? [];
+
+  if (Array.isArray(categories) && categories.length) {
+    return {
+      categories: categories.map(String),
+      applicants: (Array.isArray(applicants) ? applicants : []).map(Number),
+      winRates: (Array.isArray(winRates) ? winRates : []).map(Number)
+    };
+  }
+  return null;
+}
+
+function findCoreInsightsSource(data) {
+  if (!data || typeof data !== 'object') return null;
+  const candidates = [
+    data.core_insights, data.coreInsights,
+    data.chart_data?.core_insights, data.chart_data?.coreInsights,
+    data.analysis?.core_insights, data.analysis?.coreInsights
+  ];
+  for (let i = 0; i < candidates.length; i++) {
+    const c = candidates[i];
+    if (c == null) continue;
+    if (Array.isArray(c) && c.length) return c;
+    if (typeof c === 'string' && c.trim()) return c;
+    if (typeof c === 'object' && Object.keys(c).length) return c;
+  }
+  return null;
+}
+
+function normalizeCoreInsightsList(raw) {
+  if (raw == null) return [];
+  if (typeof raw === 'string') {
+    const lines = raw.split(/\n+/).map(s => s.trim()).filter(Boolean);
+    return lines.length > 1 ? lines.slice(0, 3) : [raw];
+  }
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'object') {
+    const orderedKeys = ['strategy', 'risk', 'outlook', '策略', '风险', '展望', '核心观点1', '核心观点2', '核心观点3'];
+    const ordered = [];
+    orderedKeys.forEach(k => { if (raw[k] != null && String(raw[k]).trim()) ordered.push(raw[k]); });
+    if (ordered.length) return ordered.slice(0, 3);
+    return Object.values(raw).filter(v => v != null && String(v).trim()).slice(0, 3);
+  }
+  return [];
+}
+
+function insightItemToText(item) {
+  if (item == null) return '';
+  if (typeof item === 'string' || typeof item === 'number') return String(item);
+  if (typeof item !== 'object') return '';
+  const direct = item.content ?? item.body ?? item.text ?? item.summary ?? item.insight ?? item.description ?? item.value;
+  if (direct != null && String(direct).trim()) return String(direct);
+  for (const k of Object.keys(item)) {
+    if (typeof item[k] === 'string' && item[k].trim()) return item[k];
+  }
+  return '';
+}
+
+function buildInsightsFromCore(data) {
+  const list = normalizeCoreInsightsList(findCoreInsightsSource(data));
+  return list.slice(0, 3).map((item, i) => ({
+    tag: DASHBOARD_CARD_TAGS[i] || '观点',
+    title: (typeof item === 'object' && item && (item.title || item.heading)) || DASHBOARD_CARD_TITLES[i] || `核心观点 ${i + 1}`,
+    content: cleanInsightText(insightItemToText(item))
+  }));
+}
+
+function normalizeDashboardPayload(raw) {
+  const data = raw && typeof raw === 'object' ? raw : {};
+  const chartData = data.chart_data ?? data.chartData ?? {};
+
+  const styleTags = normalizeStringList(
+    pickFirstDefined(data, ['style_tags', 'styleTags'])
+    ?? pickFirstDefined(chartData, ['style_tags', 'styleTags'])
+  );
+
+  const summaryVerdict = String(
+    pickFirstDefined(data, ['summary_verdict', 'summaryVerdict', 'verdict', 'conclusion'])
+    ?? pickFirstDefined(chartData, ['summary_verdict', 'summaryVerdict', 'verdict'])
+    ?? DASHBOARD_DEFAULT.summaryVerdict
+  ).trim();
+
+  const pieRaw = pickFirstDefined(data, ['pie_chart', 'pieChart'])
+    ?? pickFirstDefined(chartData, ['pie_chart', 'pieChart']);
+  const pieChart = parsePieChart(pieRaw) ?? DASHBOARD_DEFAULT.pieChart.slice();
+
+  const distRaw = pickFirstDefined(data, ['distribution', 'bar_line_chart', 'dual_axis_chart', 'distribution_chart'])
+    ?? pickFirstDefined(chartData, ['distribution', 'bar_line_chart', 'dual_axis_chart', 'distribution_chart'])
+    ?? (pickFirstDefined(data, ['categories']) ? data : null)
+    ?? (pickFirstDefined(chartData, ['categories']) ? chartData : null);
+  const distribution = parseDistributionChart(distRaw) ?? {
+    categories: DASHBOARD_DEFAULT.distribution.categories.slice(),
+    applicants: DASHBOARD_DEFAULT.distribution.applicants.slice(),
+    winRates: DASHBOARD_DEFAULT.distribution.winRates.slice()
+  };
+
+  let insights = buildInsightsFromCore(data);
+  const hasCore = insights.some(item => item.content && item.content !== '—');
+  if (!hasCore && Array.isArray(data.insights)) {
+    insights = data.insights.map((item, i) => ({
+      tag: DASHBOARD_CARD_TAGS[i] || '观点',
+      title: item.title || DASHBOARD_CARD_TITLES[i] || `核心观点 ${i + 1}`,
+      content: cleanInsightText(typeof item === 'string' ? item : (item.content || item.body || item.text || '—'))
+    }));
+  }
+  while (insights.length < 3) {
+    const i = insights.length;
+    insights.push({ tag: DASHBOARD_CARD_TAGS[i], title: DASHBOARD_CARD_TITLES[i], content: '—' });
+  }
+
+  return {
+    styleTags: styleTags.length ? styleTags : DASHBOARD_DEFAULT.styleTags.slice(),
+    summaryVerdict: summaryVerdict || DASHBOARD_DEFAULT.summaryVerdict,
+    pieChart,
+    distribution,
+    insights: insights.slice(0, 3)
+  };
+}
+
+function formatDashboardCount(value) {
+  const v = Number(value);
+  if (!Number.isFinite(v)) return value;
+  if (v >= 10000) return (v / 10000).toFixed(v % 10000 === 0 ? 0 : 1) + ' 万';
+  if (v >= 1000) return (v / 1000).toFixed(v % 1000 === 0 ? 0 : 1) + 'k';
+  return String(v);
+}
+
+function buildPieChartOption(data) {
+  const slices = (data.pieChart || []).map((item, i) => ({
+    name: item.name,
+    value: item.value,
+    itemStyle: { color: DASHBOARD_PIE_COLORS[i % DASHBOARD_PIE_COLORS.length] }
+  }));
+  const total = slices.reduce((sum, s) => sum + s.value, 0);
+
+  return {
+    backgroundColor: 'transparent',
+    animationDuration: 900,
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: 'rgba(24,24,27,.92)',
+      borderColor: 'rgba(249,115,22,.35)',
+      textStyle: { color: '#fafafa', fontSize: 13 },
+      formatter(params) {
+        const pct = total > 0 ? ((params.value / total) * 100).toFixed(1) : '0.0';
+        return `${params.name}<br/>手数：<b>${formatDashboardCount(params.value)}</b><br/>占比：<b style="color:#fb923c;">${pct}%</b>`;
+      }
+    },
+    legend: {
+      bottom: 4,
+      icon: 'circle',
+      itemWidth: 10,
+      itemHeight: 10,
+      textStyle: { color: '#52525b', fontSize: 12 }
+    },
+    series: [{
+      name: '筹码分配',
+      type: 'pie',
+      radius: ['46%', '72%'],
+      center: ['50%', '46%'],
+      avoidLabelOverlap: true,
+      itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 3 },
+      label: {
+        color: '#52525b',
+        fontSize: 12,
+        fontWeight: 600,
+        formatter: '{b}\n{d}%'
+      },
+      labelLine: { length: 12, length2: 10 },
+      emphasis: {
+        scale: true,
+        scaleSize: 6,
+        itemStyle: { shadowBlur: 16, shadowColor: 'rgba(249,115,22,.25)' }
+      },
+      data: slices
+    }]
+  };
+}
+
+function buildDistributionChartOption(data) {
+  const dist = data.distribution || DASHBOARD_DEFAULT.distribution;
+  const categories = dist.categories || [];
+  const applicants = dist.applicants || [];
+  const winRates = dist.winRates || [];
+
+  return {
+    backgroundColor: 'transparent',
+    animationDuration: 900,
+    animationEasing: 'cubicOut',
+    grid: { left: 58, right: 58, top: 52, bottom: 56 },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(24,24,27,.92)',
+      borderColor: 'rgba(56,189,248,.45)',
+      textStyle: { color: '#fafafa', fontSize: 13 },
+      axisPointer: { type: 'cross', crossStyle: { color: '#a1a1aa' } },
+      formatter(items) {
+        if (!items || !items.length) return '';
+        const cat = items[0].axisValue;
+        let html = `<div style="font-weight:700;margin-bottom:6px;">${cat}</div>`;
+        items.forEach(pt => {
+          if (pt.seriesName === '有效申请人数') {
+            html += `人数：<b style="color:#38bdf8;">${formatDashboardCount(pt.value)}</b><br/>`;
+          } else if (pt.seriesName === '中签率') {
+            html += `中签率：<b style="color:#fb923c;">${pt.value}%</b><br/>`;
+          }
+        });
+        return html;
+      }
+    },
+    legend: {
+      data: ['有效申请人数', '中签率'],
+      top: 4,
+      textStyle: { color: '#71717a', fontSize: 12 }
+    },
+    xAxis: {
+      type: 'category',
+      data: categories,
+      axisLine: { lineStyle: { color: '#e4e4e7' } },
+      axisLabel: { color: '#71717a', fontSize: 11, interval: 0, rotate: categories.length > 5 ? 18 : 0 },
+      axisTick: { alignWithLabel: true }
+    },
+    yAxis: [
+      {
+        type: 'value',
+        name: '有效申请人数',
+        nameTextStyle: { color: '#38bdf8', fontSize: 11, fontWeight: 600 },
+        axisLine: { show: false },
+        axisLabel: { color: '#71717a', fontSize: 11, formatter: v => formatDashboardCount(v) },
+        splitLine: { lineStyle: { color: '#f4f4f5' } }
+      },
+      {
+        type: 'value',
+        name: '中签率 (%)',
+        nameTextStyle: { color: '#f97316', fontSize: 11, fontWeight: 600 },
+        axisLine: { show: false },
+        axisLabel: { color: '#71717a', fontSize: 11, formatter: '{value}%' },
+        splitLine: { show: false }
+      }
+    ],
+    series: [
+      {
+        name: '有效申请人数',
+        type: 'bar',
+        yAxisIndex: 0,
+        barMaxWidth: 42,
+        itemStyle: {
+          color: {
+            type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(56,189,248,.88)' },
+              { offset: 1, color: 'rgba(56,189,248,.35)' }
+            ]
+          },
+          borderRadius: [6, 6, 0, 0]
+        },
+        emphasis: { itemStyle: { color: 'rgba(56,189,248,.95)' } },
+        data: applicants
+      },
+      {
+        name: '中签率',
+        type: 'line',
+        yAxisIndex: 1,
+        smooth: 0.35,
+        symbol: 'circle',
+        symbolSize: 9,
+        lineStyle: { width: 3, color: '#f97316', shadowColor: 'rgba(249,115,22,.35)', shadowBlur: 10 },
+        itemStyle: { color: '#fff', borderColor: '#f97316', borderWidth: 3 },
+        emphasis: { scale: 1.35, itemStyle: { borderWidth: 4 } },
+        data: winRates
+      }
+    ]
+  };
+}
+
+function renderDashboardVerdict(data) {
+  const tagsEl = document.getElementById('dashboard-style-tags');
+  const verdictEl = document.getElementById('dashboard-summary-verdict');
+  if (tagsEl) {
+    const tags = data.styleTags || [];
+    tagsEl.innerHTML = tags.length
+      ? tags.map(t => `<span class="dashboard-style-badge">${t}</span>`).join('')
+      : '<span class="dashboard-style-badge">配售流派</span>';
+  }
+  if (verdictEl) verdictEl.textContent = data.summaryVerdict || '—';
+}
+
+function renderDashboardCards(data) {
+  (data.insights || []).forEach((item, i) => {
+    const tagEl = document.getElementById('dashboard-tag-' + i);
+    const titleCard = document.getElementById('dashboard-title-' + i);
+    const bodyEl = document.getElementById('dashboard-body-' + i);
+    if (tagEl) tagEl.textContent = DASHBOARD_CARD_TAGS[i] || item.tag || '观点';
+    if (titleCard) titleCard.textContent = item.title || DASHBOARD_CARD_TITLES[i] || '—';
+    if (bodyEl) bodyEl.textContent = item.content || '—';
+  });
+}
+
+function applyCoreInsightsToCards(data) {
+  const built = buildInsightsFromCore(data);
+  if (!built.length || !built.some(item => item.content && item.content !== '—')) return false;
+  built.forEach((item, i) => {
+    const bodyEl = document.getElementById('dashboard-body-' + i);
+    const titleEl = document.getElementById('dashboard-title-' + i);
+    const tagEl = document.getElementById('dashboard-tag-' + i);
+    if (tagEl) tagEl.textContent = DASHBOARD_CARD_TAGS[i];
+    if (titleEl) titleEl.textContent = item.title || DASHBOARD_CARD_TITLES[i];
+    if (bodyEl) bodyEl.textContent = item.content || '—';
+  });
+  return true;
+}
+
+function ensureDashboardCharts() {
+  if (typeof echarts === 'undefined') return;
+  const pieEl = document.getElementById('dashboard-pie-chart');
+  const distEl = document.getElementById('dashboard-dist-chart');
+  if (!pieEl || !distEl) return;
+
+  if (!dashboardPieChart) {
+    dashboardPieChart = echarts.init(pieEl, null, { renderer: 'canvas' });
+  }
+  if (!dashboardDistChart) {
+    dashboardDistChart = echarts.init(distEl, null, { renderer: 'canvas' });
+  }
+
+  if (!dashboardCurrentData) {
+    dashboardCurrentData = normalizeDashboardPayload(DASHBOARD_DEFAULT);
+  }
+
+  dashboardPieChart.setOption(buildPieChartOption(dashboardCurrentData), true);
+  dashboardDistChart.setOption(buildDistributionChartOption(dashboardCurrentData), true);
+}
+
+function updateChart(data, rawSource) {
+  dashboardCurrentData = data;
+  renderDashboardVerdict(data);
+  renderDashboardCards(data);
+  if (rawSource) applyCoreInsightsToCards(rawSource);
+  ensureDashboardCharts();
+  if (dashboardPieChart) {
+    dashboardPieChart.setOption(buildPieChartOption(data), true);
+    dashboardPieChart.resize();
+  }
+  if (dashboardDistChart) {
+    dashboardDistChart.setOption(buildDistributionChartOption(data), true);
+    dashboardDistChart.resize();
+  }
+}
+
+function renderDashboard(data, rawSource) {
+  updateChart(data, rawSource);
+}
+
+function injectDashboardRules() {
+  const input = document.getElementById('dashboard-json-input');
+  const status = document.getElementById('dashboard-inject-status');
+  if (!input) return;
+
+  const showStatus = (msg, isError) => {
+    if (!status) return;
+    status.textContent = msg;
+    status.classList.toggle('is-error', !!isError);
+    status.classList.add('is-visible');
+    clearTimeout(injectDashboardRules._timer);
+    injectDashboardRules._timer = setTimeout(() => status.classList.remove('is-visible'), 3200);
+  };
+
+  input.classList.remove('is-error');
+  const raw = input.value.trim();
+  if (!raw) {
+    renderDashboard(normalizeDashboardPayload(DASHBOARD_DEFAULT));
+    showStatus('已恢复默认样本数据');
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    const normalized = normalizeDashboardPayload(parsed);
+    normalized.insights = buildInsightsFromCore(parsed);
+    while (normalized.insights.length < 3) {
+      const i = normalized.insights.length;
+      normalized.insights.push({ tag: DASHBOARD_CARD_TAGS[i], title: DASHBOARD_CARD_TITLES[i], content: '—' });
+    }
+    renderDashboard(normalized, parsed);
+    showStatus('✓ 看板已更新');
+  } catch (err) {
+    input.classList.add('is-error');
+    showStatus('JSON 解析失败：' + (err.message || '格式错误'), true);
+  }
+}
+
+function initDashboardTab() {
+  renderDashboard(normalizeDashboardPayload(DASHBOARD_DEFAULT));
+  const btn = document.getElementById('dashboard-inject-btn');
+  const input = document.getElementById('dashboard-json-input');
+  if (btn) btn.addEventListener('click', injectDashboardRules);
+  if (input) {
+    input.addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        injectDashboardRules();
+      }
+    });
+  }
+  window.addEventListener('resize', () => {
+    dashboardPieChart?.resize();
+    dashboardDistChart?.resize();
+  });
 }
 
 /* ━━━━━━━━━ IPO NEWS ━━━━━━━━━ */
@@ -10079,6 +10732,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     ensureIpoNewsBanner();
     ensureIpoNewsLoaded();
   }
+  initDashboardTab();
 });
 </script>
 <script src="./ipo-futu-dbl.js?v=20260519c"></script>

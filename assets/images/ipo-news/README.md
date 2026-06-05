@@ -11,10 +11,13 @@
 | 第 3 格 | `banner/slot-3.png` | |
 | 第 4 格 | `banner/slot-4.png` | 第 4 张可在 `index.html` 里配置外链 `href`（见 `IPO_NEWS_BANNER_IMAGES`） |
 
-**维护方式：**
+**维护方式（推荐）：**
 
-- **只换图、不改尺寸与数量**：直接覆盖对应 `slot-*.png`，保存后推送到 GitHub，线上即更新。
-- **改跳转链接**：编辑 `index.html` 中 `IPO_NEWS_BANNER_IMAGES` 里对应项的 `href`（仅第 4 张当前带外链示例，可按需增删字段）。
-- **增删轮播张数**：当前无缝滚动逻辑按 **4 张** 编写；若改为 3 张或 5 张，需同步改 `index.html` 里 `IPO_NEWS_BANNER_IMAGES` 与 `ensureIpoNewsBanner` 中 `slice(0, 4)` 等逻辑（或以后可改为读取 `manifest.json`）。
+使用 **轮播管理后台**：项目根目录执行 `npm run admin:banners`，打开 http://127.0.0.1:8787/admin/ 上传与管理。配置保存在 `data/site-banners.json`，详见 [`admin/README.md`](../../../admin/README.md)。
+
+**手动维护（旧方式）：**
+
+- **只换图**：覆盖 `slot-*.png` 并更新 `data/site-banners.json` 中对应 `src`。
+- **改链接 / 增删张数**：编辑 `data/site-banners.json` 的 `news` 数组（前台会自动读取，无需改 `index.html`）。
 
 建议单张 **≤500KB**、约 **1:1** 方图，便于加载与排版。

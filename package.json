@@ -6,6 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "preview": "python3 -m http.server 5173",
+    "admin:banners": "node server/banner-admin.mjs",
+    "admin:open": "node server/banner-admin.mjs & sleep 1 && open \"http://127.0.0.1:8787/admin/\"",
     "build:sentiment": "npm run build --prefix ipo-sentiment-dashboard",
     "futu-bridge": "node scripts/futu-opend-bridge.mjs",
     "nnq-heat:sync": "node scripts/nnq-heat-pipeline.mjs",
@@ -25,6 +27,8 @@
   },
   "homepage": "https://xiongting3422-arch.github.io/hk-ipo-guide/",
   "dependencies": {
-    "futu-api": "^10.4.6408"
+    "express": "^5.1.0",
+    "futu-api": "^10.4.6408",
+    "multer": "^2.0.2"
   }
 }

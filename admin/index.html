@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPO 轮播管理后台</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #fff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #f97316;
+      --accent-d: #ea580c;
+      --danger: #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Noto Sans SC", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px 16px 48px;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin-bottom: 4px; }
+    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    h2 { font-size: 1.1rem; margin-bottom: 8px; }
+    .hint { font-size: 0.8rem; color: var(--muted); margin-bottom: 14px; }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin: 10px 0 4px; }
+    input[type="password"], input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn:hover:not(:disabled) { background: var(--accent-d); }
+    .btn:disabled { cursor: not-allowed; }
+    .btn-ghost { background: #fff; color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover:not(:disabled) { background: #f8fafc; border-color: #cbd5e1; }
+    .btn-ghost.is-busy {
+      background: #fff7ed;
+      border-color: var(--accent);
+      color: var(--accent-d);
+      opacity: 1;
+    }
+    .btn-danger { background: var(--danger); color: #fff; border: none; }
+    .btn.is-busy {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .btn.is-busy::before {
+      content: '';
+      width: 14px;
+      height: 14px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: btn-spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes btn-spin { to { transform: rotate(360deg); } }
+    .btn-sm { padding: 5px 8px; font-size: 0.72rem; font-weight: 600; line-height: 1.2; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .msg {
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .msg.show { display: block; }
+    .msg.ok { background: #dcfce7; color: #166534; }
+    .msg.err { background: #fee2e2; color: #991b1b; }
+    .login-grid { max-width: 400px; }
+
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .gallery-item {
+      width: 108px;
+      flex-shrink: 0;
+    }
+    .gallery-thumb-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+    }
+    .gallery-thumb {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    .gallery-thumb-wrap.is-broken .gallery-thumb { opacity: 0; }
+    .gallery-thumb-wrap.is-broken::after {
+      content: '暂无预览';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 8px;
+    }
+    .preview-warn {
+      font-size: 0.8rem;
+      color: #b45309;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .preview-warn.show { display: block; }
+    .gallery-order {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin: 6px 0 4px;
+    }
+    .gallery-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+    }
+    .gallery-move-row {
+      display: flex;
+      gap: 4px;
+    }
+    .gallery-move-row .btn { flex: 1; padding: 5px 4px; }
+    .gallery-actions .btn-danger { width: 100%; }
+    .gallery-add {
+      width: 108px;
+      aspect-ratio: 1;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.75rem;
+      background: #fafafa;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .gallery-add:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .gallery-add span:first-child {
+      font-size: 1.6rem;
+      line-height: 1;
+      font-weight: 300;
+    }
+    .gallery-empty {
+      width: 100%;
+      padding: 12px 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>IPO 轮播管理后台</h1>
+    <p class="sub">管理 IPO 主页 Banner 与新股资讯顶部轮播。添加图片后记得保存并发布到线上。</p>
+    <div id="msg" class="msg"></div>
+
+    <div id="login-card" class="card login-grid">
+      <h2>登录</h2>
+      <label for="password">管理密码</label>
+      <input type="password" id="password" autocomplete="current-password" />
+      <div class="toolbar">
+        <button type="button" class="btn" id="btn-login">进入管理</button>
+      </div>
+      <p class="hint">请先在本机运行 <code>npm run admin:banners</code>，再打开本页。</p>
+    </div>
+
+    <div id="app" style="display:none;">
+      <p id="preview-warn" class="preview-warn"></p>
+      <div class="card">
+        <h2>IPO 主页 Banner</h2>
+        <p class="hint">建议宽图 2800×280；下方缩略图为 1:1 居中裁剪预览，前台仍按原图横幅展示。从左到右为轮播顺序。</p>
+        <div class="gallery" id="home-gallery"></div>
+        <input type="file" id="home-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
+      </div>
+
+      <div class="card">
+        <h2>新股资讯轮播</h2>
+        <p class="hint">建议 1:1 方图，单张 ≤500KB。从左到右为播放顺序。</p>
+        <div class="gallery" id="news-gallery"></div>
+        <input type="file" id="news-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
+      </div>
+
+      <div class="card">
+        <p class="hint" style="margin-top:0;margin-bottom:12px;">
+          提示：发布成功 ≠ 立刻生效。请等待约 1–2 分钟，再在主站按 <strong>Cmd+Shift+R</strong>（Windows：<strong>Ctrl+Shift+R</strong>）强制刷新查看。
+        </p>
+        <div class="toolbar" style="margin-top:0;">
+          <button type="button" class="btn" id="btn-save">保存配置</button>
+          <button type="button" class="btn btn-ghost" id="btn-publish">发布到线上</button>
+          <button type="button" class="btn btn-ghost" id="btn-preview">预览主站</button>
+          <button type="button" class="btn btn-ghost" id="btn-logout">退出</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'ipo_banner_admin_token';
+
+    let config = { home: [], news: [] };
+    let token = '';
+
+    const $ = (sel) => document.querySelector(sel);
+    const msgEl = $('#msg');
+
+    function showMsg(text, ok) {
+      msgEl.textContent = text;
+      msgEl.className = 'msg show ' + (ok ? 'ok' : 'err');
+    }
+
+    function setBtnBusy(btn, busy, busyLabel, idleLabel) {
+      if (!btn) return;
+      if (!btn.dataset.idleLabel) btn.dataset.idleLabel = idleLabel || btn.textContent.trim();
+      btn.disabled = !!busy;
+      btn.classList.toggle('is-busy', !!busy);
+      btn.textContent = busy ? busyLabel : (idleLabel || btn.dataset.idleLabel);
+    }
+
+    function setToolbarBusy(busy) {
+      const publish = $('#btn-publish');
+      setBtnBusy(publish, busy, '发布中…', '发布到线上');
+      $('#btn-save').disabled = busy;
+      $('#btn-preview').disabled = busy;
+      $('#btn-logout').disabled = busy;
+    }
+
+    async function api(path, options = {}) {
+      const headers = Object.assign({}, options.headers || {});
+      if (token) headers.Authorization = 'Bearer ' + token;
+      const res = await fetch(path, Object.assign({}, options, { headers }));
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || res.statusText || '请求失败');
+      return data;
+    }
+
+    function uid(prefix) {
+      return prefix + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    }
+
+    function escAttr(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;');
+    }
+
+    /** 缩略图统一走管理 API，避免 file:// 或错误端口导致 /assets 加载失败 */
+    function adminOrigin() {
+      if (location.protocol.startsWith('http') && location.host) return location.origin;
+      return 'http://127.0.0.1:8787';
+    }
+
+    function assetRelFromSrc(src) {
+      if (!src) return '';
+      return String(src).trim().replace(/^\.\//, '');
+    }
+
+    function previewSrc(src) {
+      const rel = assetRelFromSrc(src);
+      if (!rel) return '';
+      return adminOrigin() + '/api/asset?path=' + encodeURIComponent(rel) + '&t=' + Date.now();
+    }
+
+    function checkPreviewEnvironment() {
+      const warn = $('#preview-warn');
+      const onAdminServer =
+        location.protocol.startsWith('http') &&
+        (location.port === '8787' || location.pathname.startsWith('/admin'));
+      if (location.protocol === 'file:') {
+        warn.textContent =
+          '当前为本地文件打开，缩略图需管理服务运行中。请执行 npm run admin:banners 后访问 http://127.0.0.1:8787/admin/ 。保存与发布仍可在登录后使用。';
+        warn.classList.add('show');
+        return;
+      }
+      if (!onAdminServer && location.port && location.port !== '8787') {
+        warn.textContent =
+          '当前不是管理后台地址（8787 端口），缩略图可能无法显示。请使用 http://127.0.0.1:8787/admin/ 。配置保存与发布不受影响。';
+        warn.classList.add('show');
+        return;
+      }
+      warn.classList.remove('show');
+    }
+
+    function normalizeConfig() {
+      config.home = (config.home || [])
+        .filter((item) => item && item.src)
+        .map((item, order) => ({
+          id: item.id || uid('home'),
+          src: item.src,
+          alt: item.alt || 'IPO 主页轮播图 ' + (order + 1),
+          width: item.width || 2800,
+          height: item.height || 280,
+          enabled: true,
+          order
+        }));
+      config.news = (config.news || [])
+        .filter((item) => item && item.src)
+        .map((item, order) => {
+          const row = {
+            id: item.id || uid('news'),
+            src: item.src,
+            enabled: true,
+            order
+          };
+          if (item.href && String(item.href).trim()) row.href = String(item.href).trim();
+          return row;
+        });
+    }
+
+    function renderGallery(zone) {
+      const isHome = zone === 'home';
+      const el = $(isHome ? '#home-gallery' : '#news-gallery');
+      const items = config[zone] || [];
+      let html = '';
+      if (!items.length) {
+        html += '<p class="gallery-empty">暂无图片，点击右侧「添加图片」</p>';
+      }
+      items.forEach((item, index) => {
+        const thumbUrl = previewSrc(item.src);
+        html += `
+          <div class="gallery-item" data-zone="${zone}" data-index="${index}">
+            <div class="gallery-thumb-wrap">
+              <img class="gallery-thumb" src="${escAttr(thumbUrl)}" alt="第 ${index + 1} 张" data-src-rel="${escAttr(assetRelFromSrc(item.src))}" />
+            </div>
+            <div class="gallery-order">第 ${index + 1} 张</div>
+            <div class="gallery-actions">
+              <div class="gallery-move-row">
+                <button type="button" class="btn btn-ghost btn-sm" data-move="prev" ${index === 0 ? 'disabled' : ''}>前移</button>
+                <button type="button" class="btn btn-ghost btn-sm" data-move="next" ${index === items.length - 1 ? 'disabled' : ''}>后移</button>
+              </div>
+              <button type="button" class="btn btn-danger btn-sm" data-remove>删除</button>
+            </div>
+          </div>
+        `;
+      });
+      html += `
+        <button type="button" class="gallery-add" data-pick="${zone}" aria-label="添加图片">
+          <span>+</span>
+          <span>添加图片</span>
+        </button>
+      `;
+      el.innerHTML = html;
+
+      el.querySelectorAll('.gallery-thumb').forEach((img) => {
+        img.addEventListener('error', () => {
+          img.closest('.gallery-thumb-wrap')?.classList.add('is-broken');
+        });
+        if (img.complete && img.naturalWidth === 0) {
+          img.closest('.gallery-thumb-wrap')?.classList.add('is-broken');
+        }
+      });
+
+      el.querySelectorAll('[data-remove]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const card = btn.closest('[data-index]');
+          const i = Number(card.dataset.index);
+          config[zone].splice(i, 1);
+          renderGallery(zone);
+        });
+      });
+
+      el.querySelectorAll('[data-move="prev"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const i = Number(btn.closest('[data-index]').dataset.index);
+          if (i <= 0) return;
+          const arr = config[zone];
+          [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
+          renderGallery(zone);
+        });
+      });
+
+      el.querySelectorAll('[data-move="next"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const i = Number(btn.closest('[data-index]').dataset.index);
+          const arr = config[zone];
+          if (i >= arr.length - 1) return;
+          [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+          renderGallery(zone);
+        });
+      });
+
+      el.querySelectorAll('[data-pick]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          $(isHome ? '#home-file' : '#news-file').click();
+        });
+      });
+    }
+
+    function render() {
+      renderGallery('home');
+      renderGallery('news');
+    }
+
+    async function uploadAndAdd(zone, file) {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('zone', zone);
+      fd.append('id', uid(zone));
+      const data = await api('/api/upload', { method: 'POST', body: fd });
+      if (zone === 'home') {
+        config.home.push({
+          id: uid('home'),
+          src: data.src,
+          alt: '',
+          width: 2800,
+          height: 280,
+          enabled: true
+        });
+      } else {
+        config.news.push({ id: uid('news'), src: data.src, enabled: true });
+      }
+      renderGallery(zone);
+      showMsg('图片已添加，记得点击「保存配置」', true);
+    }
+
+    function bindFileInput(inputId, zone) {
+      $(inputId).addEventListener('change', async (ev) => {
+        const file = ev.target.files?.[0];
+        ev.target.value = '';
+        if (!file) return;
+        try {
+          await uploadAndAdd(zone, file);
+        } catch (e) {
+          showMsg(e.message, false);
+        }
+      });
+    }
+
+    async function loadConfig() {
+      config = await api('/api/config');
+      normalizeConfig();
+      render();
+    }
+
+    function showApp() {
+      $('#login-card').style.display = 'none';
+      $('#app').style.display = 'block';
+      checkPreviewEnvironment();
+    }
+
+    $('#btn-login').addEventListener('click', async () => {
+      token = $('#password').value;
+      localStorage.setItem(STORAGE_KEY, token);
+      try {
+        await api('/api/health');
+        await loadConfig();
+        showApp();
+        showMsg('已登录', true);
+      } catch (e) {
+        token = '';
+        localStorage.removeItem(STORAGE_KEY);
+        showMsg(e.message, false);
+      }
+    });
+
+    bindFileInput('#home-file', 'home');
+    bindFileInput('#news-file', 'news');
+
+    $('#btn-save').addEventListener('click', async () => {
+      normalizeConfig();
+      try {
+        const res = await api('/api/config', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        });
+        config = res.config;
+        showMsg('已保存到本地配置', true);
+      } catch (e) {
+        showMsg(e.message, false);
+      }
+    });
+
+    $('#btn-publish').addEventListener('click', async () => {
+      if ($('#btn-publish').disabled) return;
+      normalizeConfig();
+      setToolbarBusy(true);
+      showMsg('正在保存并发布到 GitHub，请稍候（约 30–60 秒）…', true);
+      try {
+        await api('/api/config', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        });
+        const health = await api('/api/health');
+        if (!health.githubConfigured) {
+          showMsg(
+            '配置已保存到本地。未配置 GitHub Token，暂无法一键上线；请 git push 或稍后在 .env 配置 GITHUB_TOKEN 后再点发布。',
+            true
+          );
+          return;
+        }
+        showMsg('配置已保存，正在上传到 GitHub（约 30–60 秒）…', true);
+        const res = await api('/api/publish', { method: 'POST' });
+        showMsg('发布完成：已推送到 ' + res.repo + '，约 1–2 分钟后访客可见。', true);
+      } catch (e) {
+        const saved = String(e.message || '').includes('GITHUB_TOKEN');
+        if (saved) {
+          showMsg('配置已保存到本地。' + e.message, true);
+        } else {
+          showMsg('发布失败：' + e.message, false);
+        }
+      } finally {
+        setToolbarBusy(false);
+      }
+    });
+
+    $('#btn-preview').addEventListener('click', () => {
+      window.open('../index.html', '_blank');
+    });
+
+    $('#btn-logout').addEventListener('click', () => {
+      token = '';
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    });
+
+    (function init() {
+      localStorage.removeItem('ipo_banner_admin_api_base');
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        $('#password').value = saved;
+        token = saved;
+        loadConfig().then(showApp).catch(() => {});
+      }
+    })();
+  </script>
+</body>
+</html>

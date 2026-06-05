@@ -15,6 +15,11 @@
     return Date.now();
   }
 
+  function isLocalDevHost() {
+    var h = String((global.location && global.location.hostname) || '').toLowerCase();
+    return h === 'localhost' || h === '127.0.0.1' || h === '[::1]';
+  }
+
   function normalizeEmail(raw) {
     return String(raw || '').trim().toLowerCase();
   }
@@ -260,6 +265,11 @@
    * 若名单中存在性校验失败：清空全部本地权限相关存储并维持锁定。
    */
   async function tryUnlockFromLiveWhitelist() {
+    if (isLocalDevHost()) {
+      unlock();
+      console.log('[IPO Auth] 本地预览模式，已跳过授权验证');
+      return true;
+    }
     lock();
     var stored = getStoredEmail();
     var allowed;
@@ -359,6 +369,12 @@
 
   async function bootstrap() {
     ensureStyles();
+    if (isLocalDevHost()) {
+      unlock();
+      resolvePending(true);
+      console.log('[IPO Auth] 本地预览模式，已跳过授权验证');
+      return;
+    }
     lock();
     stripLegacyGrantKeys();
     if (await tryUnlockFromLiveWhitelist()) {
