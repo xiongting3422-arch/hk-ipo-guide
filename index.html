@@ -75,8 +75,10 @@ header{position:relative;z-index:1;background:#ffffff;border-bottom:1px solid #e
 
 /* ━━━━━━━━━ TAB NAV ━━━━━━━━━ */
 .site-chrome{position:sticky;top:0;z-index:100;background:#fff;}
-.tab-nav{border-bottom:1px solid #ebebeb;}
-.tab-nav-inner{max-width:1400px;margin:0 auto;padding:0 32px;display:flex;align-items:stretch;gap:0;box-sizing:border-box;}
+.tab-nav{border-bottom:1px solid #ebebeb;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-nav-inner{max-width:1400px;margin:0 auto;padding:0 32px;display:flex;align-items:stretch;gap:0;box-sizing:border-box;min-width:max-content;}
+.tab-btn{flex-shrink:0;}
 .nav-refresh-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:var(--s2);border:1px solid var(--b1);color:var(--t2);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
 .nav-refresh-btn:hover{border-color:var(--accent);color:var(--t1);}
 .nav-refresh-btn:active .nav-refresh-icon{transform:rotate(360deg);}
@@ -3491,6 +3493,8 @@ function switchTab(name) {
       if (typeof dashboardDistChart !== 'undefined' && dashboardDistChart) dashboardDistChart.resize();
     } catch (e) { console.warn('dashboard tab refresh', e); }
   }
+  const activeBtn = document.querySelector('.tab-btn.active');
+  if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
 }
 
 /* ━━━━━━━━━ DATA DASHBOARD ━━━━━━━━━ */
