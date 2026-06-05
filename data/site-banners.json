@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-03T07:45:12.454Z",
+  "updatedAt": "2026-06-05T11:37:02.466Z",
   "home": [
     {
       "id": "home-slide-01",
@@ -28,47 +28,40 @@
       "order": 0
     },
     {
+      "id": "news-mq0umhyxt6lj",
+      "src": "./assets/images/ipo-news/banner/news-mq0umhy8ehwz-1780659389047.png",
+      "enabled": true,
+      "order": 1
+    },
+    {
       "id": "news-mpwbo28fjo68",
       "src": "./assets/images/ipo-news/banner/news-mpwbo27lwic4-1780385684556.png",
       "enabled": true,
-      "order": 1
+      "order": 2
     },
     {
       "id": "news-slot-2",
       "src": "./assets/images/ipo-news/banner/slot-2.png",
       "enabled": true,
-      "order": 2
+      "order": 3
     },
     {
       "id": "news-mpwbo4yst96h",
       "src": "./assets/images/ipo-news/banner/news-mpwbo4xuv1h1-1780385688097.png",
       "enabled": true,
-      "order": 3
+      "order": 4
     },
     {
       "id": "news-slot-3",
       "src": "./assets/images/ipo-news/banner/slot-3.png",
       "enabled": true,
-      "order": 4
-    },
-    {
-      "id": "news-slot-4",
-      "src": "./assets/images/ipo-news/banner/slot-4.png",
-      "enabled": true,
-      "order": 5,
-      "href": "https://invest.futuhk.com/ipo_season"
-    },
-    {
-      "id": "news-mpwbo7bmc71y",
-      "src": "./assets/images/ipo-news/banner/news-mpwbo7alqjcj-1780385691150.png",
-      "enabled": true,
-      "order": 6
+      "order": 5
     },
     {
       "id": "news-mpwggje9ng1o",
       "src": "./assets/images/ipo-news/banner/news-mpwggjdh6fxe-1780393731628.png",
       "enabled": true,
-      "order": 7
+      "order": 6
     }
   ]
 }
