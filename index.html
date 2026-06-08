@@ -2409,10 +2409,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 </div>
 
 <footer>
-  数据来源：<a href="https://www.futunn.com" target="_blank" rel="noopener noreferrer">富途证券</a> ·
-  <a href="http://www.poems.com.hk/zh-cn/product-and-service/initial-public-offerings/ipo-info/" target="_blank" rel="noopener noreferrer">辉立证券</a> ·
-  <a href="https://www.aastocks.com/tc/stocks/market/ipo/mainpage.aspx" target="_blank" rel="noopener noreferrer">阿思达克</a>
-  &nbsp;｜&nbsp; 本页信息仅供参考，不构成投资建议 &nbsp;｜&nbsp; 更新：<span id="site-footer-updated">—</span>
+  数据来源：以上信息仅vicky收集提供，一切后果由她负责 &nbsp;｜&nbsp; 本页信息仅供参考，不构成投资建议 &nbsp;｜&nbsp; 更新：<span id="site-footer-updated">—</span>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -3337,6 +3334,11 @@ function ipoHomeBannerCount() {
 function ipoHomeBannerMove(animated) {
   const track = document.getElementById('ipo-home-banner-track');
   if (!track) return;
+  const slideCount = track.querySelectorAll('.ipo-home-banner-slide').length;
+  if (slideCount > 0 && (ipoHomeBannerIndex < 0 || ipoHomeBannerIndex >= slideCount)) {
+    const n = ipoHomeBannerCount();
+    ipoHomeBannerIndex = n >= 2 ? Math.min(n - 1, slideCount - 1) : 0;
+  }
   track.style.transition = animated ? 'transform .5s ease' : 'none';
   track.style.transform = `translate3d(${-ipoHomeBannerIndex * 100}%, 0, 0)`;
 }
@@ -3370,6 +3372,7 @@ function stopIpoHomeBanner() {
 
 function startIpoHomeBanner() {
   stopIpoHomeBanner();
+  if (!document.getElementById('tab-home')?.classList.contains('active')) return;
   const n = ipoHomeBannerCount();
   if (n < 2) return;
   ipoHomeBannerBindLoopEnd();
@@ -3377,6 +3380,22 @@ function startIpoHomeBanner() {
     ipoHomeBannerIndex += 1;
     ipoHomeBannerMove(true);
   }, 5000);
+}
+
+function ensureIpoHomeBanner() {
+  const track = document.getElementById('ipo-home-banner-track');
+  if (!track || !IPO_HOME_BANNERS.length) return;
+  if (!track.children.length) {
+    renderIpoHomeBanner();
+    return;
+  }
+  const slideCount = track.querySelectorAll('.ipo-home-banner-slide').length;
+  if (slideCount > 0 && (ipoHomeBannerIndex < 0 || ipoHomeBannerIndex >= slideCount)) {
+    ipoHomeBannerIndex = Math.min(Math.max(0, ipoHomeBannerCount() - 1), slideCount - 1);
+  }
+  ipoHomeBannerSyncMaxWidth();
+  ipoHomeBannerMove(false);
+  startIpoHomeBanner();
 }
 
 function ipoHomeBannerApplyImgSize(img) {
@@ -3467,6 +3486,11 @@ function switchTab(name) {
     document.querySelectorAll('.tab-btn').forEach(el => {
       if ((el.getAttribute('onclick') || '').includes(`switchTab('${name}')`)) el.classList.add('active');
     });
+  }
+  if (name === 'home') {
+    ensureIpoHomeBanner();
+  } else {
+    stopIpoHomeBanner();
   }
   if (name === 'news') {
     ensureIpoNewsLoaded();
