@@ -153,25 +153,25 @@ const _TAB_LABEL = {
   schedule: '打新时间表',
 };
 
+/** 页面展示 10 列；底层 cells 仍为 15 列，通过 _LB_DISPLAY_SRC_IDX 映射 */
+const _LB_COL_COUNT = 10;
+const _LB_DISPLAY_SRC_IDX = [0, 1, 2, 3, 8, 10, 11, 12, 13, 14];
 const _LB_HEADERS = [
   '股票名称',
   '股票代码',
   '行业板块',
   '上市日期',
-  '每手手数',
-  '招股价(HKD)',
-  '每手金额',
-  '上市价',
   '超额倍数',
-  '现价',
   '暗盘表现',
   '暗盘一手赚',
   '首日表现',
   '上市一手赚',
   '累计表现',
 ];
+/** 展示列中需红/绿着色的指标列（暗盘/首日/累计表现、暗盘/上市一手赚） */
+const _LB_METRIC_DISPLAY_COLS = [5, 6, 7, 8, 9];
 
-/** 暗盘表现、暗盘一手赚、首日表现、上市一手赚 — 列下标 10–13（nth-child 11–14） */
+/** 暗盘表现、暗盘一手赚、首日表现、上市一手赚 — 源数据列下标 10–13 */
 const _LB_METRIC_BREAK_COLS = [10, 11, 12, 13];
 
 function _ipoParseSignedMetric(raw) {
@@ -840,16 +840,18 @@ function _ensureLbCss() {
   const st = document.createElement('style');
   st.id = 'ipo-lb-force-css';
   st.textContent = `
-#ipo-table-container { overflow-x: auto !important; }
-#ipo-table-container table, #ipo-table-container #ipo-table-2026, #lb-table { min-width: 1500px !important; border-collapse: separate !important; border-spacing: 0 !important; }
-#ipo-table-container .lb-tr { cursor: pointer; transition: background .12s; }
-#ipo-table-container .lb-tr:hover { background: var(--s2) !important; }
-#ipo-table-container .lb-tr.lb-tr-neg { background: rgba(220,38,38,.02); }
-#ipo-table-container .lb-tr.lb-tr-neg:hover { background: rgba(220,38,38,.05) !important; }
-#ipo-table-container th.lb-th-sector { text-align: right !important; justify-content: flex-end !important; }
-#ipo-table-container td.lb-td-sector { text-align: right !important; justify-content: flex-end !important; }
-#ipo-table-container td.lb-td-sector .lb-sector-stack { display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start; }
-#ipo-table-container .lb-group-hdr-2026 td { background: #f3f4f6 !important; }
+#ipo-table-container,#ipo-break-table-container{overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-right:14px!important;scrollbar-gutter:stable;box-sizing:border-box!important;}
+#ipo-table-container table,#ipo-break-table-container table,#ipo-table-2026,#ipo-table-2026-break,.lb-table{width:100%!important;min-width:0!important;table-layout:fixed;border-collapse:separate!important;border-spacing:0!important;}
+#ipo-table-container .ipo-lb-table-10 th:last-child,#ipo-break-table-container .ipo-lb-table-10 th:last-child,#ipo-table-container .ipo-lb-table-10 td:last-child,#ipo-break-table-container .ipo-lb-table-10 td:last-child{padding-right:18px!important;}
+#ipo-table-container .lb-tr,#ipo-break-table-container .lb-tr{cursor:pointer;transition:background .12s;}
+#ipo-table-container .lb-tr:hover,#ipo-break-table-container .lb-tr:hover{background:var(--s2)!important;}
+#ipo-table-container .lb-tr.lb-tr-neg,#ipo-break-table-container .lb-tr.lb-tr-neg{background:rgba(220,38,38,.02);}
+#ipo-table-container .lb-tr.lb-tr-neg:hover,#ipo-break-table-container .lb-tr.lb-tr-neg:hover{background:rgba(220,38,38,.05)!important;}
+#ipo-table-container td.lb-td-sector,#ipo-break-table-container td.lb-td-sector{text-align:left!important;}
+#ipo-table-container td.lb-td-sector .lb-sector-stack,#ipo-break-table-container td.lb-td-sector .lb-sector-stack{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;}
+#ipo-table-container .lb-group-hdr-2026 td,#ipo-break-table-container .lb-group-hdr-2026 td{background:#f3f4f6!important;}
+#ipo-table-container .lb-metric-pos,#ipo-break-table-container .lb-metric-pos{font-weight:700;color:#16a34a!important;font-family:'DM Mono',monospace;font-size:12px;}
+#ipo-table-container .lb-metric-neg,#ipo-break-table-container .lb-metric-neg{font-weight:700;color:#dc2626!important;font-family:'DM Mono',monospace;font-size:12px;}
 `;
   document.head.appendChild(st);
 }
@@ -904,112 +906,118 @@ function _lbCmpRows(a, b, mode) {
   return (a.lbRank || 0) - (b.lbRank || 0);
 }
 
+/** 破发榜默认：暗盘涨幅升序（破发幅度从大到小） */
+function _lbCmpRowsBreakDefault(a, b) {
+  const va = _ipoParseSignedMetric(_lbCells15(a)[10]);
+  const vb = _ipoParseSignedMetric(_lbCells15(b)[10]);
+  const na = va != null && Number.isFinite(va) ? va : Infinity;
+  const nb = vb != null && Number.isFinite(vb) ? vb : Infinity;
+  if (na !== nb) return na - nb;
+  const fa = a.fd != null && Number.isFinite(a.fd) ? a.fd : Infinity;
+  const fb = b.fd != null && Number.isFinite(b.fd) ? b.fd : Infinity;
+  if (fa !== fb) return fa - fb;
+  return (a.lbRank || 0) - (b.lbRank || 0);
+}
+
+function _lbDisplayMetricVal(di, rawCells15, r) {
+  const si = _LB_DISPLAY_SRC_IDX[di];
+  if (di === 9 && r.cum != null && Number.isFinite(r.cum)) return r.cum;
+  if (di === 5 || di === 7 || di === 9) return _ipoParseSignedMetric(rawCells15[si]);
+  if (di === 6 || di === 8) return _parseMoneyNum(rawCells15[si]);
+  return null;
+}
+
+function _lbMetricInnerHtml(disp, di, rawCells15, r) {
+  if (_LB_METRIC_DISPLAY_COLS.indexOf(di) < 0) return _lbEsc(disp);
+  const v = _lbDisplayMetricVal(di, rawCells15, r);
+  if (v == null || !Number.isFinite(v) || v === 0) return _lbEsc(disp);
+  const cls = v < 0 ? 'lb-metric-neg' : 'lb-metric-pos';
+  return `<span class="${cls}">${_lbEsc(disp)}</span>`;
+}
+
+function _lbThClass(i) {
+  if (i === 0) return 'lb-sth lb-sth-col-name';
+  if (i <= 3) return 'lb-th-l';
+  return 'lb-th-r';
+}
+
 function _lbGroupHdrRow2026(label, countText) {
   const extra = countText
     ? `<span class="lb-group-hdr-count" style="margin-left:8px;">${_lbEsc(countText)}</span>`
     : '';
-  return `<tr class="lb-group-hdr lb-group-hdr-2026"><td colspan="15" style="padding:8px 14px;background:#f3f4f6;border-top:1px solid var(--s3);border-bottom:1px solid var(--s3);"><span class="lb-group-hdr-label" style="font-weight:700;">${_lbEsc(
+  return `<tr class="lb-group-hdr lb-group-hdr-2026"><td colspan="${_LB_COL_COUNT}" style="padding:8px 14px;background:#f3f4f6;border-top:1px solid var(--s3);border-bottom:1px solid var(--s3);"><span class="lb-group-hdr-label" style="font-weight:700;">${_lbEsc(
     label,
   )}</span>${extra}</td></tr>`;
 }
 
-function __ipoRenderLeaderboardInnerHTML(mapped, mode) {
-  _ensureLbCss();
-  const wrap = document.getElementById('ipo-table-container');
-  if (!wrap) {
-    console.warn('[IPO LB] 未找到 #ipo-table-container');
-    return;
-  }
-  if (!mapped || !mapped.length) {
-    wrap.innerHTML =
-      '<table id="ipo-table-2026" class="lb-table" style="width:max-content;min-width:1500px !important;border-collapse:separate;border-spacing:0;white-space:nowrap;"><thead><tr>' +
-      _LB_HEADERS.map((h, i) => {
-        const cls = i === 0 ? 'lb-sth lb-sth-col-name' : i === 2 ? 'lb-th-r lb-th-sector' : 'lb-th-r';
-        return `<th class="${cls}">${_lbEsc(h)}</th>`;
-      }).join('') +
-      '</tr></thead><tbody id="lb-tbody"></tbody></table>';
-    console.log(
-      '%c🔥 渲染流程已走完，当前 tbody 实际行数: ' + document.querySelectorAll('tbody tr').length,
-      'font-size:18px;font-weight:bold;color:#dc2626;',
-    );
-    return;
-  }
-
-  const m = mode || window.__IPO_LB_SORT_MODE__ || 'default';
-  window.__IPO_LB_SORT_MODE__ = m;
+function _ipoBuildLbTableBody(mapped, mode, tableKind) {
+  const isBreak = tableKind === 'break';
+  const m = mode || (isBreak ? window.__IPO_LB_BREAK_SORT_MODE__ : window.__IPO_LB_SORT_MODE__) || 'default';
 
   function rowHtml(r) {
-    const cells = Array.isArray(r.cells) ? r.cells.slice() : [];
-    while (cells.length < 15) cells.push('-');
-    const rawMetric = cells.slice(0, 15);
+    const cells = _lbCells15(r);
+    const rawMetric = cells.slice();
     const isPerfBreak = _ipoLbRowHasBreakPerformance(rawMetric);
-    const slice = cells.slice(0, 15).map(c => _sanitizeNoImg(_dash(c)));
     const neg = r.fd != null && r.fd < 0;
     const code = String(r.code || '').replace(/[^0-9]/g, '');
-    const tds = slice
-      .map((disp, i) => {
-        const sticky = i === 0 ? ' lb-td-sticky lb-td-col-name' : '';
-        const align = i === 0 ? 'left' : 'right';
-        const sectorCls = i === 2 ? ' lb-td-sector' : '';
-        const fw =
-          i === 0
-            ? 'font-weight:700;color:var(--t1);'
-            : i === 2
-              ? ''
+    const tds = _LB_DISPLAY_SRC_IDX.map((si, di) => {
+      const disp = _sanitizeNoImg(_dash(cells[si]));
+      const align = di <= 3 ? 'left' : 'right';
+      const sectorCls = di === 2 ? ' lb-td-sector' : '';
+      const fw =
+        di === 0
+          ? 'font-weight:700;color:var(--t1);'
+          : di === 2
+            ? ''
+            : di <= 3
+              ? 'font-size:12px;color:var(--t2);'
               : "font-family:'DM Mono',monospace;font-size:12px;color:var(--t2);";
-        let inner = _lbEsc(disp);
-        let dataOrderAttr = '';
-        const ws = i === 2 ? 'normal' : 'nowrap';
-        const va = i === 2 ? 'top' : 'middle';
-        if (_LB_METRIC_BREAK_COLS.indexOf(i) >= 0) {
-          const v = _ipoParseSignedMetric(rawMetric[i]);
-          if (v != null && v < 0) {
-            inner = `<span style="font-weight:700;color:#FF6900;font-family:'DM Mono',monospace;font-size:12px;">${_lbEsc(disp)}</span>`;
-          }
-        } else if (i === 0 && isPerfBreak) {
-          inner = `<span style="display:inline-flex;align-items:center;justify-content:flex-start;gap:6px;">${_lbEsc(
-            disp,
-          )}<span style="display:inline-block;margin-left:4px;padding:1px 6px;border-radius:4px;font-weight:700;font-size:12px;line-height:1.3;color:#FF6900;background:rgba(255,105,0,.1);border:1px solid rgba(255,105,0,.2);">[破发]</span></span>`;
-        } else if (i === 2) {
-          let broad =
-            r.sectorBroad != null && String(r.sectorBroad).trim() !== '' ? String(r.sectorBroad).trim() : '';
-          let niche = r.sectorNiche != null ? String(r.sectorNiche).trim() : '';
-          if (!broad && disp && disp !== '-') {
-            const sp = _ipoSplitSectorCombined(disp);
-            broad = sp.broad || disp;
-            niche = sp.niche || '';
-          }
-          if (!broad) broad = disp && disp !== '-' ? disp : '—';
-          const orderKey =
-            r.sectorOrderKey != null && String(r.sectorOrderKey).trim() !== ''
-              ? String(r.sectorOrderKey).trim()
-              : broad;
-          dataOrderAttr = ` data-order="${_lbEscAttr(orderKey)}"`;
-          // 方案一升级：优先显示系统细分；无细分则显示原始大类；二者不一致则双标签
-          if (niche) {
-            if (broad && broad !== niche) {
-              inner = `<div class="lb-sector-stack"><div style="font-weight:700;color:var(--t1);line-height:1.35;">${_lbEsc(
-                niche,
-              )}</div><div style="font-size:11px;color:#6b7280;line-height:1.35;margin-top:2px;">${_lbEsc(
-                broad,
-              )}</div></div>`;
-            } else {
-              inner = `<div class="lb-sector-stack"><div style="font-weight:700;color:var(--t1);line-height:1.35;">${_lbEsc(
-                niche,
-              )}</div></div>`;
-            }
-          } else {
+      let inner = _lbMetricInnerHtml(disp, di, rawMetric, r);
+      let dataOrderAttr = '';
+      const ws = di === 2 ? 'normal' : 'nowrap';
+      const va = di === 2 ? 'top' : 'middle';
+      if (di === 0 && isPerfBreak && !isBreak) {
+        inner = `<span style="display:inline-flex;align-items:center;justify-content:flex-start;gap:6px;">${_lbEsc(
+          disp,
+        )}<span style="display:inline-block;margin-left:4px;padding:1px 6px;border-radius:4px;font-weight:700;font-size:12px;line-height:1.3;color:#FF6900;background:rgba(255,105,0,.1);border:1px solid rgba(255,105,0,.2);">[破发]</span></span>`;
+      } else if (di === 2) {
+        let broad =
+          r.sectorBroad != null && String(r.sectorBroad).trim() !== '' ? String(r.sectorBroad).trim() : '';
+        let niche = r.sectorNiche != null ? String(r.sectorNiche).trim() : '';
+        if (!broad && disp && disp !== '-') {
+          const sp = _ipoSplitSectorCombined(disp);
+          broad = sp.broad || disp;
+          niche = sp.niche || '';
+        }
+        if (!broad) broad = disp && disp !== '-' ? disp : '—';
+        const orderKey =
+          r.sectorOrderKey != null && String(r.sectorOrderKey).trim() !== ''
+            ? String(r.sectorOrderKey).trim()
+            : broad;
+        dataOrderAttr = ` data-order="${_lbEscAttr(orderKey)}"`;
+        if (niche) {
+          if (broad && broad !== niche) {
             inner = `<div class="lb-sector-stack"><div style="font-weight:700;color:var(--t1);line-height:1.35;">${_lbEsc(
+              niche,
+            )}</div><div style="font-size:11px;color:#6b7280;line-height:1.35;margin-top:2px;">${_lbEsc(
               broad,
             )}</div></div>`;
+          } else {
+            inner = `<div class="lb-sector-stack"><div style="font-weight:700;color:var(--t1);line-height:1.35;">${_lbEsc(
+              niche,
+            )}</div></div>`;
           }
+        } else {
+          inner = `<div class="lb-sector-stack"><div style="font-weight:700;color:var(--t1);line-height:1.35;">${_lbEsc(
+            broad,
+          )}</div></div>`;
         }
-        const nameCls = i === 0 ? ' stock-name' : i === 1 ? ' stock-code' : '';
-        return `<td class="${`${sticky}${sectorCls}`.trim() + nameCls}"${dataOrderAttr} style="padding:10px 10px;border-bottom:1px solid var(--s3);font-size:12px;white-space:${ws};vertical-align:${va};text-align:${align};${fw}">${inner}</td>`;
-      })
-      .join('');
+      }
+      const nameCls = di === 0 ? ' stock-name' : di === 1 ? ' stock-code' : '';
+      const pad = di === _LB_COL_COUNT - 1 ? 'padding:9px 18px 9px 8px' : 'padding:9px 8px';
+      return `<td class="${`${sectorCls}${nameCls}`.trim()}"${dataOrderAttr} style="${pad};border-bottom:1px solid var(--s3);font-size:12px;white-space:${ws};vertical-align:${va};text-align:${align};${fw}">${inner}</td>`;
+    }).join('');
     const cls = 'lb-tr' + (neg ? ' lb-tr-neg' : '') + ' ipo-dbl-open';
-    const oc = '';
     const breakAttr = isPerfBreak ? ' data-ipobreak="1"' : '';
     const secKey =
       r.sectorOrderKey != null && String(r.sectorOrderKey).trim() !== ''
@@ -1036,6 +1044,9 @@ function __ipoRenderLeaderboardInnerHTML(mapped, mode) {
     listProfit: true,
     cum: true,
   };
+  const innerDefaultCmp = isBreak
+    ? _lbCmpRowsBreakDefault
+    : (p, q) => _lbCmpRows(p, q, 'default');
 
   let bodyInner = '';
   if (m === 'sector') {
@@ -1053,7 +1064,7 @@ function __ipoRenderLeaderboardInnerHTML(mapped, mode) {
     const keys = Object.keys(by).sort((a, b) => by[b].length - by[a].length);
     let rank = 1;
     keys.forEach(k => {
-      by[k].sort((p, q) => _lbCmpRows(p, q, 'default'));
+      by[k].sort(innerDefaultCmp);
       bodyInner += _lbGroupHdrRow2026(k, `${by[k].length}只`);
       by[k].forEach(row => {
         bodyInner += rowHtml({ ...row, lbRank: rank++ });
@@ -1072,6 +1083,9 @@ function __ipoRenderLeaderboardInnerHTML(mapped, mode) {
       }
       bodyInner += rowHtml({ ...r, lbRank: rank++ });
     });
+  } else if (m === 'default' && isBreak) {
+    const sorted = mapped.slice().sort(_lbCmpRowsBreakDefault);
+    bodyInner = sorted.map((r, idx) => rowHtml({ ...r, lbRank: idx + 1 })).join('');
   } else if (modesNumericNoDivider[m]) {
     const sorted = mapped.slice().sort((a, b) => _lbCmpRows(a, b, m));
     bodyInner = sorted.map((r, idx) => rowHtml({ ...r, lbRank: idx + 1 })).join('');
@@ -1079,23 +1093,60 @@ function __ipoRenderLeaderboardInnerHTML(mapped, mode) {
     const sorted = mapped.slice().sort((a, b) => _lbCmpRows(a, b, 'default'));
     bodyInner = sorted.map((r, idx) => rowHtml({ ...r, lbRank: idx + 1 })).join('');
   }
+  return bodyInner;
+}
 
+function _ipoRenderLbTable(opts) {
+  _ensureLbCss();
+  const {
+    containerId,
+    tableId,
+    tbodyId,
+    mapped,
+    mode,
+    tableKind,
+    emptyMessage,
+  } = opts;
+  const wrap = document.getElementById(containerId);
+  if (!wrap) {
+    console.warn('[IPO LB] 未找到 #' + containerId);
+    return;
+  }
   const thead =
     '<thead><tr>' +
-    _LB_HEADERS.map((h, i) => {
-      const cls =
-        i === 0 ? 'lb-sth lb-sth-col-name' : i === 2 ? 'lb-th-r lb-th-sector' : 'lb-th-r';
-      return `<th class="${cls}">${_lbEsc(h)}</th>`;
-    }).join('') +
+    _LB_HEADERS.map((h, i) => `<th class="${_lbThClass(i)}">${_lbEsc(h)}</th>`).join('') +
     '</tr></thead>';
+  const tableCls = 'lb-table ipo-lb-table-10';
+  if (!mapped || !mapped.length) {
+    const msg = emptyMessage
+      ? `<tr><td colspan="${_LB_COL_COUNT}" style="padding:24px 14px;text-align:center;color:var(--t3);font-size:13px;">${_lbEsc(
+          emptyMessage,
+        )}</td></tr>`
+      : '';
+    wrap.innerHTML = `<table id="${tableId}" class="${tableCls}">${thead}<tbody id="${tbodyId}">${msg}</tbody></table>`;
+    return;
+  }
+  const bodyInner = _ipoBuildLbTableBody(mapped, mode, tableKind);
+  wrap.innerHTML = `<table id="${tableId}" class="${tableCls}">${thead}<tbody id="${tbodyId}">${bodyInner}</tbody></table>`;
+}
 
-  wrap.innerHTML = `<table id="ipo-table-2026" class="lb-table" style="width:max-content;min-width:1500px !important;border-collapse:separate;border-spacing:0;white-space:nowrap;">${thead}<tbody id="lb-tbody">${bodyInner}</tbody></table>`;
+function _ipoFilterBreakRows(mapped) {
+  if (!Array.isArray(mapped)) return [];
+  return mapped.filter(r => r && _ipoLbRowHasBreakPerformance(_lbCells15(r)));
+}
 
-  console.log(
-    '%c🔥 渲染流程已走完，当前 tbody 实际行数: ' + document.querySelectorAll('tbody tr').length,
-    'font-size:18px;font-weight:bold;color:#dc2626;',
-  );
-
+function __ipoRenderLeaderboardInnerHTML(mapped, mode) {
+  const m = mode || window.__IPO_LB_SORT_MODE__ || 'default';
+  window.__IPO_LB_SORT_MODE__ = m;
+  _ipoRenderLbTable({
+    containerId: 'ipo-table-container',
+    tableId: 'ipo-table-2026',
+    tbodyId: 'lb-tbody',
+    mapped,
+    mode: m,
+    tableKind: 'gain',
+    emptyMessage: '',
+  });
   if (typeof window.renderIpoLbBreakGuide === 'function') {
     try {
       window.renderIpoLbBreakGuide();
@@ -1105,6 +1156,23 @@ function __ipoRenderLeaderboardInnerHTML(mapped, mode) {
   }
 }
 
+function __ipoRenderBreakLeaderboardInnerHTML(mapped, mode) {
+  const m = mode || window.__IPO_LB_BREAK_SORT_MODE__ || 'default';
+  window.__IPO_LB_BREAK_SORT_MODE__ = m;
+  const breakRows = _ipoFilterBreakRows(mapped);
+  _ipoRenderLbTable({
+    containerId: 'ipo-break-table-container',
+    tableId: 'ipo-table-2026-break',
+    tbodyId: 'lb-break-tbody',
+    mapped: breakRows,
+    mode: m,
+    tableKind: 'break',
+    emptyMessage: '当前暂无暗盘或首日破发的新股',
+  });
+}
+
+window.__ipoRenderBreakLeaderboardInnerHTML = __ipoRenderBreakLeaderboardInnerHTML;
+
 function _patchLeaderboardRenderer() {
   ensureIpo2026LbRiskTagStyles();
   if (typeof window.renderLbRowsFromIpoHomeMapped !== 'function') return;
@@ -1112,6 +1180,7 @@ function _patchLeaderboardRenderer() {
   window.__IPO_LB_INNERHTML_PATCHED__ = true;
   window.renderLbRowsFromIpoHomeMapped = function renderLbRowsFromIpoHomeMapped(mapped, mode) {
     __ipoRenderLeaderboardInnerHTML(mapped, mode);
+    __ipoRenderBreakLeaderboardInnerHTML(mapped, window.__IPO_LB_BREAK_SORT_MODE__ || 'default');
   };
 }
 
@@ -1552,6 +1621,9 @@ window.renderLeaderboardNow = function renderLeaderboardNow() {
     const lbSel = document.getElementById('ipo-lb-sort-2026');
     const cur = window.__IPO_LB_SORT_MODE__ || 'default';
     if (lbSel) lbSel.value = cur;
+    const breakSel = document.getElementById('ipo-lb-sort-2026-break');
+    const breakCur = window.__IPO_LB_BREAK_SORT_MODE__ || 'default';
+    if (breakSel) breakSel.value = breakCur;
   } catch (e) { /* noop */ }
 };
 

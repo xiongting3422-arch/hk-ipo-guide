@@ -150,14 +150,30 @@ header{position:relative;z-index:1;background:#ffffff;border-bottom:1px solid #e
   display:block;
   border-radius:var(--r);
 }
-#tab-home .ipo-home-lb-card{background:#fff;border:1px solid #ebebeb;border-radius:var(--r);box-shadow:0 1px 3px rgba(15,23,42,.04);overflow:hidden;margin-bottom:20px;}
+#tab-home .ipo-home-lb-card{background:transparent;border:none;border-radius:0;box-shadow:none;overflow:visible;margin-bottom:24px;}
 #tab-home #ipo-2026-leaderboard-block{margin-top:0;}
-#tab-home #ipo-2026-leaderboard-block .lb-toolbar{margin:0!important;padding:18px 20px 14px!important;border-bottom:1px solid #f0f0f0;background:#fff;}
-#tab-home #ipo-table-container{--lb-head-bg:#f8f9fa;margin-bottom:0!important;border:none!important;border-radius:0!important;box-shadow:none!important;background:#fff;}
-#tab-home #ipo-table-container .lb-scroll-wrap::-webkit-scrollbar-track{background:#f5f5f5;}
-#tab-home #ipo-table-2026 td{border-bottom-color:#f0f0f0!important;}
-#tab-home #ipo-table-2026 .lb-sth.lb-sth-col-name{background-color:#f8f9fa!important;box-shadow:4px 0 12px -6px rgba(0,0,0,.06),0 1px 0 rgba(0,0,0,.04);}
-#tab-home #ipo-lb-sort-2026{background:#fff;border:1px solid #e4e4e7;border-radius:8px;padding:7px 32px 7px 12px;font-size:13px;}
+#tab-home #ipo-2026-leaderboard-block .lb-toolbar,#tab-home #ipo-2026-leaderboard-block .ipo-lb-table-head{margin:0!important;padding:0!important;border:none!important;background:transparent!important;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px!important;flex-wrap:wrap;}
+#tab-home #ipo-table-container,#tab-home #ipo-break-table-container{--lb-head-bg:#f8f9fa;margin-bottom:0!important;border:none!important;border-radius:0!important;box-shadow:none!important;background:transparent;max-height:447px!important;overflow-x:hidden!important;overflow-y:auto!important;padding-right:14px!important;scrollbar-gutter:stable;box-sizing:border-box!important;}
+#tab-home #ipo-table-container .lb-scroll-wrap::-webkit-scrollbar-track,#tab-home #ipo-break-table-container .lb-scroll-wrap::-webkit-scrollbar-track{background:#f5f5f5;}
+#tab-home #ipo-table-2026 td,#tab-home #ipo-table-2026-break td{border-bottom-color:#f0f0f0!important;}
+#tab-home #ipo-table-2026 .lb-sth.lb-sth-col-name,#tab-home #ipo-table-2026-break .lb-sth.lb-sth-col-name{background-color:#f8f9fa!important;box-shadow:none!important;position:sticky;top:0;z-index:2;}
+#tab-home .ipo-lb-table-10{width:100%!important;min-width:0!important;table-layout:fixed;border-collapse:separate;border-spacing:0;}
+#tab-home .ipo-lb-table-10 th.lb-th-l{padding:8px 10px;font-size:12px;font-weight:700;color:var(--t3);text-align:left;white-space:nowrap;border-bottom:1px solid var(--s3);position:sticky;top:0;background:var(--lb-head-bg);z-index:2;}
+#tab-home .ipo-lb-table-10 th.lb-th-r{padding:8px 10px;font-size:12px;font-weight:700;color:var(--t3);text-align:right;white-space:nowrap;border-bottom:1px solid var(--s3);position:sticky;top:0;background:var(--lb-head-bg);z-index:2;}
+#tab-home .ipo-lb-table-10 th:last-child,#tab-home .ipo-lb-table-10 td:last-child{padding-right:18px!important;}
+#tab-home .ipo-lb-table-10 th:nth-child(1){width:11%;}
+#tab-home .ipo-lb-table-10 th:nth-child(2){width:8%;}
+#tab-home .ipo-lb-table-10 th:nth-child(3){width:14%;}
+#tab-home .ipo-lb-table-10 th:nth-child(4){width:9%;}
+#tab-home .ipo-lb-table-10 th:nth-child(5){width:8%;}
+#tab-home .ipo-lb-table-10 th:nth-child(6){width:9%;}
+#tab-home .ipo-lb-table-10 th:nth-child(7){width:10%;}
+#tab-home .ipo-lb-table-10 th:nth-child(8){width:9%;}
+#tab-home .ipo-lb-table-10 th:nth-child(9){width:10%;}
+#tab-home .ipo-lb-table-10 th:nth-child(10){width:12%;}
+#tab-home #ipo-2026-leaderboard-block .ipo-lb-section-title,#tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-section .finexy-break-title,#tab-home #ipo-2026-leaderboard-block #ipo-break-risk-section .ipo-break-risk-title{margin:0!important;padding:0 0 0 12px!important;border-left:4px solid #FF6900!important;font-size:18px!important;font-weight:800!important;color:#1a1a1a!important;line-height:1.3!important;background:transparent!important;letter-spacing:0!important;text-align:left!important;}
+#tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-section .finexy-break-title,#tab-home #ipo-2026-leaderboard-block #ipo-break-risk-section .ipo-break-risk-title{margin-bottom:32px!important;}
+#tab-home #ipo-lb-sort-2026,#tab-home #ipo-lb-sort-2026-break{background:#fff;border:1px solid #e4e4e7;border-radius:8px;padding:7px 32px 7px 12px;font-size:13px;}
 #tab-home #ipo-lb-break-guide-section{margin-top:36px!important;margin-bottom:28px!important;background:transparent!important;border:none!important;box-shadow:none!important;overflow:visible!important;}
 #tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-section > .ipo-lb-break-panel--list{padding:0!important;border-bottom:none!important;background:transparent!important;}
 #tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-section > .ipo-lb-break-panel--risk{padding:0!important;background:transparent!important;border-radius:0!important;box-shadow:none!important;margin-top:48px!important;}
@@ -332,9 +348,9 @@ td{padding:16px 20px;vertical-align:middle;}
 .lb-scroll-wrap::-webkit-scrollbar-thumb{background:rgba(0,0,0,.25);border-radius:4px;}
 .lb-scroll-wrap::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.4);}
 .lb-scroll-wrap::-webkit-scrollbar-corner{background:transparent;}
-/* 2026 新股涨幅榜：横向滑动 + 15 列最小宽度 */
-#ipo-table-container{display:block !important;overflow-x:auto !important;-webkit-overflow-scrolling:touch;}
-#ipo-table-container #lb-table,#ipo-table-container #ipo-table-2026{min-width:1500px !important;border-collapse:separate;border-spacing:0;}
+/* 2026 新股涨幅榜/破发榜：10 列定宽，纵向滚动 */
+#ipo-table-container,#ipo-break-table-container{display:block !important;overflow-x:hidden !important;overflow-y:auto !important;-webkit-overflow-scrolling:touch;padding-right:14px;scrollbar-gutter:stable;box-sizing:border-box;}
+#ipo-table-container #lb-table,#ipo-table-container #ipo-table-2026,#ipo-break-table-container #ipo-table-2026-break{width:100% !important;min-width:0 !important;border-collapse:separate;border-spacing:0;table-layout:fixed;}
 /* 表头：整行随纵向滚动钉在顶部 */
 .lb-th-r{
   padding:8px 12px;font-size:12px;font-weight:700;color:var(--t3);letter-spacing:.04em;text-align:right;white-space:nowrap;
@@ -352,27 +368,14 @@ td{padding:16px 20px;vertical-align:middle;}
   z-index:8;
   box-shadow:0 1px 0 rgba(0,0,0,.06);
 }
-/* 第 1 列表头（股票名称）：纵向+横向 sticky，与 tbody 第 1 列对齐；z-index 高于其余表头 */
+/* 第 1 列表头（股票名称）：纵向 sticky */
 .lb-sth.lb-sth-col-name{
   padding:8px 12px;font-size:12px;font-weight:700;color:var(--t3);letter-spacing:.04em;
-  position:sticky;left:0;top:0;
-  min-width:var(--lb-name-w);max-width:var(--lb-name-w);width:var(--lb-name-w);
+  position:sticky;top:0;
   text-align:left;white-space:nowrap;border-bottom:1px solid var(--s3);
-  background-color:#fff;
-  z-index:20;
-  box-shadow:4px 0 12px -6px rgba(0,0,0,.1),0 1px 0 rgba(0,0,0,.06);
+  background-color:var(--lb-head-bg,#f8f9fa);
+  z-index:8;
 }
-/* 第 1 列数据格：不透明白底 + 右缘微弱阴影，避免与横向滚动内容重叠 */
-.lb-td-sticky{transition:background .12s;}
-.lb-td-col-name{
-  position:sticky;left:0;
-  z-index:5;
-  background-color:#fff;
-  box-shadow:4px 0 12px -6px rgba(0,0,0,.08);
-}
-.lb-tr:hover .lb-td-col-name{background:var(--s2) !important;}
-.lb-tr.lb-tr-neg .lb-td-col-name{background-color:#fff;}
-.lb-tr.lb-tr-neg:hover .lb-td-col-name{background:rgba(254,242,242,.98) !important;}
 .lb-tr:hover{background:var(--s2);cursor:pointer;}
 .mono{font-family:'DM Mono',monospace;font-size:13px;}
 .muted{color:var(--t2);font-size:12px;}
@@ -1406,10 +1409,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 
   <!-- ═══ 2026 新股涨幅榜 ═══ -->
   <style id="ipo-2026-lb-polish">
-    #tab-home #ipo-2026-leaderboard-block .ipo-lb-main-title,
-    #tab-home #ipo-2026-leaderboard-block .ipo-lb-2026-sec-title{font-size:20px!important;font-weight:700!important;line-height:1.35!important;letter-spacing:0!important;margin:0!important;text-align:left!important;color:var(--t1)!important;}
-    #tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-section .finexy-break-title,
-    #tab-home #ipo-2026-leaderboard-block #ipo-break-risk-section .ipo-break-risk-title{margin:0 0 32px!important;padding:0 0 0 12px!important;border-left:4px solid #FF6900!important;font-size:18px!important;font-weight:800!important;color:#1a1a1a!important;line-height:1.3!important;background:transparent!important;}
+    #tab-home #ipo-2026-leaderboard-block .ipo-lb-main-title:not(.ipo-lb-section-title):not(.finexy-break-title):not(.ipo-break-risk-title){font-size:20px!important;font-weight:700!important;line-height:1.35!important;letter-spacing:0!important;margin:0!important;text-align:left!important;color:var(--t1)!important;}
     #tab-home .ipo-lb-risk-lead{font-size:13px!important;line-height:1.65!important;color:var(--t2)!important;margin:0 0 12px!important;text-align:left!important;}
     #tab-home #ipo-table-container{margin-bottom:0!important;}
     #tab-home #ipo-2026-leaderboard-block .ipo-lb-break-panel--list > .ipo-lb-main-title + #ipo-lb-break-guide-list{margin-top:0!important;}
@@ -1417,9 +1417,8 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   <div id="ipo-2026-leaderboard-block">
 
     <div class="ipo-home-lb-card">
-    <!-- Leaderboard toolbar：仅作用于下方 2026 涨幅榜 -->
-    <div class="lb-toolbar">
-      <span class="ipo-lb-main-title">2026新股涨幅榜</span>
+    <div class="lb-toolbar ipo-lb-table-head">
+      <h3 class="ipo-lb-2026-sec-title ipo-lb-section-title">2026新股涨幅榜</h3>
       <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;">
         <label for="ipo-lb-sort-2026" style="font-size:12px;color:var(--t3);font-weight:500;white-space:nowrap;">排序方式</label>
         <select id="ipo-lb-sort-2026" aria-label="2026新股涨幅榜排序" onchange="applyLeaderboardSort(this.value)" style="min-width:200px;">
@@ -1436,21 +1435,16 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
       </div>
     </div>
 
-    <!-- 2026新股涨幅榜：表头固定 15 列；数据优先来自 IPO主页 CSV（ipo-live-data.js → __IPO_HOME_LB_MAPPED__） -->
-    <div id="ipo-table-container" style="display:block !important;overflow-x:auto !important;overflow-y:auto;white-space:nowrap;max-height:560px;min-height:120px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent;width:100%;max-width:100%;box-sizing:border-box;" class="lb-scroll-wrap">
-      <table id="ipo-table-2026" class="lb-table" style="width:max-content;min-width:1500px;border-collapse:separate;border-spacing:0;white-space:nowrap;">
+    <!-- 2026新股涨幅榜：10 列精简表头；数据来自 IPO主页 CSV（ipo-live-data.js → __IPO_HOME_LB_MAPPED__） -->
+    <div id="ipo-table-container" style="display:block !important;overflow-x:hidden !important;overflow-y:auto;max-height:447px;min-height:120px;padding-right:14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent;width:100%;max-width:100%;box-sizing:border-box;" class="lb-scroll-wrap">
+      <table id="ipo-table-2026" class="lb-table ipo-lb-table-10">
         <thead>
           <tr>
             <th class="lb-sth lb-sth-col-name">股票名称</th>
-            <th class="lb-th-r">股票代码</th>
-            <th class="lb-th-r lb-th-sector">行业板块</th>
-            <th class="lb-th-r">上市日期</th>
-            <th class="lb-th-r">每手手数</th>
-            <th class="lb-th-r">招股价(HKD)</th>
-            <th class="lb-th-r">每手金额</th>
-            <th class="lb-th-r">上市价</th>
+            <th class="lb-th-l">股票代码</th>
+            <th class="lb-th-l">行业板块</th>
+            <th class="lb-th-l">上市日期</th>
             <th class="lb-th-r">超额倍数</th>
-            <th class="lb-th-r">现价</th>
             <th class="lb-th-r">暗盘表现</th>
             <th class="lb-th-r">暗盘一手赚</th>
             <th class="lb-th-r">首日表现</th>
@@ -1462,6 +1456,45 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
       </table>
     </div>
     </div><!-- /.ipo-home-lb-card -->
+
+    <div class="ipo-home-lb-card">
+    <div class="lb-toolbar ipo-lb-table-head">
+      <h3 class="ipo-lb-2026-sec-title ipo-lb-section-title">2026新股破发榜</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;">
+        <label for="ipo-lb-sort-2026-break" style="font-size:12px;color:var(--t3);font-weight:500;white-space:nowrap;">排序方式</label>
+        <select id="ipo-lb-sort-2026-break" aria-label="2026新股破发榜排序" onchange="applyBreakLeaderboardSort(this.value)" style="min-width:200px;">
+          <option value="default">默认排序</option>
+          <option value="month">上市日期</option>
+          <option value="sector">行业板块</option>
+          <option value="over">超额倍数</option>
+          <option value="dark">暗盘表现</option>
+          <option value="darkLot">暗盘一手赚</option>
+          <option value="fd">首日表现</option>
+          <option value="listProfit">上市一手赚</option>
+          <option value="cum">累计表现</option>
+        </select>
+      </div>
+    </div>
+    <div id="ipo-break-table-container" style="display:block !important;overflow-x:hidden !important;overflow-y:auto;max-height:447px;min-height:80px;padding-right:14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent;width:100%;max-width:100%;box-sizing:border-box;" class="lb-scroll-wrap">
+      <table id="ipo-table-2026-break" class="lb-table ipo-lb-table-10">
+        <thead>
+          <tr>
+            <th class="lb-sth lb-sth-col-name">股票名称</th>
+            <th class="lb-th-l">股票代码</th>
+            <th class="lb-th-l">行业板块</th>
+            <th class="lb-th-l">上市日期</th>
+            <th class="lb-th-r">超额倍数</th>
+            <th class="lb-th-r">暗盘表现</th>
+            <th class="lb-th-r">暗盘一手赚</th>
+            <th class="lb-th-r">首日表现</th>
+            <th class="lb-th-r">上市一手赚</th>
+            <th class="lb-th-r">累计表现</th>
+          </tr>
+        </thead>
+        <tbody id="lb-break-tbody"></tbody>
+      </table>
+    </div>
+    </div><!-- /.ipo-home-lb-card 破发榜 -->
 
     <!-- 破发原因总结：Finexy 卡片 · script.js renderFinexyBreakGuidePanel + Claude JSON -->
     <div id="ipo-lb-break-guide-section" class="finexy-break-section">
@@ -2403,10 +2436,10 @@ window.__IPO_SHEET_CONFIG__ = window.__IPO_SHEET_CONFIG__ || {};
 window.__IPO_APP_CONFIG__ = window.__IPO_APP_CONFIG__ || {};
 // 可选：window.__IPO_AI_CONFIG__ = { apiKey: '…', model: 'claude-sonnet-4-20250514', proxyUrl: 'https://你的后端/claude' };
 </script>
-<script src="./ipo-live-data.js?v=38"></script>
+<script src="./ipo-live-data.js?v=40"></script>
 <script src="./launched-audit-data.js?v=1"></script>
 <script src="./ipo-break-risk-signals-data.js?v=1"></script>
-<script src="./script.js?v=14"></script>
+<script src="./script.js?v=15"></script>
 <script>
 /* ━━━━━━━━━ DATA ━━━━━━━━━ */
 const STOCKS = {
@@ -3285,12 +3318,27 @@ function applyLeaderboardSort(mode) {
   order.forEach(key => {
     const hdr = document.createElement('tr');
     hdr.className = 'lb-group-hdr lb-group-hdr-2026';
-    hdr.innerHTML = `<td colspan="15" style="padding:8px 14px;background:#f3f4f6;border-top:1px solid var(--s3);border-bottom:1px solid var(--s3);"><span class="lb-group-hdr-label" style="font-weight:700;">${getLabel(key)}</span><span class="lb-group-hdr-count" style="margin-left:8px;">${groups[key].length}只</span></td>`;
+    hdr.innerHTML = `<td colspan="10" style="padding:8px 14px;background:#f3f4f6;border-top:1px solid var(--s3);border-bottom:1px solid var(--s3);"><span class="lb-group-hdr-label" style="font-weight:700;">${getLabel(key)}</span><span class="lb-group-hdr-count" style="margin-left:8px;">${groups[key].length}只</span></td>`;
     tbody.appendChild(hdr);
     groups[key].sort((a, b) => +a.dataset.rank - +b.dataset.rank);
     groups[key].forEach(r => tbody.appendChild(r));
   });
 }
+
+/** 2026新股破发榜排序；与涨幅榜共用数据源与排序键，默认按暗盘涨幅升序 */
+function applyBreakLeaderboardSort(mode) {
+  const sel = document.getElementById('ipo-lb-sort-2026-break');
+  if (sel) sel.value = mode;
+  window.__IPO_LB_BREAK_SORT_MODE__ = mode;
+  if (window.__IPO_HOME_LB_MAPPED__ && window.__IPO_HOME_LB_MAPPED__.length) {
+    if (typeof window.__ipoRenderBreakLeaderboardInnerHTML === 'function') {
+      window.__ipoRenderBreakLeaderboardInnerHTML(window.__IPO_HOME_LB_MAPPED__, mode);
+    } else if (typeof renderLbRowsFromIpoHomeMapped === 'function') {
+      renderLbRowsFromIpoHomeMapped(window.__IPO_HOME_LB_MAPPED__, window.__IPO_LB_SORT_MODE__ || 'default');
+    }
+  }
+}
+window.applyBreakLeaderboardSort = applyBreakLeaderboardSort;
 
 function applyLeaderboardGroup(mode) {
   applyLeaderboardSort(mode);
