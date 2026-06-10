@@ -158,11 +158,9 @@ header{position:relative;z-index:1;background:#ffffff;border-bottom:1px solid #e
 #tab-home #ipo-table-2026 td{border-bottom-color:#f0f0f0!important;}
 #tab-home #ipo-table-2026 .lb-sth.lb-sth-col-name{background-color:#f8f9fa!important;box-shadow:4px 0 12px -6px rgba(0,0,0,.06),0 1px 0 rgba(0,0,0,.04);}
 #tab-home #ipo-lb-sort-2026{background:#fff;border:1px solid #e4e4e7;border-radius:8px;padding:7px 32px 7px 12px;font-size:13px;}
-#tab-home #ipo-lb-break-guide-section{margin-bottom:28px!important;background:#fff!important;border:1px solid #ebebeb!important;border-radius:var(--r)!important;box-shadow:0 1px 3px rgba(15,23,42,.04)!important;overflow:hidden;}
-#tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-section > .ipo-lb-break-panel--list{padding:16px 16px 20px!important;border-bottom:1px solid #f0f0f0!important;background:#fff!important;}
-#tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-section > .ipo-lb-break-panel--risk{padding:20px 16px 16px!important;background:#fff!important;}
-#tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-list .ipo-lb-break-webreplay,
-#tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-list .ipo-lb-break-subblock{border-top-color:#f0f0f0!important;}
+#tab-home #ipo-lb-break-guide-section{margin-top:36px!important;margin-bottom:28px!important;background:transparent!important;border:none!important;box-shadow:none!important;overflow:visible!important;}
+#tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-section > .ipo-lb-break-panel--list{padding:0!important;border-bottom:none!important;background:transparent!important;}
+#tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-section > .ipo-lb-break-panel--risk{padding:0!important;background:transparent!important;border-radius:0!important;box-shadow:none!important;margin-top:48px!important;}
 @media(max-width:960px){#tab-home .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(max-width:560px){#tab-home .stat-grid{grid-template-columns:1fr;}}
 
@@ -1410,17 +1408,11 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   <style id="ipo-2026-lb-polish">
     #tab-home #ipo-2026-leaderboard-block .ipo-lb-main-title,
     #tab-home #ipo-2026-leaderboard-block .ipo-lb-2026-sec-title{font-size:20px!important;font-weight:700!important;line-height:1.35!important;letter-spacing:0!important;margin:0!important;text-align:left!important;color:var(--t1)!important;}
+    #tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-section .finexy-break-title,
+    #tab-home #ipo-2026-leaderboard-block #ipo-break-risk-section .ipo-break-risk-title{margin:0 0 32px!important;padding:0 0 0 12px!important;border-left:4px solid #FF6900!important;font-size:18px!important;font-weight:800!important;color:#1a1a1a!important;line-height:1.3!important;background:transparent!important;}
     #tab-home .ipo-lb-risk-lead{font-size:13px!important;line-height:1.65!important;color:var(--t2)!important;margin:0 0 12px!important;text-align:left!important;}
     #tab-home #ipo-table-container{margin-bottom:0!important;}
-    #tab-home #ipo-2026-leaderboard-block .ipo-lb-break-panel--list > .ipo-lb-main-title + #ipo-lb-break-guide-list{margin-top:12px!important;}
-    #tab-home #ipo-2026-leaderboard-block .ipo-lb-break-panel--risk > .ipo-lb-main-title + .ipo-lb-risk-lead{margin-top:12px!important;}
-    #tab-home #ipo-2026-leaderboard-block .ipo-lb-break-item{display:grid!important;grid-template-columns:auto 1fr!important;column-gap:0.5em!important;row-gap:6px!important;align-items:start!important;width:100%!important;margin:0!important;padding:0!important;text-align:left!important;}
-    #tab-home #ipo-2026-leaderboard-block .ipo-lb-break-idx{grid-column:1!important;grid-row:1!important;align-self:center!important;margin:0!important;padding:0!important;min-width:2em!important;font-size:12px!important;font-weight:700!important;line-height:1.55!important;color:var(--t3)!important;background:transparent!important;border:none!important;font-variant-numeric:tabular-nums!important;text-align:left!important;}
-    #tab-home #ipo-2026-leaderboard-block .ipo-lb-break-reason-lead{grid-column:2!important;grid-row:1!important;min-width:0!important;margin:0!important;font-weight:700!important;font-size:12px!important;color:#FF6900!important;line-height:1.55!important;text-align:left!important;}
-    #tab-home #ipo-2026-leaderboard-block .ipo-lb-break-detail{grid-column:2!important;grid-row:2!important;margin:0!important;padding:0!important;font-size:11px!important;color:var(--t2)!important;line-height:1.85!important;text-align:left!important;}
-    #tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-list .ipo-lb-break-guide-root{gap:16px!important;}
-    #tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-list .ipo-lb-break-webreplay{margin-top:8px!important;padding-top:20px!important;border-top:1px solid #f0f0f0!important;}
-    #tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-list .ipo-lb-break-subblock{margin-top:8px!important;padding-top:20px!important;border-top:1px solid #f0f0f0!important;}
+    #tab-home #ipo-2026-leaderboard-block .ipo-lb-break-panel--list > .ipo-lb-main-title + #ipo-lb-break-guide-list{margin-top:0!important;}
   </style>
   <div id="ipo-2026-leaderboard-block">
 
@@ -1471,25 +1463,16 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
     </div>
     </div><!-- /.ipo-home-lb-card -->
 
-    <!-- 破发共性分析：与 ipo-live-data.js renderIpoLbBreakGuide 联动（#ipo-lb-break-guide-list） -->
-    <div id="ipo-lb-break-guide-section">
-      <div class="ipo-lb-break-panel--list">
-        <h3 class="ipo-lb-2026-sec-title ipo-lb-main-title">破发原因总结</h3>
-        <div id="ipo-lb-break-guide-list" style="display:flex;flex-direction:column;gap:12px;min-height:0;text-align:left!important;align-items:stretch;">
-          <div style="font-size:11px;color:var(--t3);line-height:1.65;text-align:left!important;">加载涨幅榜数据后，将自动生成与破发标的联动的分析…</div>
-        </div>
+    <!-- 破发原因总结：Finexy 卡片 · script.js renderFinexyBreakGuidePanel + Claude JSON -->
+    <div id="ipo-lb-break-guide-section" class="finexy-break-section">
+      <div class="ipo-lb-break-panel--list finexy-break-panel-wrap">
+        <h3 class="ipo-lb-2026-sec-title ipo-lb-main-title finexy-break-title">破发原因总结</h3>
+        <div id="ipo-lb-break-guide-list" class="finexy-break-list" aria-live="polite"></div>
       </div>
-      <div class="ipo-lb-break-panel--risk">
-        <h3 class="ipo-lb-2026-sec-title ipo-lb-main-title">打新破发风险信号</h3>
-        <div class="ipo-lb-risk-lead">出现即规避：下列信号与首日定价修正概率正相关，打新决策前建议逐项对照招股书与同业可比。</div>
-        <div class="ipo-lb-risk-tags">
-          <span class="ipo-lb-risk-tag">暗盘跌幅≥5%</span>
-          <span class="ipo-lb-risk-tag">公开发售占比&lt;5%</span>
-          <span class="ipo-lb-risk-tag">财务由盈转亏</span>
-          <span class="ipo-lb-risk-tag">认购倍数&lt;50×</span>
-          <span class="ipo-lb-risk-tag">A+H折价不足安全边际</span>
-          <span class="ipo-lb-risk-tag">赛道渗透率不确定</span>
-        </div>
+      <div id="ipo-break-risk-section" class="ipo-lb-break-panel--risk ipo-break-risk-section">
+        <h3 class="ipo-lb-2026-sec-title ipo-lb-main-title ipo-break-risk-title">打新破发风险信号</h3>
+        <div id="ipo-break-risk-grid" class="ipo-break-risk-grid" role="group" aria-label="打新破发风险信号矩阵"></div>
+        <div id="ipo-break-risk-popover" class="ipo-break-risk-popover" role="tooltip" aria-hidden="true"></div>
       </div>
     </div>
   </div><!-- /#ipo-2026-leaderboard-block -->
@@ -2412,21 +2395,18 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   数据来源：以上信息仅vicky收集提供，一切后果由她负责 &nbsp;｜&nbsp; 本页信息仅供参考，不构成投资建议 &nbsp;｜&nbsp; 更新：<span id="site-footer-updated">—</span>
 </footer>
 
+<script src="./config.js?v=1"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
-/* 使用你自己的 Google 表：在表格中「文件 → 共享 → 发布到网络」，把生成的链接复制到 publishBase（必须以 /pub 结尾），gid 在浏览器打开该表时地址栏 gid= 数字 */
+/* Sheet / AI 配置见 config.js；此处仅保留可选运行时覆盖 */
 window.__IPO_SHEET_CONFIG__ = window.__IPO_SHEET_CONFIG__ || {};
-// 发布地址 /pub ；HTML 预览见同目录 pubhtml
-window.__IPO_SHEET_CONFIG__.publishBase =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vT5R7a29N0wHqOVKXO7Dx016Z_DV0IQ5n16IaTMSPWF2QOqwqud1ViC1Llp0MFwZep8qMUGW_-9SCBU/pub';
-window.__IPO_SHEET_CONFIG__.gids = Object.assign(
-  { ipoHome: 1914717842, listed: 63719317, dark: 976801045, schedule: 0 },
-  window.__IPO_SHEET_CONFIG__.gids || {},
-);
-// 可选 V11：AI 补全（表格「核心优势/主要压力」为空时） window.__IPO_AI_CONFIG__ = { apiKey: '…', model: 'gpt-4o-mini' };
-// 牛牛圈发文助手复用同一配置；也可单独设置 baseUrl / chatPath（OpenAI-compatible）
+window.__IPO_APP_CONFIG__ = window.__IPO_APP_CONFIG__ || {};
+// 可选：window.__IPO_AI_CONFIG__ = { apiKey: '…', model: 'claude-sonnet-4-20250514', proxyUrl: 'https://你的后端/claude' };
 </script>
 <script src="./ipo-live-data.js?v=38"></script>
+<script src="./launched-audit-data.js?v=1"></script>
+<script src="./ipo-break-risk-signals-data.js?v=1"></script>
+<script src="./script.js?v=14"></script>
 <script>
 /* ━━━━━━━━━ DATA ━━━━━━━━━ */
 const STOCKS = {
@@ -3489,6 +3469,13 @@ function switchTab(name) {
   }
   if (name === 'home') {
     ensureIpoHomeBanner();
+    try {
+      if (typeof renderFinexyBreakGuidePanel === 'function') renderFinexyBreakGuidePanel();
+      else if (typeof renderIpoLbBreakGuide === 'function') renderIpoLbBreakGuide();
+      if (typeof renderIpoBreakRiskGrid === 'function') renderIpoBreakRiskGrid();
+    } catch (e) {
+      console.warn('finexy break guide tab refresh', e);
+    }
   } else {
     stopIpoHomeBanner();
   }

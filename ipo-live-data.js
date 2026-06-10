@@ -2096,6 +2096,10 @@ function ensureIpo2026LbRiskTagStyles() {
  * 破发原因总结区块：仅 #ipo-lb-break-guide-section；与 2026 涨幅榜同源数据；排序/重绘后由 __ipoRenderLeaderboardInnerHTML 与 updateIpoHomeLeaderboardStatCards 触发。
  */
 function renderIpoLbBreakGuide() {
+  if (typeof window.renderFinexyBreakGuidePanel === 'function') {
+    window.renderFinexyBreakGuidePanel();
+    return;
+  }
   ensureIpo2026LbRiskTagStyles();
   const wrap = document.getElementById('ipo-lb-break-guide-list');
   if (!wrap) return;
