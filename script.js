@@ -669,7 +669,7 @@
     st.textContent = [
       '#tab-home #ipo-lb-break-guide-section.finexy-break-section{background:transparent!important;border:none!important;box-shadow:none!important;overflow:visible!important;margin-top:36px!important;margin-bottom:24px!important;}',
       '#tab-home #ipo-lb-break-guide-section .finexy-break-panel-wrap{background:transparent!important;border:none!important;padding:0!important;}',
-      '#tab-home #ipo-2026-leaderboard-block .ipo-lb-section-title,#tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-section .finexy-break-title,#tab-home #ipo-2026-leaderboard-block #ipo-break-risk-section .ipo-break-risk-title{margin:0 0 32px!important;padding:0 0 0 12px!important;border-left:4px solid #FF6900!important;font-size:18px!important;font-weight:800!important;color:#1a1a1a!important;line-height:1.3!important;background:transparent!important;}',
+      '#tab-home #ipo-2026-leaderboard-block .ipo-lb-section-title,#tab-home #ipo-2026-leaderboard-block #ipo-lb-break-guide-section .finexy-break-title,#tab-home #ipo-2026-leaderboard-block #ipo-break-risk-section .ipo-break-risk-title{margin:0 0 32px!important;padding:0 0 0 14px!important;border-left:5px solid #FF6900!important;font-size:22px!important;font-weight:800!important;color:#1a1a1a!important;line-height:1.3!important;background:transparent!important;}',
       '#tab-home #ipo-2026-leaderboard-block .ipo-lb-table-head .ipo-lb-section-title{margin:0!important;}',
       '.finexy-break-list{min-height:80px;margin-top:0;}',
       '.finexy-break-view{background:#F7F8FA;border-radius:16px;padding:24px;}',
