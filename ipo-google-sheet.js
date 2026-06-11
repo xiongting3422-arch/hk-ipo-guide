@@ -974,7 +974,7 @@
       bearItems.length > 0
         ? bearItems
         : ['监管与市况、定价与估值、行业竞争等详见招股书及路演材料。'];
-    return {
+    const model = {
       code,
       name,
       sectorLabel: _v11FmtDash(sector) === '-' ? '' : sector,
@@ -990,8 +990,110 @@
       bear: bearOut.slice(0, 3),
       darkDate: _fmtYmdOrDash(dDark),
       listDate: _fmtYmdOrDash(dList),
+      sponsor: _getCellByAliases(row, ['保荐人', '保荐机构', '联席保荐人', '保荐']) || '',
+      cornerstoneRaw: cornerPct,
+      greenshoeRaw: green,
+      mechanismRaw: mech,
     };
+    model.sheetRow = Object.assign({}, row);
+    if (typeof global.enrichIpoModelWithRadar === 'function') {
+      return global.enrichIpoModelWithRadar(model, row, _getCellByAliases, { n, cls, label });
+    }
+    return model;
   }
+
+  /** 小卡片时间状态：与汇总表 getCompareTableStatusKey 完全一致 */
+  const IPO_TAB_STATUS_MAP = {
+    active: { key: 'active', label: '认购中', cls: 'ipo-tab-status-active' },
+    closed: { key: 'closed', label: '待上市', cls: 'ipo-tab-status-pending' },
+    listed: { key: 'listed', label: '已上市', cls: 'ipo-tab-status-listed' },
+    unknown: { key: 'unknown', label: '未设日期', cls: 'ipo-tab-status-unknown' },
+  };
+
+  function _computeIpoTabTimeStatus(listedRow) {
+    const stKey = getCompareTableStatusKey(listedRow);
+    return IPO_TAB_STATUS_MAP[stKey] || IPO_TAB_STATUS_MAP.unknown;
+  }
+
+  function _computeIpoTabWeather(totalScore) {
+    const n = Number(totalScore);
+    if (!Number.isFinite(n)) return null;
+    if (n >= 22) return { cls: 'ipo-tab-weather-sunny', icon: '☀️', label: '晴天' };
+    if (n >= 15) return { cls: 'ipo-tab-weather-cloudy', icon: '⛅', label: '多云' };
+    return { cls: 'ipo-tab-weather-rainy', icon: '🌧️', label: '阴天' };
+  }
+
+  function _applyIpoTabWeatherToCard(tab, weather) {
+    if (!tab) return;
+    const left = tab.querySelector('.ipo-tab-card-left');
+    const inner = tab.querySelector('.ipo-tab-card-inner');
+    let hintEl = tab.querySelector('.ipo-tab-weather-hint');
+    let iconEl = tab.querySelector('.ipo-tab-weather-icon');
+    if (!weather) {
+      if (hintEl) hintEl.remove();
+      if (iconEl) iconEl.remove();
+      return;
+    }
+    if (left) {
+      if (!hintEl) {
+        hintEl = document.createElement('div');
+        hintEl.className = 'ipo-tab-weather-hint';
+        left.appendChild(hintEl);
+      }
+      hintEl.textContent = '打新天气：' + weather.label;
+    }
+    if (inner) {
+      if (!iconEl) {
+        iconEl = document.createElement('div');
+        iconEl.className = 'ipo-tab-weather-icon';
+        inner.appendChild(iconEl);
+      }
+      iconEl.className = 'ipo-tab-weather-icon ' + weather.cls;
+      iconEl.textContent = weather.icon;
+      iconEl.setAttribute('aria-label', '打新天气 ' + weather.label);
+    }
+  }
+
+  function _buildIpoTabCardHtml(m, listedRow, idx, isActive) {
+    const status = _computeIpoTabTimeStatus(listedRow);
+    m.timeStatus = status;
+    const weather = _computeIpoTabWeather(m.totalScore);
+    const safeName = String(m.name).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const weatherHintHtml = weather
+      ? `<div class="ipo-tab-weather-hint">打新天气：${_esc(weather.label)}</div>`
+      : '';
+    const weatherIconHtml = weather
+      ? `<div class="ipo-tab-weather-icon ${_esc(weather.cls)}" data-ipo-weather-for="${_esc(m.code)}" aria-label="打新天气 ${_esc(weather.label)}">${weather.icon}</div>`
+      : '';
+    return `
+        <div class="ipo-tab-card ipo-dbl-open${isActive ? ' active' : ''}" id="ipo-tab-${_esc(m.code)}" data-ipo-code="${_esc(m.code)}" data-stock-name="${_esc(m.name)}" data-time-status="${_esc(status.key)}" onclick="switchStock('${safeName}')">
+          <div class="ipo-tab-card-inner">
+            <div class="ipo-tab-card-left">
+              <div class="ipo-tab-name stock-name">${_esc(m.name)}</div>
+              <span class="ipo-tab-status ${_esc(status.cls)}">${_esc(status.label)}</span>
+              ${weatherHintHtml}
+            </div>
+            ${weatherIconHtml}
+          </div>
+        </div>`;
+  }
+
+  function updateIpoTabCardWeather(code, totalScore) {
+    const c = String(code || '').trim();
+    const m = global.__IPO_SHEET_UI_MODELS__ && global.__IPO_SHEET_UI_MODELS__[c];
+    if (m) m.totalScore = totalScore;
+    const tab = document.getElementById('ipo-tab-' + c);
+    if (!tab) return;
+    const listedRow = (m && m.sheetRow) || {};
+    const status = _computeIpoTabTimeStatus(listedRow);
+    tab.setAttribute('data-time-status', status.key);
+    const weather = _computeIpoTabWeather(totalScore);
+    _applyIpoTabWeatherToCard(tab, weather);
+  }
+
+  global.updateIpoTabCardWeather = updateIpoTabCardWeather;
+  global.computeIpoTabTimeStatus = _computeIpoTabTimeStatus;
+  global.computeIpoTabWeather = _computeIpoTabWeather;
 
   function _esc(s) {
     return String(s ?? '')
@@ -1009,113 +1111,55 @@
       return;
     }
 
+    const prevActive =
+      typeof global.__ipoGetActiveTabStockName === 'function'
+        ? global.__ipoGetActiveTabStockName()
+        : null;
+
     const models = {};
     rows.forEach(r => {
       const m = rowToIpoDisplayModel(r);
       if (m.code) models[m.code] = m;
     });
     global.__IPO_SHEET_UI_MODELS__ = models;
+    if (typeof global.buildStockDataFromModels === 'function') {
+      global.buildStockDataFromModels(models);
+    }
 
-    let firstCode = null;
+    let firstName = null;
     let tabsHtml = '<div class="ipo-tabs-scroll">';
     rows.forEach((r, idx) => {
-      const m = rowToIpoDisplayModel(r);
-      if (!m.code) return;
-      if (!firstCode) firstCode = m.code;
-      const sc = m.starColor;
-      const starsOn = '★'.repeat(m.rating);
-      const starsOff = '★'.repeat(5 - m.rating);
-      tabsHtml += `
-        <div class="ipo-tab-card ipo-dbl-open${idx === 0 ? ' active' : ''}" id="ipo-tab-${_esc(m.code)}" data-ipo-code="${_esc(m.code)}" onclick="switchIpoTab('${_esc(m.code)}')">
-          <div class="ipo-tab-stars" style="color:${_esc(sc)};">${starsOn}<span class="ipo-tab-stars-dim">${starsOff}</span></div>
-          <div class="ipo-tab-name stock-name">${_esc(m.name)}</div>
-        </div>`;
+      const m = models[_extractCodeFromRow(r)] || rowToIpoDisplayModel(r);
+      if (!m || !m.code || !m.name) return;
+      if (!firstName) firstName = m.name;
+      const isActive = prevActive ? m.name === prevActive : idx === 0;
+      tabsHtml += _buildIpoTabCardHtml(m, r, idx, isActive);
     });
     tabsHtml += '</div>';
-    wrapper.innerHTML = `${tabsHtml}<div class="ipo-tab-content-wrap" id="ipo-tab-content" style="margin-top:12px;"></div>`;
-    if (firstCode) switchIpoTabFromSheetModel(firstCode);
+
+    if (typeof global.destroyIpoListRadarChart === 'function') {
+      global.destroyIpoListRadarChart();
+    }
+    const shell =
+      typeof global.buildIpoListDetailShellHtml === 'function' ? global.buildIpoListDetailShellHtml() : '';
+    wrapper.innerHTML = `${tabsHtml}<div class="ipo-tab-content-wrap" id="ipo-tab-content" style="margin-top:12px;">${shell}</div>`;
+
+    const restoreName =
+      prevActive && global.stockData && global.stockData[prevActive] ? prevActive : firstName;
+    const firstModel = restoreName && global.stockData ? global.stockData[restoreName] : null;
+    if (typeof global.initIpoListRadarChart === 'function') {
+      global.initIpoListRadarChart(firstModel && firstModel.scores);
+    }
+    if (restoreName && typeof global.switchStock === 'function') {
+      global.switchStock(restoreName, { backgroundRefresh: true });
+    }
   }
 
   function switchIpoTabFromSheetModel(code) {
-    // V11: Detailed card UI refactor & Dual-source data logic
-    document.querySelectorAll('.ipo-tab-card').forEach(el => el.classList.remove('active'));
-    const tab = document.getElementById('ipo-tab-' + code);
-    if (tab) tab.classList.add('active');
     const d = global.__IPO_SHEET_UI_MODELS__ && global.__IPO_SHEET_UI_MODELS__[code];
-    const contentEl = document.getElementById('ipo-tab-content');
-    if (!d || !contentEl) return;
-
-    const _ipoDetailMetricCell = m => {
-      const valCol = m.valColor ? _esc(m.valColor) : '#111';
-      return `
-    <div style="background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:10px;padding:12px 10px;min-width:0;">
-      <div style="font-size:10px;color:#6b7280;margin-bottom:5px;letter-spacing:.04em;">${_esc(m.label)}</div>
-      <div style="font-size:14px;font-weight:700;color:${valCol};line-height:1.35;word-break:break-word;">${_esc(m.val)}</div>
-    </div>`;
-    };
-    const g8 = Array.isArray(d.detailGrid8) && d.detailGrid8.length === 8 ? d.detailGrid8 : [];
-    const gridHtml = g8.length
-      ? `<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:10px;">${g8
-          .slice(0, 4)
-          .map(_ipoDetailMetricCell)
-          .join('')}</div>
-        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px;">${g8
-          .slice(4, 8)
-          .map(_ipoDetailMetricCell)
-          .join('')}</div>`
-      : '';
-
-    const bHtml = d.bull
-      .slice(0, 3)
-      .map(
-        t => `
-    <div style="display:flex;gap:8px;margin-bottom:8px;font-size:12px;line-height:1.65;color:#374151;">
-      <span style="color:#059669;flex-shrink:0;margin-top:2px;">✦</span><span>${_esc(t)}</span>
-    </div>`,
-      )
-      .join('');
-
-    const rHtml = d.bear
-      .slice(0, 3)
-      .map(
-        t => `
-    <div style="display:flex;gap:8px;margin-bottom:8px;font-size:12px;line-height:1.65;color:#374151;">
-      <span style="color:#dc2626;flex-shrink:0;margin-top:2px;">▲</span><span>${_esc(t)}</span>
-    </div>`,
-      )
-      .join('');
-
-    const ana = global.IPO_ANALYSIS && global.IPO_ANALYSIS[code];
-    const openFn = ana ? `openIpoAnalysis('${_esc(code)}')` : `void(0)`;
-    const btn = ana
-      ? `<button onclick="${openFn}" style="background:#f97316;border:none;border-radius:9px;padding:9px 20px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;flex-shrink:0;white-space:nowrap;" onmouseover="this.style.background='#ea580c'" onmouseout="this.style.background='#f97316'">查看完整分析 →</button>`
-      : `<span style="font-size:12px;color:var(--t3);">本标的暂无内置深度模态框</span>`;
-
-    contentEl.innerHTML = `
-    <div style="padding:20px 22px;">
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,.08);">
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:18px;font-weight:800;color:#111;">${_esc(d.name)}</div>
-        </div>
-        ${btn}
-      </div>
-      ${gridHtml}
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px;">
-        <div>
-          <div style="font-size:11px;color:#059669;font-weight:700;margin-bottom:10px;letter-spacing:.05em;text-transform:uppercase;">✦ 看多理由 / 亮点</div>
-          ${bHtml}
-        </div>
-        <div>
-          <div style="font-size:11px;color:#dc2626;font-weight:700;margin-bottom:10px;letter-spacing:.05em;text-transform:uppercase;">▲ 风险因素</div>
-          ${rHtml}
-        </div>
-      </div>
-      <div style="font-size:12px;color:#6b7280;padding-top:14px;border-top:1px solid rgba(0,0,0,.08);display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-        <span>暗盘 <b style="color:#d97706;">${_esc(d.darkDate)}</b></span>
-        <span style="opacity:.35;">·</span>
-        <span>上市 <b style="color:#111;">${_esc(d.listDate)}</b></span>
-      </div>
-    </div>`;
+    if (d && d.name && typeof global.switchStock === 'function') {
+      return global.switchStock(d.name);
+    }
   }
 
   function _wrapIpoAccHooks() {
@@ -1135,9 +1179,11 @@
     if (typeof origSwitch === 'function') {
       global._switchIpoTabStatic = origSwitch;
       global.switchIpoTab = function switchIpoTab(code) {
-        if (global.__IPO_SHEET_UI_MODELS__ && global.__IPO_SHEET_UI_MODELS__[code]) {
-          return switchIpoTabFromSheetModel(code);
+        const m = global.__IPO_SHEET_UI_MODELS__ && global.__IPO_SHEET_UI_MODELS__[code];
+        if (m && m.name && typeof global.switchStock === 'function') {
+          return global.switchStock(m.name);
         }
+        if (m) return switchIpoTabFromSheetModel(code);
         return origSwitch.apply(this, arguments);
       };
     }

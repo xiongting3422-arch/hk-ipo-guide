@@ -25,6 +25,9 @@
   );
 
   /* ── 破发流水线 + Claude 审计（script.js 读取） ── */
+  /** 新股 AI 分析 API（server/ipo-api.mjs · npm run api:ipo） */
+  global.__IPO_API_BASE__ = global.__IPO_API_BASE__ || 'http://127.0.0.1:8788';
+
   global.__IPO_APP_CONFIG__ = Object.assign(
     {
       brokenPipeline: {

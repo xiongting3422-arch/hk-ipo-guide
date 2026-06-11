@@ -1,0 +1,438 @@
+/**
+ * 新股 AI 分析流水线：机器硬分 → llmClient → JSON
+ */
+const axios = require('axios');
+const { requestClaude } = require('./llmClient');
+
+const DEFAULT_PUBLISH_BASE =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vT5R7a29N0wHqOVKXO7Dx016Z_DV0IQ5n16IaTMSPWF2QOqwqud1ViC1Llp0MFwZep8qMUGW_-9SCBU/pub';
+const DEFAULT_LISTED_GID = 63719317;
+
+const SPONSOR_BREAK_RATES = {
+  东方证券: 0.34,
+  民银资本: 0.31,
+  交银国际: 0.29,
+  华升资本: 0.28,
+  中泰国际: 0.27,
+  天风证券: 0.26,
+  中银国际: 0.18,
+  中国国际金融: 0.22,
+  中信建投: 0.19,
+  摩根士丹利: 0.15,
+  高盛: 0.12,
+};
+
+const DIMENSION_KEYS = ['cornerstone', 'greenshoe', 'sponsor', 'financial', 'fundamental', 'valuation'];
+
+const STOCK_ANALYSIS_SYSTEM_PROMPT = `你是顶级中资券商的首席 IPO 策略分析师。你需要结合机器计算出的 0-5 分硬分以及提供的信息，进行【全信息生态的综合跨网研判】。
+
+【分析铁律】
+1. 凡是机器给出的 0.0 分（基石、绿鞋、保荐人），绝对不可在文案中进行美化抹平！必须在深度分析中拉响警报，从‘首日全流通无长线资金锁仓’、‘无大行资金买盘托底’、‘无传统保荐人引路或边缘小券商查无此人’等核心博弈心理去撰写。
+2. 财务状况：不要只看表面亏损，请穿透财报。分析其属于研发或商誉导致的暂时失血，还是恶意的估值收割。
+3. 基本面：【绝对不可只局限于用户给的表格文字！】必须联动你自身庞大的科技与商业知识库，跨网综合研判该企业的真实行业地位、技术含金量与核心壁垒。
+4. 估值与博弈：必须交叉推导‘发行量小（盘子小）’与‘缺少锁仓导致情绪冷清，散户货源占比被动抬高、中签率高企’之间的‘多杀多’踩踏博弈。
+
+【返回格式要求】
+你必须且只能返回标准的 JSON 对象，不要包含任何前导词或 \`\`\`json 这样的 markdown 标记。格式严格如下：
+{
+  "summary": "综合概括一句话",
+  "dimensions": {
+    "cornerstone": { "score": 0.0, "one_liner": "一句话依据", "deep_analysis": "跨网深度分析" },
+    "greenshoe": { "score": 0.0, "one_liner": "一句话依据", "deep_analysis": "跨网深度分析" },
+    "sponsor": { "score": 3.2, "one_liner": "一句话依据", "deep_analysis": "跨网深度分析" },
+    "financial": { "score": 2.5, "one_liner": "一句话依据", "deep_analysis": "跨网深度分析" },
+    "fundamental": { "score": 4.2, "one_liner": "一句话依据", "deep_analysis": "跨网深度分析" },
+    "valuation": { "score": 3.0, "one_liner": "一句话依据", "deep_analysis": "跨网深度分析" }
+  }
+}`;
+
+function normKey(s) {
+  return String(s || '').replace(/\s+/g, '').trim();
+}
+
+function normCode(raw) {
+  const d = String(raw || '').replace(/\D/g, '');
+  if (!d) return '';
+  return d.length <= 5 ? d.padStart(5, '0') : d.slice(-5).padStart(5, '0');
+}
+
+function cell(row, keys) {
+  if (!row) return '';
+  const map = Object.fromEntries(Object.entries(row).map(([k, v]) => [normKey(k), v]));
+  for (const k of keys) {
+    const v = map[normKey(k)];
+    if (v != null && String(v).trim()) return String(v).trim();
+  }
+  return '';
+}
+
+function isEmptyCell(s) {
+  const t = String(s ?? '').trim();
+  return !t || t === '-' || t === '—' || t === '0' || /^无$|^暂无$|^N\/A$/i.test(t);
+}
+
+function clampScore05(n) {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return 3;
+  return Math.round(Math.max(1, Math.min(5, v)) * 10) / 10;
+}
+
+function parseExplicitScore05(raw) {
+  if (raw == null || raw === '') return null;
+  const s = String(raw).trim();
+  if (!s || s === '—' || s === '-') return null;
+  const n = parseFloat(s.replace(/[^\d.]/g, ''));
+  if (!Number.isFinite(n)) return null;
+  if (n <= 5) return Math.round(n * 10) / 10;
+  if (n <= 100) return Math.round((n / 20) * 10) / 10;
+  return null;
+}
+
+function hasCornerstone(raw) {
+  const s = String(raw ?? '').trim();
+  if (isEmptyCell(s)) return false;
+  if (/无基石|暂无基石|^无$/.test(s) && !/\d/.test(s)) return false;
+  const m = s.match(/(\d+(?:\.\d+)?)\s*%/);
+  if (m) return parseFloat(m[1]) > 0;
+  return /有|认购|基石投资者/.test(s) && !/^无/.test(s);
+}
+
+function hasGreenShoe(raw) {
+  const t = String(raw ?? '').trim();
+  if (t === '有') return true;
+  if (t === '无' || isEmptyCell(t)) return false;
+  return /有/.test(t) && !/无/.test(t);
+}
+
+function hasSponsor(raw) {
+  return !isEmptyCell(raw);
+}
+
+function lookupSponsorBreakRate(sponsor) {
+  const s = String(sponsor || '');
+  for (const key of Object.keys(SPONSOR_BREAK_RATES)) {
+    if (s.includes(key)) return SPONSOR_BREAK_RATES[key];
+  }
+  return null;
+}
+
+function scoreSponsorBase(sponsor) {
+  const rate = lookupSponsorBreakRate(sponsor);
+  if (rate != null) return clampScore05(1 + (1 - rate) * 4);
+  if (String(sponsor || '').trim()) return 3;
+  return 0;
+}
+
+function scoreFinancialBase(row) {
+  const explicit = parseExplicitScore05(
+    cell(row, ['财务状况分', '财务分', '雷达财务', '财务状况评分']),
+  );
+  if (explicit != null) return explicit;
+
+  const blob = [
+    cell(row, ['财务状况', '财务点评', '财务摘要']),
+    cell(row, ['净利润', '营收', '营业收入']),
+    cell(row, ['发行市盈率', '市盈率', 'PE', '发行PE']),
+  ].join(' ');
+
+  if (/亏损扩大|持续亏损|商誉减值|现金流紧张|失血/.test(blob)) return 2.2;
+  if (/扭亏|盈利改善|毛利率提升|现金流回正/.test(blob)) return 4;
+  if (/亏损|研发期|投入期/.test(blob)) return 2.8;
+  if (/盈利|增长/.test(blob)) return 3.6;
+  return 3;
+}
+
+function scoreFundamentalBase(row) {
+  const explicit = parseExplicitScore05(
+    cell(row, ['基本面分', '亮点分', '雷达基本面', '基本面评分']),
+  );
+  if (explicit != null) return explicit;
+
+  const ratingRaw = cell(row, ['打新星级', '星级', '打新评级', '评级']);
+  const rating = parseInt(String(ratingRaw).replace(/\D/g, ''), 10);
+  const hl = cell(row, ['核心优势', '公司亮点', '投资亮点']);
+  let s = Number.isFinite(rating) && rating >= 1 && rating <= 5 ? 1.4 + rating * 0.72 : 3;
+  if (hl.length > 100) s += 0.35;
+  else if (hl.length > 40) s += 0.15;
+  return clampScore05(s);
+}
+
+function scoreValuationBase(row) {
+  const explicit = parseExplicitScore05(
+    cell(row, ['估值安全度分', '估值分', '雷达估值', '估值评分']),
+  );
+  if (explicit != null) return explicit;
+
+  const cornerRaw = cell(row, ['基石认购占比', '基石占比', '有无基石', '基石投资者认购占比']);
+  const mech = cell(row, ['发行机制', '发售机制']);
+  const overRaw = cell(row, ['超额倍数', '孖展倍数', '认购倍数']);
+  const lot = cell(row, ['每手股数', '每手手数', '发行规模', '募资规模']);
+
+  let s = 3.2;
+  if (!hasCornerstone(cornerRaw)) s -= 0.9;
+  if (/机制\s*B|乙组/i.test(mech)) s -= 0.35;
+  const over = parseFloat(String(overRaw).replace(/[^\d.]/g, ''));
+  if (Number.isFinite(over) && over < 20) s -= 0.45;
+  if (/小盘|盘子小|发行比例.*5%|公开发售.*5%/.test(lot + mech)) s -= 0.25;
+  return clampScore05(s);
+}
+
+/** 第一步：机器硬分（0–5，三条红线可为 0） */
+function computeMachineScores(row) {
+  const cornerRaw = cell(row, ['基石认购占比', '基石占比', '有无基石', '基石投资者认购占比']);
+  const greenRaw = cell(row, ['绿鞋机制', '绿鞋', '超额配售权', '有无绿鞋']);
+  const sponsor = cell(row, ['保荐人', '保荐机构', '联席保荐人', '保荐']);
+
+  const cornerstone = hasCornerstone(cornerRaw) ? clampScore05(scoreCornerstoneFromPct(cornerRaw)) : 0;
+  const greenshoe = hasGreenShoe(greenRaw) ? clampScore05(4.2) : 0;
+  const sponsorScore = hasSponsor(sponsor) ? scoreSponsorBase(sponsor) : 0;
+
+  return {
+    cornerstone: hasCornerstone(cornerRaw) ? cornerstone : 0,
+    greenshoe: hasGreenShoe(greenRaw) ? greenshoe : 0,
+    sponsor: sponsorScore,
+    financial: scoreFinancialBase(row),
+    fundamental: scoreFundamentalBase(row),
+    valuation: scoreValuationBase(row),
+  };
+}
+
+function scoreCornerstoneFromPct(raw) {
+  const m = String(raw).match(/(\d+(?:\.\d+)?)\s*%/);
+  if (m) {
+    const pct = parseFloat(m[1]);
+    if (pct >= 50) return 5;
+    if (pct >= 30) return 4.5;
+    if (pct >= 20) return 4;
+    if (pct >= 10) return 3.2;
+    if (pct > 0) return 2.5;
+    return 1;
+  }
+  return 3.5;
+}
+
+function extractStockFields(row) {
+  return {
+    name: cell(row, ['股票名称', '名称', 'IPO名称']) || '—',
+    code: normCode(cell(row, ['股票代码', '代码', '代号'])),
+    sector: cell(row, ['行业板块', '板块', '行业', '行业·细分']),
+    ipoPrice: cell(row, ['招股价 (HKD)', '招股价(HKD)', '招股价', '招股價']),
+    handFee: cell(row, ['一手入场费', '每手金额', '入场费']),
+    ah: cell(row, ['A+H 股', 'A+H', '是否A+H']),
+    subPeriod: [cell(row, ['招股开始', '认购开始']), cell(row, ['招股结束', '认购结束'])].filter(Boolean).join(' ~ '),
+    mechanism: cell(row, ['发行机制', '发售机制']),
+    greenshoe: cell(row, ['绿鞋机制', '绿鞋', '有无绿鞋']),
+    cornerstone: cell(row, ['基石认购占比', '基石占比', '有无基石']),
+    sponsor: cell(row, ['保荐人', '保荐机构', '联席保荐人']),
+    highlights: cell(row, ['核心优势', '公司亮点', '投资亮点']),
+    risks: cell(row, ['主要压力', '重要压力', '主要风险', '风险因素']),
+    financialNote: cell(row, ['财务状况', '财务点评', '净利润', '发行市盈率', '市盈率']),
+    fundraising: cell(row, ['募资规模', '发行规模', '集资额']),
+    oversubscription: cell(row, ['超额倍数', '孖展倍数', '认购倍数']),
+  };
+}
+
+function parseCsvMatrix(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  const src = String(text || '').replace(/^\uFEFF/, '');
+  for (let i = 0; i < src.length; i += 1) {
+    const ch = src[i];
+    const next = src[i + 1];
+    if (inQuotes) {
+      if (ch === '"' && next === '"') {
+        field += '"';
+        i += 1;
+      } else if (ch === '"') inQuotes = false;
+      else field += ch;
+      continue;
+    }
+    if (ch === '"') inQuotes = true;
+    else if (ch === ',') {
+      row.push(field);
+      field = '';
+    } else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && next === '\n') i += 1;
+      row.push(field);
+      field = '';
+      if (row.some(c => String(c).trim())) rows.push(row);
+      row = [];
+    } else field += ch;
+  }
+  if (field.length || row.length) {
+    row.push(field);
+    if (row.some(c => String(c).trim())) rows.push(row);
+  }
+  return rows;
+}
+
+function parseCsvRows(text) {
+  const matrix = parseCsvMatrix(text).filter(r => r.some(c => String(c).trim()));
+  if (!matrix.length) return [];
+  const isTransposed =
+    normKey(matrix[0]?.[0]) === '股票名称' && normKey(matrix[1]?.[0]) === '股票代码';
+  if (isTransposed) {
+    const nRows = matrix.length;
+    const nCols = Math.max(...matrix.map(r => r.length), 0);
+    const out = [];
+    for (let j = 1; j < nCols; j += 1) {
+      const row = {};
+      for (let i = 0; i < nRows; i += 1) {
+        const key = normKey(matrix[i]?.[0] || '');
+        if (key) row[key] = String(matrix[i]?.[j] ?? '').trim();
+      }
+      if (Object.values(row).some(v => String(v).trim())) out.push(row);
+    }
+    return out;
+  }
+  const headers = matrix[0].map(h => normKey(h));
+  return matrix.slice(1).map(line => {
+    const row = {};
+    headers.forEach((h, i) => {
+      if (h) row[h] = String(line[i] ?? '').trim();
+    });
+    return row;
+  });
+}
+
+async function fetchListedSheetRows() {
+  const base = String(process.env.IPO_SHEET_PUBLISH_BASE || DEFAULT_PUBLISH_BASE).replace(/\/$/, '');
+  const gid = process.env.IPO_SHEET_LISTED_GID || DEFAULT_LISTED_GID;
+  const url = `${base}?gid=${gid}&single=true&output=csv&_t=${Date.now()}`;
+  const res = await axios.get(url, { timeout: 30000, responseType: 'text' });
+  const text = String(res.data || '');
+  if (text.trim().startsWith('<')) throw new Error('Google Sheet 返回 HTML，请检查 publishBase');
+  return parseCsvRows(text);
+}
+
+function findStockRow(rows, { stockName, code }) {
+  const list = Array.isArray(rows) ? rows : [];
+  if (code) {
+    const c = normCode(code);
+    const hit = list.find(r => normCode(cell(r, ['股票代码', '代码', '代号'])) === c);
+    if (hit) return hit;
+  }
+  if (stockName) {
+    const n = String(stockName).trim();
+    return list.find(r => {
+      const rn = cell(r, ['股票名称', '名称', 'IPO名称']);
+      return rn === n || rn.includes(n) || n.includes(rn);
+    });
+  }
+  return null;
+}
+
+function buildUserPrompt(payload) {
+  return [
+    '请基于以下机器硬分与表格事实，输出严格 JSON（勿 Markdown）：',
+    JSON.stringify(payload, null, 2),
+    '',
+    '要求：dimensions 中各 score 应在机器硬分基础上微调（±0.5 以内），但机器为 0.0 的三项（基石/绿鞋/保荐人若硬分为0）必须保持 0.0，不得美化。',
+  ].join('\n');
+}
+
+function parseAnalysisJson(text) {
+  const raw = String(text || '').trim();
+  const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = fenced ? fenced[1].trim() : raw;
+  const start = candidate.indexOf('{');
+  const end = candidate.lastIndexOf('}');
+  if (start < 0 || end <= start) throw new Error('Claude 返回内容中未找到 JSON 对象');
+  const parsed = JSON.parse(candidate.slice(start, end + 1));
+  if (!parsed || typeof parsed !== 'object') throw new Error('解析结果非对象');
+  if (!parsed.dimensions || typeof parsed.dimensions !== 'object') {
+    throw new Error('JSON 缺少 dimensions 字段');
+  }
+  return parsed;
+}
+
+function normalizeDimension(dim, machineScore, key) {
+  const d = dim && typeof dim === 'object' ? dim : {};
+  let score = Number(d.score);
+  if (!Number.isFinite(score)) score = machineScore;
+  if (machineScore === 0 && ['cornerstone', 'greenshoe', 'sponsor'].includes(key)) score = 0;
+  score = Math.round(score * 10) / 10;
+  return {
+    score,
+    one_liner: String(d.one_liner || d.oneLiner || '').trim() || '—',
+    deep_analysis: String(d.deep_analysis || d.deepAnalysis || '').trim() || '—',
+  };
+}
+
+function normalizeAiResult(parsed, machineScores) {
+  const dimensions = {};
+  for (const key of DIMENSION_KEYS) {
+    dimensions[key] = normalizeDimension(parsed.dimensions[key], machineScores[key], key);
+  }
+  return {
+    summary: String(parsed.summary || '').trim() || '—',
+    dimensions,
+  };
+}
+
+/**
+ * @param {{ stockName?: string, code?: string, row?: Record<string, string> }} input
+ */
+async function runStockAnalysisPipeline(input = {}) {
+  let row = input.row && typeof input.row === 'object' ? input.row : null;
+  if (!row) {
+    const rows = await fetchListedSheetRows();
+    row = findStockRow(rows, { stockName: input.stockName, code: input.code });
+  }
+  if (!row) {
+    const label = input.stockName || input.code || '未知标的';
+    throw new Error(`未在「上市新股」表中找到：${label}`);
+  }
+
+  const fields = extractStockFields(row);
+  const machineScores = computeMachineScores(row);
+  const userPayload = {
+    stock_name: fields.name,
+    stock_code: fields.code,
+    machine_scores: machineScores,
+    highlights: fields.highlights,
+    risks: fields.risks,
+    table_fields: fields,
+  };
+
+  const { text, model } = await requestClaude(buildUserPrompt(userPayload), {
+    system: STOCK_ANALYSIS_SYSTEM_PROMPT,
+    maxTokens: Number(process.env.LLM_MAX_TOKENS || 4096),
+    temperature: Number(process.env.LLM_TEMPERATURE ?? 0.25),
+  });
+
+  const parsed = parseAnalysisJson(text);
+  const ai = normalizeAiResult(parsed, machineScores);
+
+  const scores05 = DIMENSION_KEYS.map(k => ai.dimensions[k].score);
+  const totalScore = Math.round(scores05.reduce((a, b) => a + b, 0) * 10) / 10;
+  const avgScore = Math.round((totalScore / DIMENSION_KEYS.length) * 10) / 10;
+
+  return {
+    stockName: fields.name,
+    code: fields.code,
+    machineScores,
+    summary: ai.summary,
+    dimensions: ai.dimensions,
+    totalScore,
+    avgScore,
+    maxTotalScore: DIMENSION_KEYS.length * 5,
+    radarScores: scores05.map(s => Math.round(s * 20)),
+    meta: {
+      model,
+      analyzedAt: new Date().toISOString(),
+      source: 'llm-gateway',
+    },
+  };
+}
+
+module.exports = {
+  STOCK_ANALYSIS_SYSTEM_PROMPT,
+  computeMachineScores,
+  extractStockFields,
+  parseAnalysisJson,
+  runStockAnalysisPipeline,
+  DIMENSION_KEYS,
+};
