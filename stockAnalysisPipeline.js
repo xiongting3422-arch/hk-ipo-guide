@@ -357,6 +357,16 @@ function buildUserPrompt(payload) {
   ].join('\n');
 }
 
+function repairJsonCandidate(jsonStr) {
+  let s = jsonStr;
+  // 常见 LLM 瑕疵：尾逗号、弯引号
+  s = s.replace(/[\u201c\u201d\u2018\u2019]/g, m =>
+    ({ '\u201c': '"', '\u201d': '"', '\u2018': "'", '\u2019': "'" })[m] || m,
+  );
+  s = s.replace(/,\s*([}\]])/g, '$1');
+  return s;
+}
+
 function parseAnalysisJson(text) {
   const raw = String(text || '').trim();
   const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
@@ -364,7 +374,18 @@ function parseAnalysisJson(text) {
   const start = candidate.indexOf('{');
   const end = candidate.lastIndexOf('}');
   if (start < 0 || end <= start) throw new Error('Claude 返回内容中未找到 JSON 对象');
-  const parsed = JSON.parse(candidate.slice(start, end + 1));
+  const slice = candidate.slice(start, end + 1);
+  let parsed;
+  let lastErr;
+  for (const attempt of [slice, repairJsonCandidate(slice)]) {
+    try {
+      parsed = JSON.parse(attempt);
+      break;
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  if (!parsed) throw lastErr || new Error('JSON 解析失败');
   if (!parsed || typeof parsed !== 'object') throw new Error('解析结果非对象');
   if (!parsed.dimensions || typeof parsed.dimensions !== 'object') {
     throw new Error('JSON 缺少 dimensions 字段');
@@ -426,13 +447,30 @@ async function runStockAnalysisPipeline(input = {}, options = {}) {
       ? ECM_LEAD_SYSTEM_PROMPT
       : options.systemPrompt || STOCK_ANALYSIS_SYSTEM_PROMPT;
 
-  const { text, model } = await requestClaude(buildUserPrompt(userPayload), {
+  const llmOpts = {
     system: systemPrompt,
     maxTokens: Number(process.env.LLM_MAX_TOKENS || 4096),
     temperature: Number(process.env.LLM_TEMPERATURE ?? 0.25),
-  });
+  };
 
-  const parsed = parseAnalysisJson(text);
+  let text;
+  let model;
+  let parsed;
+  let lastParseErr;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    ({ text, model } = await requestClaude(buildUserPrompt(userPayload), llmOpts));
+    try {
+      parsed = parseAnalysisJson(text);
+      break;
+    } catch (e) {
+      lastParseErr = e;
+      if (attempt === 0) {
+        console.warn('[stockAnalysisPipeline] JSON 解析失败，自动重试 LLM 一次…', e.message);
+      }
+    }
+  }
+  if (!parsed) throw lastParseErr || new Error('JSON 解析失败');
+
   const ai = normalizeAiResult(parsed, machineScores);
 
   const scores05 = DIMENSION_KEYS.map(k => ai.dimensions[k].score);
