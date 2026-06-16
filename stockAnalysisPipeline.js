@@ -1,6 +1,7 @@
 /**
  * 新股 AI 分析流水线：机器硬分 → llmClient → JSON
  */
+const { jsonrepair } = require('jsonrepair');
 const axios = require('axios');
 const { requestClaude } = require('./llmClient');
 
@@ -385,6 +386,13 @@ function parseAnalysisJson(text) {
       lastErr = e;
     }
   }
+  if (!parsed) {
+    try {
+      parsed = JSON.parse(jsonrepair(slice));
+    } catch (e) {
+      lastErr = e;
+    }
+  }
   if (!parsed) throw lastErr || new Error('JSON 解析失败');
   if (!parsed || typeof parsed !== 'object') throw new Error('解析结果非对象');
   if (!parsed.dimensions || typeof parsed.dimensions !== 'object') {
@@ -457,15 +465,15 @@ async function runStockAnalysisPipeline(input = {}, options = {}) {
   let model;
   let parsed;
   let lastParseErr;
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) {
     ({ text, model } = await requestClaude(buildUserPrompt(userPayload), llmOpts));
     try {
       parsed = parseAnalysisJson(text);
       break;
     } catch (e) {
       lastParseErr = e;
-      if (attempt === 0) {
-        console.warn('[stockAnalysisPipeline] JSON 解析失败，自动重试 LLM 一次…', e.message);
+      if (attempt < 2) {
+        console.warn('[stockAnalysisPipeline] JSON 解析失败，自动重试 LLM…', e.message);
       }
     }
   }
