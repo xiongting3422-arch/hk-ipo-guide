@@ -292,7 +292,7 @@
       .map(
         i => `
     <div class="ipo-narrative-item ipo-narrative-bear">
-      <span class="ipo-narrative-mark">▲</span>
+      <span class="ipo-narrative-mark" aria-hidden="true">🔺</span>
       <span id="ipo-bear-${i}"></span>
     </div>`,
       )
@@ -306,30 +306,43 @@
         </div>
         <div id="ipo-detail-action"></div>
       </div>
-      <div class="ipo-metric-grid ipo-metric-grid-top">${buildMetricGridHtml(0, 4)}</div>
-      <div class="ipo-metric-grid ipo-metric-grid-bottom">${buildMetricGridHtml(4, 8)}</div>
+      <section class="ipo-metrics-board" aria-label="基础数据">
+        <div class="ipo-metric-grid">${buildMetricGridHtml(0, 8)}</div>
+      </section>
       <div class="ipo-detail-visual-row">
         <div class="ipo-radar-panel">
-          <div class="ipo-radar-title">打新质量雷达</div>
-          <div class="ipo-radar-chart-box">
-            <canvas id="ipo-radar-canvas" aria-label="打新质量雷达图"></canvas>
-          </div>
-          <div class="ipo-radar-foot">
-            <div class="ipo-radar-score-block">
-              <div class="ipo-radar-foot-label">评分总和</div>
-              <div class="ipo-radar-score-line">
-                <span class="ipo-score-total-val" id="ipo-score-total">—</span>
-                <span class="ipo-score-total-sub" id="ipo-score-avg"></span>
+          <div class="ipo-panel-section-title">打新质量雷达</div>
+          <div class="ipo-radar-body-main">
+            <div class="ipo-radar-chart-box">
+              <canvas id="ipo-radar-canvas" aria-label="打新质量雷达图"></canvas>
+              <div class="ipo-radar-axis-labels" id="ipo-radar-axis-labels" aria-hidden="true">
+                <span class="ipo-radar-axis-label"></span>
+                <span class="ipo-radar-axis-label"></span>
+                <span class="ipo-radar-axis-label"></span>
+                <span class="ipo-radar-axis-label"></span>
+                <span class="ipo-radar-axis-label"></span>
+                <span class="ipo-radar-axis-label"></span>
               </div>
             </div>
-            <div class="ipo-radar-summary-block">
-              <div class="ipo-radar-foot-label">一句话综合概括</div>
-              <p class="ipo-score-summary-text" id="ipo-score-summary">—</p>
+            <div class="ipo-radar-score-block">
+              <div class="ipo-radar-total-line">
+                <span class="ipo-radar-total-label">评分总和：</span>
+                <span class="ipo-score-total-wrap">
+                  <span class="ipo-score-total-val" id="ipo-score-total">—</span>
+                  <span class="ipo-score-total-meta">
+                    <span class="ipo-score-meta-line" id="ipo-score-avg"></span>
+                    <span class="ipo-score-meta-line" id="ipo-score-max"></span>
+                  </span>
+                </span>
+              </div>
             </div>
+          </div>
+          <div class="ipo-radar-summary-block">
+            <p class="ipo-score-summary-text" id="ipo-score-summary">—</p>
           </div>
         </div>
         <div class="ipo-analysis-section">
-          <div class="ipo-analysis-title">维度评分 · 依据与深度分析</div>
+          <div class="ipo-panel-section-title">维度评分 · 依据与深度分析</div>
           <div class="ipo-analysis-body">
             <div class="ipo-analysis-table-wrap">
               <table class="ipo-analysis-table">
@@ -354,19 +367,14 @@
         </div>
       </div>
       <div class="ipo-narrative-grid">
-        <div>
-          <div class="ipo-narrative-heading ipo-narrative-heading-bull">✦ 看多理由 / 亮点</div>
-          ${bullItems}
+        <div class="ipo-narrative-card ipo-narrative-card--bull">
+          <div class="ipo-panel-section-title ipo-narrative-heading-bull">看多理由 / 亮点</div>
+          <div class="ipo-narrative-list">${bullItems}</div>
         </div>
-        <div>
-          <div class="ipo-narrative-heading ipo-narrative-heading-bear">▲ 风险因素</div>
-          ${bearItems}
+        <div class="ipo-narrative-card ipo-narrative-card--bear">
+          <div class="ipo-panel-section-title ipo-narrative-heading-bear">看空 / 风险因素</div>
+          <div class="ipo-narrative-list">${bearItems}</div>
         </div>
-      </div>
-      <div class="ipo-detail-foot">
-        <span>暗盘 <b id="ipo-dark-date">--</b></span>
-        <span class="ipo-detail-foot-dot">·</span>
-        <span>上市 <b id="ipo-list-date">--</b></span>
       </div>
     </div>`;
   }
@@ -431,21 +439,27 @@
       const hasDeep = r.deep && String(r.deep).trim() && String(r.deep).trim() !== '—';
       html +=
         '<tr>' +
-        '<td class="ipo-analysis-dim">' +
+        '<td class="ipo-analysis-row-cell" colspan="3">' +
+        '<div class="ipo-analysis-row-head">' +
+        '<div class="ipo-analysis-dim-line">' +
+        '<span class="ipo-analysis-dim">' +
         esc(r.dimension) +
-        '</td>' +
-        '<td class="ipo-analysis-score"><span class="ipo-score-pill">' +
-        esc(r.score) +
-        '</span></td>' +
-        '<td class="ipo-analysis-brief">' +
-        '<div class="ipo-analysis-brief-text">' +
-        esc(r.brief) +
+        (r.score != null && r.score !== '' && r.score !== '—' ? ' ' + esc(r.score) : '') +
+        '</span>' +
         '</div>' +
         (hasDeep
           ? '<button type="button" class="ipo-analysis-detail-btn" data-idx="' +
             i +
             '">查看详情</button>'
-          : '') +
+          : '<span class="ipo-analysis-detail-placeholder"></span>') +
+        '</div>' +
+        '<div class="ipo-analysis-brief">' +
+        '<div class="ipo-analysis-brief-line">' +
+        '<span class="ipo-analysis-brief-text">' +
+        esc(r.brief) +
+        '</span>' +
+        '</div>' +
+        '</div>' +
         '</td>' +
         '</tr>';
     }
@@ -468,6 +482,56 @@
     currentAnalysisRows = [];
   }
 
+  function syncIpoRadarHtmlLabels(chart) {
+    const layer = document.getElementById('ipo-radar-axis-labels');
+    const canvas = chart && chart.canvas;
+    const scale = chart && chart.scales && chart.scales.r;
+    if (!layer || !canvas || !scale) return;
+
+    const labels = chart.data.labels || [];
+    const outwardPad = 8;
+    const nodes = layer.querySelectorAll('.ipo-radar-axis-label');
+
+    labels.forEach((label, i) => {
+      const el = nodes[i];
+      if (!el) return;
+      const vertex = scale.getPointPositionForValue(i, scale.max);
+      const dx = vertex.x - scale.xCenter;
+      const dy = vertex.y - scale.yCenter;
+      const dist = Math.hypot(dx, dy) || 1;
+      const x = vertex.x + (dx / dist) * outwardPad;
+      const y = vertex.y + (dy / dist) * outwardPad;
+      const m = String(label).match(/^(.+?)\s+([\d.]+)$/);
+      if (m) {
+        el.innerHTML = esc(m[1]) + '<span class="ipo-radar-axis-score"> ' + esc(m[2]) + '</span>';
+      } else {
+        el.textContent = String(label);
+      }
+
+      const pxX = (x / canvas.offsetWidth) * 100;
+      const pxY = (y / canvas.offsetHeight) * 100;
+      el.style.left = pxX + '%';
+      el.style.top = pxY + '%';
+
+      if (Math.abs(dx) < 14) {
+        el.style.transform = dy < 0 ? 'translate(-50%, -100%)' : 'translate(-50%, 0)';
+      } else if (dx > 0) {
+        el.style.transform = 'translate(0, -50%)';
+      } else {
+        el.style.transform = 'translate(-100%, -50%)';
+      }
+    });
+  }
+
+  const ipoRadarLabelPlugin = {
+    id: 'ipoRadarDimLabels',
+    afterDraw(chart) {
+      if (chart.config.type === 'radar' && chart.canvas && chart.canvas.id === 'ipo-radar-canvas') {
+        syncIpoRadarHtmlLabels(chart);
+      }
+    },
+  };
+
   function initIpoRadarChart(initialScores) {
     if (radarChartReady && myRadarChart) return myRadarChart;
     const canvas = document.getElementById('ipo-radar-canvas');
@@ -478,36 +542,39 @@
 
     myRadarChart = new global.Chart(canvas.getContext('2d'), {
       type: 'radar',
+      plugins: [ipoRadarLabelPlugin],
       data: {
         labels,
         datasets: [
           {
             label: '打新质量',
             data: data.slice(),
-            backgroundColor: 'rgba(249, 115, 22, 0.18)',
-            borderColor: '#f97316',
-            borderWidth: 2,
-            pointBackgroundColor: '#f97316',
-            pointBorderColor: '#fff',
-            pointRadius: 4,
-            pointHoverRadius: 5,
+            backgroundColor: 'rgba(255, 106, 0, 0.14)',
+            borderColor: '#FF6A00',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#FF6A00',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 5.5,
+            pointHoverRadius: 6.5,
           },
         ],
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         aspectRatio: 1,
+        layout: { padding: { top: 28, bottom: 28, left: 38, right: 38 } },
         animation: { duration: 650, easing: 'easeOutQuart' },
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.raw}` } } },
         scales: {
           r: {
             min: 0,
             max: 100,
-            ticks: { stepSize: 20, display: false },
-            grid: { color: 'rgba(0,0,0,.08)' },
-            angleLines: { color: 'rgba(0,0,0,.06)' },
-            pointLabels: { font: { size: 10, family: "'Noto Sans SC',sans-serif" }, color: '#374151', padding: 6 },
+            ticks: { stepSize: 20, display: false, count: 6 },
+            grid: { circular: false, color: 'rgba(0,0,0,.07)', lineWidth: 1 },
+            angleLines: { color: 'rgba(0,0,0,.07)', lineWidth: 1 },
+            pointLabels: { display: false },
           },
         },
       },
@@ -516,7 +583,10 @@
     radarChartReady = true;
     global.myRadarChart = myRadarChart;
     requestAnimationFrame(() => {
-      if (myRadarChart) myRadarChart.resize();
+      if (myRadarChart) {
+        myRadarChart.resize();
+        syncIpoRadarHtmlLabels(myRadarChart);
+      }
     });
     return myRadarChart;
   }
@@ -651,7 +721,10 @@
       myRadarChart.data.datasets[0].data = d.scores.slice();
       myRadarChart.update('none');
       requestAnimationFrame(function () {
-        if (myRadarChart) myRadarChart.resize();
+        if (myRadarChart) {
+          myRadarChart.resize();
+          syncIpoRadarHtmlLabels(myRadarChart);
+        }
       });
     }
     renderAnalysisTableRows(d.analysisRows || []);
@@ -659,13 +732,16 @@
     const maxTotal = d.maxTotalScore != null ? d.maxTotalScore : IPO_LIST_RADAR_AXES.length * 5;
     const totalEl = document.getElementById('ipo-score-total');
     const avgEl = document.getElementById('ipo-score-avg');
+    const maxEl = document.getElementById('ipo-score-max');
     const summaryEl = document.getElementById('ipo-score-summary');
     if (totalEl) {
       totalEl.innerText = d.totalScore != null ? String(d.totalScore) : '—';
     }
     if (avgEl) {
-      avgEl.innerText =
-        d.avgScore != null ? `均值 ${d.avgScore} · 满分 ${maxTotal}` : '';
+      avgEl.innerText = d.avgScore != null ? `均值：${d.avgScore}` : '';
+    }
+    if (maxEl) {
+      maxEl.innerText = `满分：${maxTotal}`;
     }
     if (summaryEl) summaryEl.innerText = d.overallSummary || '—';
   }

@@ -1042,16 +1042,22 @@
       }
       hintEl.textContent = '打新天气：' + weather.label;
     }
-    if (inner) {
+    if (inner || tab) {
       if (!iconEl) {
         iconEl = document.createElement('div');
         iconEl.className = 'ipo-tab-weather-icon';
-        inner.appendChild(iconEl);
+        tab.appendChild(iconEl);
       }
       iconEl.className = 'ipo-tab-weather-icon ' + weather.cls;
       iconEl.textContent = weather.icon;
       iconEl.setAttribute('aria-label', '打新天气 ' + weather.label);
     }
+  }
+
+  function _formatIpoTabDisplayName(name) {
+    const full = String(name || '').trim();
+    if (full.length <= 6) return full;
+    return full.slice(0, 6) + '…';
   }
 
   function _buildIpoTabCardHtml(m, listedRow, idx, isActive) {
@@ -1069,12 +1075,12 @@
         <div class="ipo-tab-card ipo-dbl-open${isActive ? ' active' : ''}" id="ipo-tab-${_esc(m.code)}" data-ipo-code="${_esc(m.code)}" data-stock-name="${_esc(m.name)}" data-time-status="${_esc(status.key)}" onclick="switchStock('${safeName}')">
           <div class="ipo-tab-card-inner">
             <div class="ipo-tab-card-left">
-              <div class="ipo-tab-name stock-name">${_esc(m.name)}</div>
+              <div class="ipo-tab-name" title="${_esc(m.name)}">${_esc(_formatIpoTabDisplayName(m.name))}</div>
               <span class="ipo-tab-status ${_esc(status.cls)}">${_esc(status.label)}</span>
               ${weatherHintHtml}
             </div>
-            ${weatherIconHtml}
           </div>
+          ${weatherIconHtml}
         </div>`;
   }
 
@@ -1142,7 +1148,7 @@
     }
     const shell =
       typeof global.buildIpoListDetailShellHtml === 'function' ? global.buildIpoListDetailShellHtml() : '';
-    wrapper.innerHTML = `${tabsHtml}<div class="ipo-tab-content-wrap" id="ipo-tab-content" style="margin-top:12px;">${shell}</div>`;
+    wrapper.innerHTML = `${tabsHtml}<div class="ipo-tab-content-wrap" id="ipo-tab-content" style="margin-top:6px;">${shell}</div>`;
 
     const restoreName =
       prevActive && global.stockData && global.stockData[prevActive] ? prevActive : firstName;
