@@ -13,7 +13,9 @@
     "nnq-heat:sync": "node scripts/nnq-heat-pipeline.mjs",
     "nnq-heat:sheet": "node scripts/nnq-heat-pipeline.mjs --sheet-only",
     "nnq-heat:schedule": "node scripts/nnq-heat-scheduler.mjs",
-    "api:ipo": "node server/ipo-api.mjs"
+    "api:ipo": "node server/ipo-api.mjs",
+    "audit:ipo": "node scripts/run-ipo-audit.js",
+    "audit:ipo:all": "node scripts/run-ipo-audit.js --all"
   },
   "repository": {
     "type": "git",

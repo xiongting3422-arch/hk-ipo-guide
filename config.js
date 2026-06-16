@@ -27,6 +27,9 @@
   /* ── 破发流水线 + Claude 审计（script.js 读取） ── */
   /** 新股 AI 分析 API（server/ipo-api.mjs · npm run api:ipo） */
   global.__IPO_API_BASE__ = global.__IPO_API_BASE__ || 'http://127.0.0.1:8788';
+  /** 预生成六维分析 JSON（后端 run-ipo-audit.js 写入 · 前端只读） */
+  global.__IPO_ANALYSIS_STORE_URL__ =
+    global.__IPO_ANALYSIS_STORE_URL__ || './data/ipo-analysis-db.json';
 
   global.__IPO_APP_CONFIG__ = Object.assign(
     {

@@ -1151,7 +1151,7 @@
       global.initIpoListRadarChart(firstModel && firstModel.scores);
     }
     if (restoreName && typeof global.switchStock === 'function') {
-      global.switchStock(restoreName, { backgroundRefresh: true });
+      global.switchStock(restoreName);
     }
   }
 

@@ -16,9 +16,10 @@
   ];
 
   const IPO_API_DIM_ORDER = IPO_LIST_RADAR_AXES.map(a => a.key);
-  let analysisFetchSeq = 0;
+  let analysisReadSeq = 0;
   /** 当前详情面板应展示的标的名称（与 stockData 键一致） */
   let currentActiveStockKey = null;
+  const ANALYSIS_PENDING_MSG = '深度分析正在后台排队生成中，请稍后刷新查看。';
 
   const SPONSOR_BREAK_RATES = {
     东方证券: 0.34,
@@ -34,14 +35,12 @@
     高盛: 0.12,
   };
 
-  const AI_CACHE_STORAGE_KEY = 'ipo_ai_analysis_v1';
-  const AI_ANALYSIS_FETCH_TIMEOUT_MS = 90000;
-
   let myRadarChart = null;
   let radarChartReady = false;
   let currentAnalysisRows = [];
   let analysisDetailBound = false;
-  let loadingTimer = null;
+  let analysisStore = null;
+  let analysisStorePromise = null;
 
   function esc(s) {
     return String(s ?? '')
@@ -175,10 +174,10 @@
       return sponsor ? `${sponsor}，评分 ${score}` : `保荐人待披露，评分 ${score}`;
     }
     if (axis.key === 'financial') {
-      return `财务状况待 AI 研判，暂评 ${score}`;
+      return `财务状况待补充，暂评 ${score}`;
     }
     if (axis.key === 'valuation') {
-      return mech ? `估值博弈参考 ${mech}，暂评 ${score}` : `估值安全度待 AI 研判，暂评 ${score}`;
+      return mech ? `估值博弈参考 ${mech}，暂评 ${score}` : `估值安全度待补充，暂评 ${score}`;
     }
     if (axis.key === 'fundamental') {
       const hl = getCell(row, ['核心优势', '公司亮点', '投资亮点'], getter);
@@ -467,7 +466,6 @@
     radarChartReady = false;
     analysisDetailBound = false;
     currentAnalysisRows = [];
-    clearLoadingTimer();
   }
 
   function initIpoRadarChart(initialScores) {
@@ -523,58 +521,84 @@
     return myRadarChart;
   }
 
-  function loadAiCacheFromStorage() {
-    if (typeof sessionStorage === 'undefined') return;
-    try {
-      const raw = sessionStorage.getItem(AI_CACHE_STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object') {
-        global.__IPO_AI_ANALYSIS_CACHE__ = Object.assign(global.__IPO_AI_ANALYSIS_CACHE__ || {}, parsed);
+  function normStockCode(raw) {
+    const d = String(raw || '').replace(/\D/g, '');
+    if (!d) return '';
+    return d.length <= 5 ? d.padStart(5, '0') : d.slice(-5).padStart(5, '0');
+  }
+
+  function normalizeAnalysisStore(data) {
+    if (!data || typeof data !== 'object') return { stocks: {} };
+    if (data.stocks && typeof data.stocks === 'object') return data;
+    return { stocks: data };
+  }
+
+  function resolveAnalysisStoreUrl() {
+    const custom = String(global.__IPO_ANALYSIS_STORE_URL__ || '').trim();
+    if (custom) return custom;
+    const apiBase = String(global.__IPO_API_BASE__ || '').replace(/\/$/, '');
+    if (apiBase) return apiBase + '/api/stock-analysis';
+    return './data/ipo-stock-analysis.json';
+  }
+
+  async function loadAnalysisStore(force) {
+    if (analysisStore && !force) return analysisStore;
+    if (analysisStorePromise && !force) return analysisStorePromise;
+    const baseUrl = resolveAnalysisStoreUrl();
+    const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
+    analysisStorePromise = fetch(url)
+      .then(res => (res.ok ? res.json() : { stocks: {} }))
+      .then(data => {
+        if (data && data.ok === false && data.pending) {
+          analysisStore = normalizeAnalysisStore({ stocks: {} });
+          return analysisStore;
+        }
+        if (data && data.stocks) {
+          analysisStore = normalizeAnalysisStore(data);
+        } else if (data && data.dimensions && data.code) {
+          analysisStore = normalizeAnalysisStore({ stocks: { [normStockCode(data.code)]: data } });
+        } else {
+          analysisStore = normalizeAnalysisStore(data);
+        }
+        hydrateModelsFromAnalysisStore();
+        const key = currentActiveStockKey;
+        if (key && global.stockData && global.stockData[key]) {
+          loadIpoDetailAnalysis(global.stockData[key], key);
+        }
+        return analysisStore;
+      })
+      .catch(err => {
+        console.warn('[ipo-list-radar] 读取分析库失败', err);
+        analysisStore = { stocks: {} };
+        return analysisStore;
+      })
+      .finally(() => {
+        analysisStorePromise = null;
+      });
+    return analysisStorePromise;
+  }
+
+  function getStoredAnalysisByCode(code) {
+    const c = normStockCode(code);
+    if (!c || !analysisStore || !analysisStore.stocks) return null;
+    const hit = analysisStore.stocks[c];
+    return hit && hit.dimensions ? hit : null;
+  }
+
+  function hydrateModelsFromAnalysisStore() {
+    if (!analysisStore || !global.stockData) return;
+    Object.keys(global.stockData).forEach(name => {
+      const m = global.stockData[name];
+      if (!m || !m.code) return;
+      const json = getStoredAnalysisByCode(m.code);
+      if (!json) return;
+      m.aiAnalysis = json;
+      if (json.totalScore != null) m.totalScore = json.totalScore;
+      if (json.avgScore != null) m.avgScore = json.avgScore;
+      if (typeof global.updateIpoTabCardWeather === 'function') {
+        global.updateIpoTabCardWeather(m.code, json.totalScore);
       }
-    } catch (_) {
-      /* quota / parse */
-    }
-  }
-
-  function persistAiCacheToStorage() {
-    if (typeof sessionStorage === 'undefined') return;
-    try {
-      sessionStorage.setItem(AI_CACHE_STORAGE_KEY, JSON.stringify(global.__IPO_AI_ANALYSIS_CACHE__ || {}));
-    } catch (_) {
-      /* quota */
-    }
-  }
-
-  function getAiCacheKey(d) {
-    return (d && (d.code || d.name)) || '';
-  }
-
-  function getCachedAiAnalysis(d) {
-    if (!d) return null;
-    if (d.aiAnalysis && d.aiAnalysis.dimensions) return d.aiAnalysis;
-    const key = getAiCacheKey(d);
-    if (!key) return null;
-    global.__IPO_AI_ANALYSIS_CACHE__ = global.__IPO_AI_ANALYSIS_CACHE__ || {};
-    return global.__IPO_AI_ANALYSIS_CACHE__[key] || null;
-  }
-
-  function setCachedAiAnalysis(d, json) {
-    if (!d || !json) return;
-    d.aiAnalysis = json;
-    const key = getAiCacheKey(d);
-    if (key) {
-      global.__IPO_AI_ANALYSIS_CACHE__ = global.__IPO_AI_ANALYSIS_CACHE__ || {};
-      global.__IPO_AI_ANALYSIS_CACHE__[key] = json;
-      persistAiCacheToStorage();
-    }
-  }
-
-  function clearLoadingTimer() {
-    if (loadingTimer) {
-      clearInterval(loadingTimer);
-      loadingTimer = null;
-    }
+    });
   }
 
   function getStockDisplayKey(d) {
@@ -587,92 +611,15 @@
     return !!(key && currentActiveStockKey && key === currentActiveStockKey);
   }
 
-  function captureSheetAnalysisFallback(d) {
-    if (!d || d._sheetAnalysisFallback) return;
-    d._sheetAnalysisFallback = {
-      scores: Array.isArray(d.scores) ? d.scores.slice() : null,
-      analysisRows: (d.analysisRows || []).map(r => Object.assign({}, r)),
-      overallSummary: d.overallSummary,
-      totalScore: d.totalScore,
-      avgScore: d.avgScore,
-      maxTotalScore: d.maxTotalScore,
-    };
-  }
-
-  function restoreSheetAnalysisFallback(d) {
-    const fb = d && d._sheetAnalysisFallback;
-    if (!fb) return false;
-    if (fb.scores) d.scores = fb.scores.slice();
-    if (fb.analysisRows) d.analysisRows = fb.analysisRows.map(r => Object.assign({}, r));
-    if (fb.overallSummary != null) d.overallSummary = fb.overallSummary;
-    if (fb.totalScore != null) d.totalScore = fb.totalScore;
-    if (fb.avgScore != null) d.avgScore = fb.avgScore;
-    if (fb.maxTotalScore != null) d.maxTotalScore = fb.maxTotalScore;
-    return true;
-  }
-
-  function isIpoAnalysisApiReachable(apiBase) {
-    const base = String(apiBase || '').trim();
-    if (!base) return false;
-    try {
-      const u = new URL(base);
-      const pageHost = global.location && global.location.hostname;
-      const localApi = u.hostname === '127.0.0.1' || u.hostname === 'localhost';
-      const localPage = !pageHost || pageHost === 'localhost' || pageHost === '127.0.0.1';
-      if (localApi && !localPage) return false;
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  function showAnalysisLoadingPlaceholders(d) {
-    captureSheetAnalysisFallback(d);
-    clearLoadingTimer();
-    const stockKey = getStockDisplayKey(d);
-    const start = Date.now();
-    const tick = () => {
-      if (stockKey !== currentActiveStockKey) {
-        clearLoadingTimer();
-        return;
-      }
-      const sec = Math.floor((Date.now() - start) / 1000);
-      const msg =
-        sec < 3
-          ? 'AI 研判中，预计约 40–60 秒…'
-          : `AI 研判中，已等待 ${sec} 秒（通常 40–60 秒内完成）`;
-      d.overallSummary = msg;
-      const summaryEl = document.getElementById('ipo-score-summary');
-      if (summaryEl) summaryEl.innerText = msg;
-    };
+  function applyPendingAnalysisState(d) {
+    if (!d) return;
+    d.overallSummary = ANALYSIS_PENDING_MSG;
     d.analysisRows = IPO_LIST_RADAR_AXES.map(a => ({
       dimension: a.label,
-      score: '…',
-      brief: 'AI 研判中…',
+      score: '—',
+      brief: ANALYSIS_PENDING_MSG,
       deep: '',
     }));
-    d.overallSummary = 'AI 研判中，预计约 40–60 秒…';
-    if (isActiveStockModel(d)) refreshAnalysisPanels(d);
-    tick();
-    loadingTimer = setInterval(tick, 1000);
-  }
-
-  function finishAnalysisWithFallback(d, reason) {
-    clearLoadingTimer();
-    if (!d) return;
-    const restored = restoreSheetAnalysisFallback(d);
-    if (!restored && d.sheetRow) {
-      enrichModelWithRadar(d, d.sheetRow, null, { n: d.rating || 3 });
-    }
-    if (reason && isActiveStockModel(d)) {
-      const base = String(d.overallSummary || '').trim();
-      const suffix = '（在线 AI 暂不可用，已展示表格缓存分）';
-      if (!base || /AI 研判中/.test(base)) {
-        d.overallSummary = reason;
-      } else if (!base.includes('在线 AI 暂不可用')) {
-        d.overallSummary = base + suffix;
-      }
-    }
     if (isActiveStockModel(d)) refreshAnalysisPanels(d);
   }
 
@@ -724,12 +671,7 @@
   }
 
   function applyStockAnalysisPayload(d, json, options) {
-    if (!d || !json || !json.dimensions) {
-      if (options && options.refreshUi !== false && isActiveStockModel(d)) {
-        finishAnalysisWithFallback(d, '研判结果格式异常，已回退表格缓存分。');
-      }
-      return false;
-    }
+    if (!d || !json || !json.dimensions) return false;
     const labelMap = {};
     IPO_LIST_RADAR_AXES.forEach(a => {
       labelMap[a.key] = a.label;
@@ -750,91 +692,41 @@
     d.totalScore = json.totalScore;
     d.avgScore = json.avgScore;
     d.maxTotalScore = json.maxTotalScore || IPO_LIST_RADAR_AXES.length * 5;
-    setCachedAiAnalysis(d, json);
+    d.aiAnalysis = json;
     if (d.code && typeof global.updateIpoTabCardWeather === 'function') {
       global.updateIpoTabCardWeather(d.code, json.totalScore);
     }
     const refreshUi = options && options.refreshUi != null ? options.refreshUi : isActiveStockModel(d);
     if (!refreshUi) return true;
-    clearLoadingTimer();
     refreshAnalysisPanels(d);
     return true;
   }
 
-  async function fetchStockAnalysisFromApi(d, stockName, options) {
-    const silent = !!(options && options.silent);
-    const apiBase = String(global.__IPO_API_BASE__ || 'http://127.0.0.1:8788').replace(/\/$/, '');
-    const seq = ++analysisFetchSeq;
+  /** 只读拉取预生成分析并渲染（不触发实时 AI） */
+  async function loadIpoDetailAnalysis(d, stockName) {
+    if (!d) return null;
     const requestKey = String(stockName || getStockDisplayKey(d)).trim();
+    const seq = ++analysisReadSeq;
 
-    if (!isIpoAnalysisApiReachable(apiBase)) {
-      if (!silent && isActiveStockModel(d)) {
-        finishAnalysisWithFallback(
-          d,
-          '研判暂时受阻：线上环境未配置 AI 分析 API，请部署 npm run api:ipo 并设置 __IPO_API_BASE__。',
-        );
-      }
-      return null;
-    }
-
-    if (!silent) showAnalysisLoadingPlaceholders(d);
-
-    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    const timeoutId = controller
-      ? setTimeout(() => controller.abort(), AI_ANALYSIS_FETCH_TIMEOUT_MS)
-      : null;
-
-    try {
-      const res = await fetch(apiBase + '/api/get-stock-analysis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller ? controller.signal : undefined,
-        body: JSON.stringify({
-          stockName: stockName,
-          code: d.code,
-          row: d.sheetRow || null,
-        }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok || !json.ok) {
-        throw new Error(json.error || '分析接口失败 HTTP ' + res.status);
-      }
-      if (seq !== analysisFetchSeq || requestKey !== currentActiveStockKey) {
-        applyStockAnalysisPayload(d, json, { refreshUi: false });
-        return null;
-      }
+    let json = d.aiAnalysis && d.aiAnalysis.dimensions ? d.aiAnalysis : getStoredAnalysisByCode(d.code);
+    if (json && isActiveStockModel(d)) {
       applyStockAnalysisPayload(d, json);
       return json;
-    } catch (err) {
-      const aborted = err && err.name === 'AbortError';
-      const msg = aborted
-        ? 'AI 研判超时（超过 ' + Math.round(AI_ANALYSIS_FETCH_TIMEOUT_MS / 1000) + ' 秒），已回退表格缓存分。'
-        : String(err && err.message ? err.message : err);
-      if (seq === analysisFetchSeq && requestKey === currentActiveStockKey && !silent) {
-        console.warn('[switchStock] AI 分析降级为表格缓存分', err);
-        finishAnalysisWithFallback(d, '研判暂时受阻：' + msg);
-      }
-      return null;
-    } finally {
-      if (timeoutId) clearTimeout(timeoutId);
-    }
-  }
-
-  /** 详情页 AI 研判入口：抓取表格分 → 请求 API → 强制替换占位符 */
-  async function loadIpoDetailAnalysis(d, stockName, options) {
-    if (!d) return null;
-    const key = String(stockName || getStockDisplayKey(d)).trim();
-    const cached = getCachedAiAnalysis(d);
-    const bgRefresh = !!(options && options.backgroundRefresh);
-
-    if (cached) {
-      applyStockAnalysisPayload(d, cached);
-      if (bgRefresh) return fetchStockAnalysisFromApi(d, key, { silent: true });
-      return cached;
     }
 
     if (isActiveStockModel(d)) refreshAnalysisPanels(d);
-    return fetchStockAnalysisFromApi(d, key, { silent: false });
+
+    await loadAnalysisStore();
+    if (seq !== analysisReadSeq || requestKey !== currentActiveStockKey) return null;
+
+    json = getStoredAnalysisByCode(d.code);
+    if (json) {
+      if (isActiveStockModel(d)) applyStockAnalysisPayload(d, json);
+      return json;
+    }
+
+    if (isActiveStockModel(d)) applyPendingAnalysisState(d);
+    return null;
   }
 
   function switchStock(stockName, options) {
@@ -843,7 +735,6 @@
     if (!d) return;
 
     currentActiveStockKey = key;
-    clearLoadingTimer();
     document.querySelectorAll('.ipo-tab-card').forEach(el => {
       el.classList.toggle('active', el.getAttribute('data-stock-name') === key);
     });
@@ -896,8 +787,7 @@
       }
     }
 
-    const bgRefresh = !!(options && options.backgroundRefresh);
-    loadIpoDetailAnalysis(d, key, { backgroundRefresh: bgRefresh });
+    loadIpoDetailAnalysis(d, key);
   }
 
   function enrichModelWithRadar(model, row, getter, rating) {
@@ -919,14 +809,14 @@
   function buildStockDataMap(modelsByCode) {
     const out = {};
     const models = modelsByCode || {};
-    const cache = global.__IPO_AI_ANALYSIS_CACHE__ || {};
     Object.keys(models).forEach(code => {
       const m = models[code];
       if (!m || !m.name) return;
-      if (!m.aiAnalysis && cache[code]) m.aiAnalysis = cache[code];
-      if (m.aiAnalysis && m.aiAnalysis.totalScore != null) {
-        m.totalScore = m.aiAnalysis.totalScore;
-        if (m.aiAnalysis.avgScore != null) m.avgScore = m.aiAnalysis.avgScore;
+      const json = getStoredAnalysisByCode(code);
+      if (json) {
+        m.aiAnalysis = json;
+        if (json.totalScore != null) m.totalScore = json.totalScore;
+        if (json.avgScore != null) m.avgScore = json.avgScore;
       }
       out[m.name] = m;
     });
@@ -944,6 +834,7 @@
   global.renderIpoAnalysisTableRows = renderAnalysisTableRows;
   global.switchStock = switchStock;
   global.loadIpoDetailAnalysis = loadIpoDetailAnalysis;
+  global.loadIpoAnalysisStore = loadAnalysisStore;
   global.buildStockDataFromModels = buildStockDataMap;
   global.__ipoGetActiveTabStockName = function __ipoGetActiveTabStockName() {
     if (currentActiveStockKey) return currentActiveStockKey;
@@ -951,5 +842,5 @@
     return active ? active.getAttribute('data-stock-name') : null;
   };
 
-  loadAiCacheFromStorage();
+  loadAnalysisStore();
 })(typeof window !== 'undefined' ? window : this);
