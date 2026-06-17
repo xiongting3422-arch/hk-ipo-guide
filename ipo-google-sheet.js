@@ -537,18 +537,77 @@
     });
   }
 
+  function _ipoBaseEligibleRows(rows) {
+    return _dedupeIpoRowsByCode(
+      (rows || []).filter(
+        r => r && getSubEndDateFromRow(r) && _extractCodeFromRow(r) && Object.keys(r).some(k => String(r[k] || '').trim()),
+      ),
+    );
+  }
+
   /**
    * 上市新股 列表+汇总表：固定最多 6 只（不足则全展示）
    * V17：按「招股结束」可解析为日历日后统一按时间戳从大到小排序，再取前 6（晚结束在前；已截止的因日期更早自然排在后段）。
    */
   function buildIpoTopSixStocks(rows) {
-    const withDate = _dedupeIpoRowsByCode(
-      (rows || []).filter(
-        r => r && getSubEndDateFromRow(r) && _extractCodeFromRow(r) && Object.keys(r).some(k => String(r[k] || '').trim()),
-      ),
-    );
+    const withDate = _ipoBaseEligibleRows(rows);
     if (!withDate.length) return [];
     return _sortRowsBySubEndDesc(withDate).slice(0, IPO_SHEET_TOP_N);
+  }
+
+  /**
+   * 扩展状态（联动打新时间表暗盘/上市日）：
+   * active 认购中 · dark 暗盘中 · pending_dark 待暗盘 · listed 已上市
+   */
+  function getIpoExtendedStatusKey(row) {
+    const t0 = _todayStart();
+    if (!t0) return 'unknown';
+    const t0m = t0.getTime();
+    const code = _extractCodeFromRow(row);
+    const subEnd = getSubEndDateFromRow(row);
+    const timing = _getScheduleTimingByCodeStrict(code);
+    const darkDate = timing && timing.darkDate ? _startOfDay(timing.darkDate) : null;
+    const listDate = timing && timing.listDate ? _startOfDay(timing.listDate) : null;
+
+    if (listDate && listDate.getTime() < t0m) return 'listed';
+    if (darkDate && darkDate.getTime() === t0m) return 'dark';
+    if (subEnd && subEnd.getTime() >= t0m) return 'active';
+    if (subEnd && subEnd.getTime() < t0m) {
+      if (!listDate || listDate.getTime() > t0m) {
+        if (darkDate && darkDate.getTime() > t0m) return 'pending_dark';
+        if (darkDate && darkDate.getTime() < t0m) return 'pending_dark';
+        const base = getCompareTableStatusKey(row);
+        if (base === 'closed') return 'pending_dark';
+        if (base === 'listed') return 'listed';
+        return 'pending_dark';
+      }
+    }
+    const base = getCompareTableStatusKey(row);
+    if (base === 'listed') return 'listed';
+    if (base === 'active') return 'active';
+    if (base === 'closed') return 'pending_dark';
+    return 'unknown';
+  }
+
+  /** 横滑卡片：认购中 + 暗盘中；总数 >6 时剔除已上市；一屏 6 卡由 CSS 控制横向滚动 */
+  function buildIpoCardStocks(rows) {
+    const sorted = _sortRowsBySubEndDesc(_ipoBaseEligibleRows(rows));
+    if (!sorted.length) return [];
+    const tagged = sorted.map(r => ({ row: r, status: getIpoExtendedStatusKey(r) }));
+    let out = tagged.filter(({ status }) => status === 'active' || status === 'dark' || status === 'listed');
+    if (out.length > IPO_SHEET_TOP_N) {
+      out = out.filter(({ status }) => status !== 'listed');
+    }
+    return out.map(t => t.row);
+  }
+
+  /** 汇总表：认购中 + 待暗盘；超过 6 只时由表格横向滚动展示 */
+  function buildIpoCompareStocks(rows) {
+    const sorted = _sortRowsBySubEndDesc(_ipoBaseEligibleRows(rows));
+    return sorted.filter(r => {
+      const s = getIpoExtendedStatusKey(r);
+      return s === 'active' || s === 'pending_dark';
+    });
   }
 
   /** 新股列表：仅「招股结束」≥ 今天（进行中的招股 / 将招） */
@@ -1002,16 +1061,18 @@
     return model;
   }
 
-  /** 小卡片时间状态：与汇总表 getCompareTableStatusKey 完全一致 */
+  /** 小卡片时间状态：联动打新时间表（认购中 / 暗盘中 / 待暗盘 / 已上市） */
   const IPO_TAB_STATUS_MAP = {
     active: { key: 'active', label: '认购中', cls: 'ipo-tab-status-active' },
-    closed: { key: 'closed', label: '待上市', cls: 'ipo-tab-status-pending' },
+    dark: { key: 'dark', label: '暗盘中', cls: 'ipo-tab-status-dark' },
+    pending_dark: { key: 'pending_dark', label: '待暗盘', cls: 'ipo-tab-status-pending' },
+    closed: { key: 'pending_dark', label: '待暗盘', cls: 'ipo-tab-status-pending' },
     listed: { key: 'listed', label: '已上市', cls: 'ipo-tab-status-listed' },
     unknown: { key: 'unknown', label: '未设日期', cls: 'ipo-tab-status-unknown' },
   };
 
   function _computeIpoTabTimeStatus(listedRow) {
-    const stKey = getCompareTableStatusKey(listedRow);
+    const stKey = getIpoExtendedStatusKey(listedRow);
     return IPO_TAB_STATUS_MAP[stKey] || IPO_TAB_STATUS_MAP.unknown;
   }
 
@@ -1063,7 +1124,7 @@
   function _buildIpoTabCardHtml(m, listedRow, idx, isActive) {
     const status = _computeIpoTabTimeStatus(listedRow);
     m.timeStatus = status;
-    const weather = _computeIpoTabWeather(m.totalScore);
+    const weather = status.key === 'active' ? _computeIpoTabWeather(m.totalScore) : null;
     const safeName = String(m.name).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const weatherHintHtml = weather
       ? `<div class="ipo-tab-weather-hint">打新天气：${_esc(weather.label)}</div>`
@@ -1093,7 +1154,7 @@
     const listedRow = (m && m.sheetRow) || {};
     const status = _computeIpoTabTimeStatus(listedRow);
     tab.setAttribute('data-time-status', status.key);
-    const weather = _computeIpoTabWeather(totalScore);
+    const weather = status.key === 'active' ? _computeIpoTabWeather(totalScore) : null;
     _applyIpoTabWeatherToCard(tab, weather);
   }
 
@@ -1133,7 +1194,10 @@
     }
 
     let firstName = null;
-    let tabsHtml = '<div class="ipo-tabs-scroll">';
+    const tabCount = rows.length;
+    const tabScrollCls =
+      tabCount > IPO_SHEET_TOP_N ? 'ipo-tabs-scroll ipo-tabs-scroll--scroll' : 'ipo-tabs-scroll ipo-tabs-scroll--fit';
+    let tabsHtml = `<div class="${tabScrollCls}" data-ipo-tab-count="${tabCount}">`;
     rows.forEach((r, idx) => {
       const m = models[_extractCodeFromRow(r)] || rowToIpoDisplayModel(r);
       if (!m || !m.code || !m.name) return;
@@ -1220,32 +1284,34 @@
       if (typeof global.showIpoListedLoading === 'function') {
         global.showIpoListedLoading('正在筛选「上市新股」行…');
       }
-      const top6 = buildIpoTopSixStocks(all);
+      const cardStocks = buildIpoCardStocks(all);
+      const compareStocks = buildIpoCompareStocks(all);
       // V11: 详情卡双源：表格 → 本地缓存 → AI（见 v11EnrichBullBearFromAI）
-      await v11EnrichBullBearFromAI(top6);
-      /* 全表行供 merge；展示统一用最多 6 只 */
+      await v11EnrichBullBearFromAI(cardStocks);
+      /* 全表行供 merge；横滑卡片与汇总表分别筛选 */
       listedResult.rows = all;
-      global.currentIPO = top6;
-      global.extendedIPO = top6;
-      global.__IPO_CURRENT_IPO__ = top6;
-      global.__IPO_EXTENDED_IPO__ = top6;
-      global.__IPO_LISTED_SHEET_ACTIVE_ROWS__ = top6;
-      global.__IPO_TARGET_STOCKS__ = top6;
-      global.__IPO_LISTED_SHEET_ACTIVE_CODES__ = top6.map(r => _extractCodeFromRow(r)).filter(Boolean);
+      global.currentIPO = cardStocks;
+      global.extendedIPO = compareStocks;
+      global.__IPO_CURRENT_IPO__ = cardStocks;
+      global.__IPO_EXTENDED_IPO__ = compareStocks;
+      global.__IPO_LISTED_SHEET_ACTIVE_ROWS__ = cardStocks;
+      global.__IPO_TARGET_STOCKS__ = compareStocks;
+      global.__IPO_LISTED_SHEET_ACTIVE_CODES__ = cardStocks.map(r => _extractCodeFromRow(r)).filter(Boolean);
       global.__IPO_LISTED_SHEET_HYDRATED__ = true;
     } catch (e) {
       console.warn('[IPO Sheet] 上市新股处理失败，退回无表格补全', e);
       const allFallback = Array.isArray(listedResult.rows) ? listedResult.rows.map(r => ({ ...r })) : [];
-      const top6 = buildIpoTopSixStocks(allFallback);
-      await v11EnrichBullBearFromAI(top6).catch(() => {});
+      const cardStocks = buildIpoCardStocks(allFallback);
+      const compareStocks = buildIpoCompareStocks(allFallback);
+      await v11EnrichBullBearFromAI(cardStocks).catch(() => {});
       listedResult.rows = allFallback;
-      global.currentIPO = top6;
-      global.extendedIPO = top6;
-      global.__IPO_CURRENT_IPO__ = top6;
-      global.__IPO_EXTENDED_IPO__ = top6;
-      global.__IPO_LISTED_SHEET_ACTIVE_ROWS__ = top6;
-      global.__IPO_TARGET_STOCKS__ = top6;
-      global.__IPO_LISTED_SHEET_ACTIVE_CODES__ = top6.map(r => _extractCodeFromRow(r)).filter(Boolean);
+      global.currentIPO = cardStocks;
+      global.extendedIPO = compareStocks;
+      global.__IPO_CURRENT_IPO__ = cardStocks;
+      global.__IPO_EXTENDED_IPO__ = compareStocks;
+      global.__IPO_LISTED_SHEET_ACTIVE_ROWS__ = cardStocks;
+      global.__IPO_TARGET_STOCKS__ = compareStocks;
+      global.__IPO_LISTED_SHEET_ACTIVE_CODES__ = cardStocks.map(r => _extractCodeFromRow(r)).filter(Boolean);
       global.__IPO_LISTED_SHEET_HYDRATED__ = true;
     }
     if (typeof global.buildIpoAccordion === 'function') {
@@ -1272,9 +1338,13 @@
   global.ipoCalcMetaFromListedRow = ipoCalcMetaFromListedRow;
   global.filterCurrentIpoForList = filterCurrentIpoForList;
   global.buildIpoTopSixStocks = buildIpoTopSixStocks;
+  global.buildIpoCardStocks = buildIpoCardStocks;
+  global.buildIpoCompareStocks = buildIpoCompareStocks;
   global.buildExtendedIpoForTable = buildExtendedIpoForTable;
   global.getCompareTableStatusKey = getCompareTableStatusKey;
+  global.getIpoExtendedStatusKey = getIpoExtendedStatusKey;
   global.__ipoGetCompareTableStatus = getCompareTableStatusKey;
+  global.__ipoGetExtendedStatus = getIpoExtendedStatusKey;
   global.v11EnrichBullBearFromAI = v11EnrichBullBearFromAI;
   global.showIpoListedLoading = function showIpoListedLoading(msg) {
     const m = String(msg || '正在加载…');

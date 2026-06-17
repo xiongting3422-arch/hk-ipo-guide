@@ -622,7 +622,12 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 .cal-cell.wkd{background:rgba(0,0,0,.03);}
 .cal-cell.td{background:rgba(239,68,68,.05);}
 /* ── IPO Tab-panel layout (上市新股 · Figma 像素级看板) ── */
-.ipo-tabs-scroll{display:flex;gap:12px;width:100%;padding:0 0 10px;align-items:stretch;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;}
+.ipo-tabs-scroll{display:flex;gap:12px;width:100%;padding:0 0 10px;align-items:stretch;-webkit-overflow-scrolling:touch;container-type:inline-size;}
+.ipo-tabs-scroll--fit{overflow-x:hidden;scrollbar-width:none;}
+.ipo-tabs-scroll--fit::-webkit-scrollbar{display:none;}
+.ipo-tabs-scroll--fit .ipo-tab-card{flex:1 1 0;min-width:0;}
+.ipo-tabs-scroll--scroll{overflow-x:auto;scrollbar-width:thin;}
+.ipo-tabs-scroll--scroll .ipo-tab-card{flex:0 0 calc((100cqw - 60px) / 6);min-width:calc((100cqw - 60px) / 6);max-width:calc((100cqw - 60px) / 6);}
 .ipo-tab-batch{display:flex;flex-direction:column;gap:0;}
 .ipo-tab-batch-label{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;padding:0 4px 6px;white-space:nowrap;}
 .ipo-tab-batch-cards{display:flex;gap:12px;align-items:stretch;}
@@ -632,6 +637,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 .ipo-tab-name{font-size:20px;font-weight:800;color:#111827;line-height:1.3;margin:0;width:100%;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ipo-tab-status{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;line-height:1.25;letter-spacing:.02em;color:#fff;white-space:nowrap;}
 .ipo-tab-status-active{background:#00BF7F;color:#fff;}
+.ipo-tab-status-dark{background:#f59e0b;color:#fff;}
 .ipo-tab-status-pending{background:#38bdf8;color:#fff;}
 .ipo-tab-status-listed{background:#94a3b8;color:#fff;}
 .ipo-tab-status-unknown{background:#e4e4e7;color:var(--t2);}
@@ -651,6 +657,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 .ipo-tab-card.active .ipo-tab-name{color:#fff;}
 .ipo-tab-card.active .ipo-tab-weather-hint{color:rgba(255,255,255,.94);}
 .ipo-tab-card.active .ipo-tab-status-active,
+.ipo-tab-card.active .ipo-tab-status-dark,
 .ipo-tab-card.active .ipo-tab-status-pending,
 .ipo-tab-card.active .ipo-tab-status-listed,
 .ipo-tab-card.active .ipo-tab-status-unknown{background:rgba(255,255,255,.26);color:#fff;}
@@ -864,6 +871,29 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   text-align:left;
   vertical-align:top;
 }
+#ipo-compare-table .ipo-cmp-viewport{
+  border-radius:14px;
+  border:1px solid rgba(0,0,0,.09);
+  position:relative;
+  container-type:inline-size;
+}
+#ipo-compare-table .ipo-cmp-scroll{
+  overflow-y:auto;
+  max-height:658px;
+  -webkit-overflow-scrolling:touch;
+}
+#ipo-compare-table .ipo-cmp-viewport--fit .ipo-cmp-scroll{overflow-x:hidden;}
+#ipo-compare-table .ipo-cmp-viewport--scroll .ipo-cmp-scroll{overflow-x:auto;scrollbar-width:thin;}
+#ipo-compare-table .ipo-cmp-viewport--scroll .ipo-cmp-matrix{
+  width:calc(110px + var(--ipo-cmp-cols, 6) * ((100cqw - 110px) / 6));
+  min-width:100%;
+}
+#ipo-compare-table .ipo-cmp-viewport--scroll .ipo-cmp-matrix th:not(:first-child),
+#ipo-compare-table .ipo-cmp-viewport--scroll .ipo-cmp-matrix td:not(:first-child){
+  width:calc((100cqw - 110px) / 6);
+  min-width:calc((100cqw - 110px) / 6);
+  max-width:calc((100cqw - 110px) / 6);
+}
 #ipo-compare-table .status-tag-compare{
   display:inline-block;
   font-size:10.5px;
@@ -877,7 +907,8 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   font-family:'Noto Sans SC',sans-serif;
 }
 #ipo-compare-table .status-tag-compare.status-active{ background:#00BF7F; color:#fff; }
-#ipo-compare-table .status-tag-compare.status-pending{ background:#38bdf8; color:#fff; } /* 待上市 */
+#ipo-compare-table .status-tag-compare.status-dark{ background:#f59e0b; color:#fff; }
+#ipo-compare-table .status-tag-compare.status-pending{ background:#38bdf8; color:#fff; } /* 待暗盘 */
 #ipo-compare-table .status-tag-compare.status-listed-slate{ background:#94a3b8; color:#fff; } /* 已上市，与活跃区分 */
 #ipo-compare-table .status-tag-compare.status-unknown{ background:#e4e4e7; color:var(--t2); }
 
@@ -6347,7 +6378,7 @@ function calGoToday() {
 }
 
 /** 打新时间表 Tab 时间轴：最多展示标的数（仅 renderCalendar，不改 CAL_STOCKS / MASTER） */
-const CAL_SCHEDULE_DISPLAY_MAX = 10;
+const CAL_SCHEDULE_DISPLAY_MAX = 15;
 
 function _codeFromScheduleSheetRow(row) {
   if (!row || typeof row !== 'object') return null;
@@ -6380,7 +6411,7 @@ function _calStockAnchorDate(s) {
   return s.listDateObj || s.darkDateObj || s.subEndDate || s.subStartDate || s.pricingDate || s.resultsDate || null;
 }
 
-/** 打新时间表时间轴渲染用：始终最多 10 只，优先 Sheet 自上而下，较久远的行自然落在第 11 位及以后而不展示 */
+/** 打新时间表时间轴渲染用：始终最多 15 只，优先 Sheet 自上而下，较久远的行自然落在第 16 位及以后而不展示 */
 function getCalStocksForScheduleDisplay() {
   const topCodes = getScheduleTopDisplayCodes(CAL_SCHEDULE_DISPLAY_MAX);
   if (topCodes.length) {
@@ -8241,7 +8272,7 @@ window.STOCKS = STOCKS;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 <script src="./ipo-list-radar.js?v=24"></script>
-<script src="./ipo-google-sheet.js?v=25"></script>
+<script src="./ipo-google-sheet.js?v=26"></script>
 <script>window.process=window.process||{env:{NODE_ENV:'production'}};</script>
 <script src="./ipo-sentiment-dashboard.js?v=20260527boardv11"></script>
 <script>
@@ -9173,11 +9204,15 @@ function _cmpIsSectionSeparatorRow(lab, stocks) {
 /** V7 汇总表：招股结束日 → 状态角标 HTML（与 ipo-google-sheet 判定一致） */
 function getCompareStatusBadgeHtml(key) {
   if (key === 'active') return '<span class="status-tag-compare status-active">认购中</span>';
-  if (key === 'closed') return '<span class="status-tag-compare status-pending">待上市</span>';
+  if (key === 'dark') return '<span class="status-tag-compare status-dark">暗盘中</span>';
+  if (key === 'pending_dark' || key === 'closed') return '<span class="status-tag-compare status-pending">待暗盘</span>';
   if (key === 'listed') return '<span class="status-tag-compare status-listed-slate">已上市</span>';
   return '<span class="status-tag-compare status-unknown">未设日期</span>';
 }
 function resolveCompareTableStatusKeyForRow(r) {
+  if (typeof window.__ipoGetExtendedStatus === 'function' && r) {
+    return window.__ipoGetExtendedStatus(r) || 'unknown';
+  }
   if (typeof window.__ipoGetCompareTableStatus === 'function' && r) {
     return window.__ipoGetCompareTableStatus(r) || 'unknown';
   }
@@ -9193,10 +9228,13 @@ function buildCompareTableFromListedSheet(el, stocks, fieldOrder) {
     return;
   }
   const n = stocks.length;
+  const viewportCls =
+    n > 6 ? 'ipo-cmp-viewport ipo-cmp-viewport--scroll' : 'ipo-cmp-viewport ipo-cmp-viewport--fit';
   const minW = 140 + n * 150;
   const nameCodes = stocks.map(s => _cmpNameCodeFromRow(s));
-  let html = `<div class="scroll-xy ipo-cmp-scroll" style="overflow:auto;max-height:80vh;border-radius:14px;border:1px solid rgba(0,0,0,.09);position:relative;">
-  <table class="ipo-cmp-matrix" style="border-collapse:collapse;width:100%;min-width:${minW}px;font-size:13px;background:#fff;">
+  let html = `<div class="${viewportCls}" style="--ipo-cmp-cols:${n};">
+  <div class="ipo-cmp-scroll">
+  <table class="ipo-cmp-matrix" style="border-collapse:collapse;width:100%;min-width:${n > 6 ? '100%' : minW + 'px'};font-size:13px;background:#fff;">
     <thead style="position:sticky;top:0;z-index:15;">
       <tr style="background:#f4f4f5;border-bottom:2px solid rgba(0,0,0,.1);">
         <th style="padding:12px 16px;text-align:left;vertical-align:top;font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.06em;white-space:nowrap;position:sticky;left:0;top:0;background:#f4f4f5;z-index:20;min-width:110px;box-shadow:2px 0 0 0 rgba(0,0,0,.13),6px 0 12px rgba(0,0,0,.06);">指标 \\ 个股</th>`;
@@ -9247,10 +9285,7 @@ function buildCompareTableFromListedSheet(el, stocks, fieldOrder) {
     }
     html += `</tr>`;
   });
-  html += `</tbody></table></div>
-  <div style="font-size:10px;color:var(--t3);margin-top:8px;text-align:left;line-height:1.55;">
-    ⓘ 行序同表格「上市新股」首列（已去重名称/代码行）· 展示最多 6 只：优先「认购中」再按结束日由近到远补位 · 表头：绿=认购中 · 浅蓝=待上市 · 灰=已上市 · 仅供参考
-  </div>`;
+  html += `</tbody></table></div></div>`;
   el.innerHTML = html;
 }
 
