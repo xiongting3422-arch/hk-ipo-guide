@@ -53,9 +53,10 @@ const ECM_LEAD_SYSTEM_PROMPT = `你是顶级国际投行 ECM 资本市场部 Lea
 【分析铁律】
 1. 机器硬分为 0.0 的基石/绿鞋/保荐人维度：禁止任何美化；深度分析必须点明「无长线锁仓」「无大行托底」「簿记空心化」等致命结构缺陷。
 2. 若 table_fields 已提供 cornerstone_investors（基石认购公司/名单）或 cornerstone_pct，必须据此写出具体投资者、认购金额/占比与机构类型；禁止声称「名单未披露」「锁仓期限未披露」——表格事实优先于臆测。
-3. 财务：穿透表面亏损，判断是研发/扩张期失血，还是估值收割或商业模式不成立。
-4. 基本面：结合行业常识与竞争格局，判断技术含金量与壁垒是否被一级市场叙事夸大。
-5. 估值与博弈：交叉分析盘子大小、公开发售比例、中签率与暗盘承接之间的踩踏风险。
+3. 财务：穿透表面亏损，判断是研发/扩张期失血，还是估值收割或商业模式不成立。必须基于 sheet_row_full 与 derived_metrics 计算/核验发行 PE（市值÷净利润，注明口径），并对比同行业典型 PE 区间给出贵/便宜/合理判断。
+4. 基本面：结合行业常识与竞争格局，判断技术含金量与壁垒是否被一级市场叙事夸大；须引用 sheet_row_full 中的行业地位、核心优势、主要压力。
+5. 估值与博弈：若 sheet_row_full 含折价率/A+H股/市值/招股价，必须引用具体数值展开 AH 定价与博弈分析，禁止用「若H股折价/溢价」等假设句式替代表格事实；交叉分析盘子大小、公开发售比例、中签率与暗盘承接。
+6. sheet_row_full 为「上市新股」Tab 全量事实源：分析前须逐项扫读，不得遗漏折价率、基石认购公司、市值、募资、发行股数、行业地位等已填字段。
 
 【语气】冷峻、专业、带投行内部备忘录质感；一句话依据要短而狠；深度分析要有机理解释，禁止模板空话。
 
@@ -191,8 +192,9 @@ function scoreValuationBase(row) {
 
   const cornerRaw = cell(row, ['基石认购占比', '基石占比', '有无基石', '基石投资者认购占比']);
   const mech = cell(row, ['发行机制', '发售机制']);
-  const overRaw = cell(row, ['超额倍数', '孖展倍数', '认购倍数']);
+  const overRaw = cell(row, ['认购总倍数', '超额倍数', '孖展倍数', '认购倍数']);
   const lot = cell(row, ['每手股数', '每手手数', '发行规模', '募资规模']);
+  const discount = parsePercent(cell(row, ['折价率', 'AH折价率', 'A+H折价率', '折让率']));
 
   let s = 3.2;
   if (!hasCornerstone(cornerRaw)) s -= 0.9;
@@ -200,6 +202,11 @@ function scoreValuationBase(row) {
   const over = parseFloat(String(overRaw).replace(/[^\d.]/g, ''));
   if (Number.isFinite(over) && over < 20) s -= 0.45;
   if (/小盘|盘子小|发行比例.*5%|公开发售.*5%/.test(lot + mech)) s -= 0.25;
+  if (discount != null) {
+    if (discount <= -35) s += 0.35;
+    else if (discount <= -15) s += 0.15;
+    else if (discount >= 0) s -= 0.45;
+  }
   return clampScore05(s);
 }
 
@@ -237,6 +244,114 @@ function scoreCornerstoneFromPct(raw) {
   return 3.5;
 }
 
+function parsePercent(raw) {
+  if (raw == null || raw === '') return null;
+  const s = String(raw).trim();
+  if (!s || s === '—' || s === '-') return null;
+  const m = s.match(/([+-]?\d+(?:\.\d+)?)\s*%/);
+  if (m) return Math.round(parseFloat(m[1]) * 100) / 100;
+  const n = parseFloat(s.replace(/[^\d.+-]/g, ''));
+  return Number.isFinite(n) ? n : null;
+}
+
+/** 解析「575.11 亿」「46.01亿」等为亿港元数值 */
+function parseMoneyYiHkd(raw) {
+  if (raw == null || raw === '') return null;
+  const s = String(raw).trim();
+  if (!s || s === '—' || s === '-') return null;
+  const m = s.match(/([+-]?\d+(?:\.\d+)?)\s*亿/);
+  if (m) return Math.round(parseFloat(m[1]) * 100) / 100;
+  const n = parseFloat(s.replace(/[^\d.]/g, ''));
+  return Number.isFinite(n) ? n : null;
+}
+
+function parseMoneyYiCny(raw) {
+  return parseMoneyYiHkd(raw);
+}
+
+function parseNumberFromText(raw) {
+  if (raw == null || raw === '') return null;
+  const n = parseFloat(String(raw).replace(/[^\d.]/g, ''));
+  return Number.isFinite(n) ? n : null;
+}
+
+/** 「上市新股」Tab 全量非空字段（事实源） */
+function extractFullSheetRow(row) {
+  const out = {};
+  for (const [k, v] of Object.entries(row || {})) {
+    const key = String(k || '').trim();
+    const val = String(v ?? '').trim();
+    if (!key || !val || val === '—' || val === '-') continue;
+    out[key] = val;
+  }
+  return out;
+}
+
+/**
+ * 从表格字段预解析结构化指标，供 LLM 引用（避免漏读折价率、市值等）
+ */
+function computeDerivedMetrics(row) {
+  const sheet = extractFullSheetRow(row);
+  const financialNote = cell(row, ['财务状况', '财务点评', '财务摘要']);
+  const ahDiscount = parsePercent(cell(row, ['折价率', 'AH折价率', 'A+H折价率', '折让率']));
+  const marketCapHkdYi = parseMoneyYiHkd(cell(row, ['市值（港元）', '市值', '发行市值', '总市值']));
+  const fundraisingGrossYi = parseMoneyYiHkd(
+    cell(row, ['募资总额（港元）', '募资总额', '集资总额', '募资规模']),
+  );
+  const fundraisingNetYi = parseMoneyYiHkd(cell(row, ['募资净额（港元）', '募资净额', '集资净额']));
+  const ipoPriceHkd = parseNumberFromText(cell(row, ['招股价 (HKD)', '招股价(HKD)', '招股价', '招股價']));
+  const issuePeExplicit = parseNumberFromText(
+    cell(row, ['发行市盈率', '市盈率', 'PE', '发行PE', '发行PE(倍)']),
+  );
+
+  let revenueCnyYi = null;
+  let netProfitCnyYi = null;
+  let netMarginPct = null;
+  const revM = financialNote.match(/营收[^。\n]*?(\d+(?:\.\d+)?)\s*亿/);
+  if (revM) revenueCnyYi = parseFloat(revM[1]);
+  const profitM = financialNote.match(/(?:净利润|净利)[^。\n]*?([+-]?\d+(?:\.\d+)?)\s*亿/);
+  if (profitM) netProfitCnyYi = parseFloat(profitM[1]);
+  const marginM = financialNote.match(/净利率[^。\n]*?(\d+(?:\.\d+)?)\s*%/);
+  if (marginM) netMarginPct = parseFloat(marginM[1]);
+  else if (revenueCnyYi && netProfitCnyYi != null) {
+    netMarginPct = Math.round((netProfitCnyYi / revenueCnyYi) * 1000) / 10;
+  } else if (revenueCnyYi && /净利率.*承压|个位数|低/.test(financialNote)) {
+    netMarginPct = 5;
+  }
+
+  let impliedPeHkd = null;
+  if (marketCapHkdYi != null && netProfitCnyYi != null && netProfitCnyYi > 0) {
+    const profitHkdYi = netProfitCnyYi * 1.1;
+    impliedPeHkd = Math.round((marketCapHkdYi / profitHkdYi) * 10) / 10;
+  } else if (marketCapHkdYi != null && revenueCnyYi != null && netMarginPct != null && netMarginPct > 0) {
+    const estProfitCnyYi = (revenueCnyYi * netMarginPct) / 100;
+    const profitHkdYi = estProfitCnyYi * 1.1;
+    if (profitHkdYi > 0) impliedPeHkd = Math.round((marketCapHkdYi / profitHkdYi) * 10) / 10;
+  }
+
+  return {
+    ah_share: cell(row, ['A+H股', 'A+H', '是否A+H']),
+    ah_discount_pct: ahDiscount,
+    market_cap_hkd_yi: marketCapHkdYi,
+    fundraising_gross_hkd_yi: fundraisingGrossYi,
+    fundraising_net_hkd_yi: fundraisingNetYi,
+    ipo_price_hkd: ipoPriceHkd,
+    issue_pe_from_sheet: issuePeExplicit,
+    revenue_cny_yi: revenueCnyYi,
+    net_profit_cny_yi: netProfitCnyYi,
+    net_margin_pct_est: netMarginPct,
+    implied_pe_hkd: impliedPeHkd,
+    sector: cell(row, ['行业板块', '板块', '行业', '行业·细分']),
+    sheet_field_count: Object.keys(sheet).length,
+    pe_calc_note:
+      impliedPeHkd != null
+        ? `市值${marketCapHkdYi}亿港元 ÷ 估算净利润（来自财务状况，CNY→HKD约×1.1）≈ ${impliedPeHkd}x`
+        : issuePeExplicit != null
+          ? `表格发行市盈率 ${issuePeExplicit}x`
+          : '需从财务状况中的营收/净利自行推算 PE',
+  };
+}
+
 function extractStockFields(row) {
   const cornerstonePct = cell(row, ['基石认购占比', '基石占比', '基石投资者认购占比']);
   const cornerstoneInvestors = cell(row, [
@@ -252,23 +367,34 @@ function extractStockFields(row) {
     name: cell(row, ['股票名称', '名称', 'IPO名称']) || '—',
     code: normCode(cell(row, ['股票代码', '代码', '代号'])),
     sector: cell(row, ['行业板块', '板块', '行业', '行业·细分']),
+    industry_position: cell(row, ['行业地位', '行业定位', '竞争地位']),
     ipoPrice: cell(row, ['招股价 (HKD)', '招股价(HKD)', '招股价', '招股價']),
     handFee: cell(row, ['一手入场费', '每手金额', '入场费']),
+    lot_size: cell(row, ['每手股数', '每手手数', '每手']),
     ah: cell(row, ['A+H 股', 'A+H', '是否A+H']),
+    ah_discount: cell(row, ['折价率', 'AH折价率', 'A+H折价率', '折让率']),
+    list_date: cell(row, ['上市日期', '挂牌日期']),
+    interest_days: cell(row, ['计息天数', '计息日']),
     subPeriod: [cell(row, ['招股开始', '认购开始']), cell(row, ['招股结束', '认购结束'])].filter(Boolean).join(' ~ '),
     mechanism: cell(row, ['发行机制', '发售机制']),
     greenshoe: cell(row, ['绿鞋机制', '绿鞋', '有无绿鞋']),
     cornerstone_pct: cornerstonePct,
     cornerstone_investors: cornerstoneInvestors,
     cornerstone_lock_period: cornerstoneLock,
-    /** @deprecated 兼容旧字段名，等同 cornerstone_pct */
     cornerstone: cornerstonePct || cornerstoneInvestors,
     sponsor: cell(row, ['保荐人', '保荐机构', '联席保荐人']),
+    market_cap: cell(row, ['市值（港元）', '市值', '发行市值', '总市值']),
+    fundraising_gross: cell(row, ['募资总额（港元）', '募资总额', '集资总额']),
+    fundraising_net: cell(row, ['募资净额（港元）', '募资净额', '集资净额']),
+    issue_shares: cell(row, ['发行数量（股数）', '发行数量', '发售数量']),
+    public_offer_shares: cell(row, ['公开发售股数（10%）', '公开发售股数', '公开发售股份']),
+    intl_offer_shares: cell(row, ['国际配售股数（90%）', '国际配售股数', '国际配售股份']),
+    public_offer_lots: cell(row, ['公开发售部分（手数）', '公开发售手数']),
+    issue_pe: cell(row, ['发行市盈率', '市盈率', 'PE', '发行PE']),
     highlights: cell(row, ['核心优势', '公司亮点', '投资亮点']),
     risks: cell(row, ['主要压力', '重要压力', '主要风险', '风险因素']),
     financialNote: cell(row, ['财务状况', '财务点评', '净利润', '发行市盈率', '市盈率']),
-    fundraising: cell(row, ['募资规模', '发行规模', '集资额']),
-    oversubscription: cell(row, ['超额倍数', '孖展倍数', '认购倍数']),
+    oversubscription: cell(row, ['认购总倍数', '超额倍数', '孖展倍数', '认购倍数']),
   };
 }
 
@@ -369,8 +495,12 @@ function buildUserPrompt(payload) {
     '请基于以下机器硬分与表格事实，输出严格 JSON（勿 Markdown）：',
     JSON.stringify(payload, null, 2),
     '',
-    '要求：dimensions 中各 score 应在机器硬分基础上微调（±0.5 以内），但机器为 0.0 的三项（基石/绿鞋/保荐人若硬分为0）必须保持 0.0，不得美化。',
-    '若 table_fields.cornerstone_investors 非空：基石维度必须引用其中具体机构名称、金额/占比与类型，不得写「名单未披露」；锁定期仅在该字段或 cornerstone_lock_period 未给出时才可写未披露。',
+    '【硬性要求】',
+    '1. sheet_row_full 是「上市新股」Tab 全量数据源，分析前须逐项使用其中已填字段，不得遗漏折价率、基石认购公司、市值、募资、发行股数、行业地位等。',
+    '2. dimensions.financial 必须写出：发行 PE（优先用 derived_metrics.implied_pe_hkd 或 issue_pe_from_sheet）及同行业板块典型 PE 区间对比，判断估值偏贵/合理/便宜。',
+    '3. dimensions.valuation：若 derived_metrics.ah_discount_pct 或 table_fields.ah_discount 有值，必须引用具体折价率（如 -44.14%）分析 AH 定价，禁止写「若H股折价/溢价」假设句。',
+    '4. dimensions.cornerstone：若 cornerstone_investors 非空，必须引用具体机构名称与金额，不得写「名单未披露」。',
+    '5. 各 score 在机器硬分基础上微调（±0.5 以内）；机器为 0.0 的基石/绿鞋/保荐人若硬分为0须保持 0.0。',
   ].join('\n');
 }
 
@@ -456,6 +586,8 @@ async function runStockAnalysisPipeline(input = {}, options = {}) {
   }
 
   const fields = extractStockFields(row);
+  const sheetRowFull = extractFullSheetRow(row);
+  const derivedMetrics = computeDerivedMetrics(row);
   const machineScores = computeMachineScores(row);
   const userPayload = {
     stock_name: fields.name,
@@ -463,6 +595,8 @@ async function runStockAnalysisPipeline(input = {}, options = {}) {
     machine_scores: machineScores,
     highlights: fields.highlights,
     risks: fields.risks,
+    sheet_row_full: sheetRowFull,
+    derived_metrics: derivedMetrics,
     table_fields: fields,
   };
 
@@ -524,6 +658,8 @@ module.exports = {
   STOCK_ANALYSIS_SYSTEM_PROMPT,
   ECM_LEAD_SYSTEM_PROMPT,
   computeMachineScores,
+  computeDerivedMetrics,
+  extractFullSheetRow,
   extractStockFields,
   parseAnalysisJson,
   runStockAnalysisPipeline,
