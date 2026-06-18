@@ -117,17 +117,14 @@ async function loadOrBuildRoster(flags) {
 
 function findPendingStocks(roster, db, flags) {
   const stocks = (roster.stocks || []).filter(s => s.code && s.name);
-  let pending = stocks.filter(s => !hasCompleteAnalysis(db.stocks[normStockCode(s.code)]));
   if (flags.code) {
-    pending = pending.filter(s => normStockCode(s.code) === flags.code);
-    if (!pending.length) {
-      const inRoster = stocks.some(s => normStockCode(s.code) === flags.code);
-      if (!inRoster) throw new Error(`代码 ${flags.code} 不在当前网页展示名册中`);
-      console.log('[run-ipo-audit] 指定标的已有完整分析，跳过');
-      return [];
+    const target = stocks.filter(s => normStockCode(s.code) === flags.code);
+    if (!target.length) {
+      throw new Error(`代码 ${flags.code} 不在当前网页展示名册中`);
     }
+    return target.slice(0, flags.limit);
   }
-  return pending.slice(0, flags.limit);
+  return stocks.filter(s => !hasCompleteAnalysis(db.stocks[normStockCode(s.code)])).slice(0, flags.limit);
 }
 
 function analysisToDbEntry(result) {

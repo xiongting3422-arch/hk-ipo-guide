@@ -52,9 +52,10 @@ const ECM_LEAD_SYSTEM_PROMPT = `你是顶级国际投行 ECM 资本市场部 Lea
 
 【分析铁律】
 1. 机器硬分为 0.0 的基石/绿鞋/保荐人维度：禁止任何美化；深度分析必须点明「无长线锁仓」「无大行托底」「簿记空心化」等致命结构缺陷。
-2. 财务：穿透表面亏损，判断是研发/扩张期失血，还是估值收割或商业模式不成立。
-3. 基本面：结合行业常识与竞争格局，判断技术含金量与壁垒是否被一级市场叙事夸大。
-4. 估值与博弈：交叉分析盘子大小、公开发售比例、中签率与暗盘承接之间的踩踏风险。
+2. 若 table_fields 已提供 cornerstone_investors（基石认购公司/名单）或 cornerstone_pct，必须据此写出具体投资者、认购金额/占比与机构类型；禁止声称「名单未披露」「锁仓期限未披露」——表格事实优先于臆测。
+3. 财务：穿透表面亏损，判断是研发/扩张期失血，还是估值收割或商业模式不成立。
+4. 基本面：结合行业常识与竞争格局，判断技术含金量与壁垒是否被一级市场叙事夸大。
+5. 估值与博弈：交叉分析盘子大小、公开发售比例、中签率与暗盘承接之间的踩踏风险。
 
 【语气】冷峻、专业、带投行内部备忘录质感；一句话依据要短而狠；深度分析要有机理解释，禁止模板空话。
 
@@ -237,6 +238,16 @@ function scoreCornerstoneFromPct(raw) {
 }
 
 function extractStockFields(row) {
+  const cornerstonePct = cell(row, ['基石认购占比', '基石占比', '基石投资者认购占比']);
+  const cornerstoneInvestors = cell(row, [
+    '基石认购公司',
+    '基石投资者',
+    '基石投资者名单',
+    '基石投资者详情',
+    '基石详情',
+    '基石名单',
+  ]);
+  const cornerstoneLock = cell(row, ['基石锁定期', '基石锁仓期', '锁定期', '基石锁定']);
   return {
     name: cell(row, ['股票名称', '名称', 'IPO名称']) || '—',
     code: normCode(cell(row, ['股票代码', '代码', '代号'])),
@@ -247,7 +258,11 @@ function extractStockFields(row) {
     subPeriod: [cell(row, ['招股开始', '认购开始']), cell(row, ['招股结束', '认购结束'])].filter(Boolean).join(' ~ '),
     mechanism: cell(row, ['发行机制', '发售机制']),
     greenshoe: cell(row, ['绿鞋机制', '绿鞋', '有无绿鞋']),
-    cornerstone: cell(row, ['基石认购占比', '基石占比', '有无基石']),
+    cornerstone_pct: cornerstonePct,
+    cornerstone_investors: cornerstoneInvestors,
+    cornerstone_lock_period: cornerstoneLock,
+    /** @deprecated 兼容旧字段名，等同 cornerstone_pct */
+    cornerstone: cornerstonePct || cornerstoneInvestors,
     sponsor: cell(row, ['保荐人', '保荐机构', '联席保荐人']),
     highlights: cell(row, ['核心优势', '公司亮点', '投资亮点']),
     risks: cell(row, ['主要压力', '重要压力', '主要风险', '风险因素']),
@@ -355,6 +370,7 @@ function buildUserPrompt(payload) {
     JSON.stringify(payload, null, 2),
     '',
     '要求：dimensions 中各 score 应在机器硬分基础上微调（±0.5 以内），但机器为 0.0 的三项（基石/绿鞋/保荐人若硬分为0）必须保持 0.0，不得美化。',
+    '若 table_fields.cornerstone_investors 非空：基石维度必须引用其中具体机构名称、金额/占比与类型，不得写「名单未披露」；锁定期仅在该字段或 cornerstone_lock_period 未给出时才可写未披露。',
   ].join('\n');
 }
 
