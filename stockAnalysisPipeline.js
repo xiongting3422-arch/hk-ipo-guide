@@ -57,6 +57,7 @@ const ECM_LEAD_SYSTEM_PROMPT = `你是顶级国际投行 ECM 资本市场部 Lea
 4. 基本面：结合行业常识与竞争格局，判断技术含金量与壁垒是否被一级市场叙事夸大；须引用 sheet_row_full 中的行业地位、核心优势、主要压力。
 5. 估值与博弈：若 sheet_row_full 含折价率/A+H股/市值/招股价，必须引用具体数值展开 AH 定价与博弈分析，禁止用「若H股折价/溢价」等假设句式替代表格事实；交叉分析盘子大小、公开发售比例、中签率与暗盘承接。
 6. sheet_row_full 为「上市新股」Tab 全量事实源：分析前须逐项扫读，不得遗漏折价率、基石认购公司、市值、募资、发行股数、行业地位等已填字段。
+7. 六个 dimension 必须全部写完，禁止省略 valuation 或留空；单维 deep_analysis 建议 150–450 字，基石名单可归纳为代表机构，避免过长挤占后续维度输出。
 
 【语气】冷峻、专业、带投行内部备忘录质感；一句话依据要短而狠；深度分析要有机理解释，禁止模板空话。
 
@@ -501,6 +502,7 @@ function buildUserPrompt(payload) {
     '3. dimensions.valuation：若 derived_metrics.ah_discount_pct 或 table_fields.ah_discount 有值，必须引用具体折价率（如 -44.14%）分析 AH 定价，禁止写「若H股折价/溢价」假设句。',
     '4. dimensions.cornerstone：若 cornerstone_investors 非空，必须引用具体机构名称与金额，不得写「名单未披露」。',
     '5. 各 score 在机器硬分基础上微调（±0.5 以内）；机器为 0.0 的基石/绿鞋/保荐人若硬分为0须保持 0.0。',
+    '6. 六个 dimension 均须输出非空 one_liner 与 deep_analysis，valuation 不得省略；篇幅均衡，避免基石维过长导致 valuation 被截断。',
   ].join('\n');
 }
 
@@ -545,6 +547,24 @@ function parseAnalysisJson(text) {
     throw new Error('JSON 缺少 dimensions 字段');
   }
   return parsed;
+}
+
+function dimensionTextOk(dim) {
+  const d = dim && typeof dim === 'object' ? dim : {};
+  const liner = String(d.one_liner || d.oneLiner || '').trim();
+  const deep = String(d.deep_analysis || d.deepAnalysis || '').trim();
+  if (!liner || liner === '—' || liner.length < 6) return false;
+  if (!deep || deep === '—' || deep.length < 30) return false;
+  return true;
+}
+
+function validateAnalysisComplete(parsed) {
+  const missing = DIMENSION_KEYS.filter(k => !dimensionTextOk(parsed.dimensions?.[k]));
+  const summary = String(parsed.summary || '').trim();
+  if (!summary || summary === '—' || summary.length < 10) missing.push('summary');
+  if (missing.length) {
+    throw new Error(`分析不完整，缺少有效文案：${missing.join(', ')}`);
+  }
 }
 
 function normalizeDimension(dim, machineScore, key) {
@@ -607,7 +627,7 @@ async function runStockAnalysisPipeline(input = {}, options = {}) {
 
   const llmOpts = {
     system: systemPrompt,
-    maxTokens: Number(process.env.LLM_MAX_TOKENS || 4096),
+    maxTokens: Number(process.env.LLM_MAX_TOKENS || 8192),
     temperature: Number(process.env.LLM_TEMPERATURE ?? 0.25),
   };
 
@@ -619,11 +639,12 @@ async function runStockAnalysisPipeline(input = {}, options = {}) {
     ({ text, model } = await requestClaude(buildUserPrompt(userPayload), llmOpts));
     try {
       parsed = parseAnalysisJson(text);
+      validateAnalysisComplete(parsed);
       break;
     } catch (e) {
       lastParseErr = e;
       if (attempt < 2) {
-        console.warn('[stockAnalysisPipeline] JSON 解析失败，自动重试 LLM…', e.message);
+        console.warn('[stockAnalysisPipeline] 分析不完整或 JSON 无效，自动重试 LLM…', e.message);
       }
     }
   }
