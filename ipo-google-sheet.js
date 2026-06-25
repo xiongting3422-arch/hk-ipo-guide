@@ -1117,6 +1117,9 @@
 
   function _formatIpoTabDisplayName(name) {
     const full = String(name || '').trim();
+    const isMobile =
+      typeof global.matchMedia === 'function' && global.matchMedia('(max-width: 768px)').matches;
+    if (isMobile) return full;
     if (full.length <= 6) return full;
     return full.slice(0, 6) + '…';
   }
@@ -1195,8 +1198,12 @@
 
     let firstName = null;
     const tabCount = rows.length;
+    const isMobileTabBar =
+      typeof global.matchMedia === 'function' && global.matchMedia('(max-width: 768px)').matches;
     const tabScrollCls =
-      tabCount > IPO_SHEET_TOP_N ? 'ipo-tabs-scroll ipo-tabs-scroll--scroll' : 'ipo-tabs-scroll ipo-tabs-scroll--fit';
+      tabCount > IPO_SHEET_TOP_N || isMobileTabBar
+        ? 'ipo-tabs-scroll ipo-tabs-scroll--scroll'
+        : 'ipo-tabs-scroll ipo-tabs-scroll--fit';
     let tabsHtml = `<div class="${tabScrollCls}" data-ipo-tab-count="${tabCount}">`;
     rows.forEach((r, idx) => {
       const m = models[_extractCodeFromRow(r)] || rowToIpoDisplayModel(r);

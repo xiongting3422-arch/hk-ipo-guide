@@ -139,23 +139,51 @@
   .isd-nav {
     flex: none;
     flex-direction: row;
+    flex-wrap: nowrap;
     overflow-x: auto;
-    padding: 12px;
+    padding: 10px 12px;
     border-right: none;
     border-bottom: 1px solid #ebebeb;
     gap: 8px;
     -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .isd-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .isd-nav-item {
     flex: 0 0 auto;
-    min-width: auto;
-    padding: 10px 14px;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    padding: 8px 12px;
     box-shadow: none;
+    border: 1px solid #e4e4e7;
+    border-radius: 999px;
+    background: #fff;
+    color: #52525b;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    justify-content: center;
+    white-space: nowrap;
+    scroll-snap-align: start;
+  }
+
+  .isd-nav-item:hover {
+    border-color: rgba(255, 105, 0, 0.35);
+    color: #3f3f46;
+    background: #fff;
   }
 
   .isd-nav-item--active {
-    box-shadow: inset 0 -3px 0 var(--isd-accent, #ff6900);
+    background: rgba(255, 105, 0, 0.1);
+    border-color: rgba(255, 105, 0, 0.45);
+    color: #c2410c;
+    box-shadow: none;
   }
 
   .isd-panel-body {
@@ -2368,6 +2396,42 @@
   .isd-board-v3-wrap {
     margin: 0;
     padding: 0;
+  }
+
+  /* 舆情看板 · 顶栏 Tab：一屏 2–3 个，横向滑动 */
+  .isd-nav {
+    --isd-nav-tab-w: max(108px, calc((100vw - 48px) / 2.35));
+    padding: 8px 10px 10px;
+    gap: 8px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .isd-nav-item {
+    flex: 0 0 var(--isd-nav-tab-w) !important;
+    width: var(--isd-nav-tab-w) !important;
+    max-width: var(--isd-nav-tab-w) !important;
+    min-width: var(--isd-nav-tab-w) !important;
+    padding: 8px 6px;
+    font-size: 11px;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .isd-panel-head {
+    padding: 14px 14px 10px;
+  }
+
+  .isd-panel-title {
+    font-size: 17px;
+  }
+
+  .isd-panel-sub {
+    font-size: 12px;
+  }
+
+  .isd-panel-body {
+    padding: 12px;
   }
 }
 
