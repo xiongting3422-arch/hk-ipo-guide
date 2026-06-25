@@ -15,7 +15,7 @@
     "nnq-heat:schedule": "node scripts/nnq-heat-scheduler.mjs",
     "api:ipo": "node server/ipo-api.mjs",
     "audit:ipo": "node scripts/run-ipo-audit.js",
-    "audit:ipo:all": "node scripts/run-ipo-audit.js --all"
+    "sync:auth-whitelist": "node scripts/sync-auth-whitelist.mjs",
   },
   "repository": {
     "type": "git",

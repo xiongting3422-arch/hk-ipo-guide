@@ -15,7 +15,10 @@
         listed: 63719317,
         dark: 976801045,
         schedule: 0,
+        whitelist: 1722347318,
       },
+      /** Google 不可达时 auth.js 回退读取（与 Whitelist 表同步，见 npm run sync:auth-whitelist） */
+      authWhitelistFallback: './data/auth-whitelist.json',
       tabLabels: {
         ipoHome: 'IPO主页',
         listed: '上市新股',

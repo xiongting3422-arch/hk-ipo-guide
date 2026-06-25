@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@900&family=Noto+Sans+SC:wght@400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-<script src="./auth.js?v=8"></script>
+<script src="./auth.js?v=9"></script>
 <script src="./ipo-banners.js?v=3"></script>
 <style>
     /* ── Embedded fonts from IPO-1080*1080 folder ─────────────────────────── */
@@ -1364,13 +1364,16 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   filter:none;
 }
 .auth-popup-error-slot{
-  width:360px;
-  max-width:calc(100% - 48px);
+  width:100%;
+  max-width:100%;
   min-height:22px;
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  top:518px;
+  position:relative;
+  left:auto;
+  transform:none;
+  top:auto;
+  margin-top:10px;
+  padding:0 4px;
+  box-sizing:border-box;
 }
 #ipo-auth-overlay.auth-popup-overlay .auth-popup-error{
   margin:0 !important;

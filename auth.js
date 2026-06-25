@@ -8,6 +8,8 @@
   var SHEET_NAME = 'Whitelist';
   var STYLE_ID = 'ipo-auth-style';
   var OVERLAY_ID = 'ipo-auth-overlay';
+  var WHITELIST_FALLBACK_URL = './data/auth-whitelist.json';
+  var WHITELIST_FETCH_TIMEOUT_MS = 8000;
   var pendingResolvers = [];
   var whitelistGidCache = null;
 
@@ -245,19 +247,79 @@
     return Array.from(set);
   }
 
-  /**
-   * 每次调用均发起网络请求拉取 Whitelist 页签 CSV，不使用名单结果内存缓存。
-   * （gid 在同一会话内解析一次，减少不必要的 pubhtml 请求）
-   */
-  async function fetchWhitelistEmailsLive() {
+  function readAuthWhitelistFallbackUrl() {
+    var cfg = global.__IPO_SHEET_CONFIG__ || {};
+    var url = String(cfg.authWhitelistFallback || WHITELIST_FALLBACK_URL).trim();
+    return url || WHITELIST_FALLBACK_URL;
+  }
+
+  function fetchWithTimeout(url, options, timeoutMs) {
+    var ms = timeoutMs != null ? timeoutMs : WHITELIST_FETCH_TIMEOUT_MS;
+    return new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () {
+        reject(new Error('请求超时'));
+      }, ms);
+      fetch(url, options)
+        .then(function (res) {
+          clearTimeout(timer);
+          resolve(res);
+        })
+        .catch(function (err) {
+          clearTimeout(timer);
+          reject(err);
+        });
+    });
+  }
+
+  function normalizeWhitelistEmails(list) {
+    if (!Array.isArray(list)) return [];
+    var set = new Set();
+    list.forEach(function (item) {
+      var em = normalizeEmail(item);
+      if (em) set.add(em);
+    });
+    return Array.from(set);
+  }
+
+  async function fetchWhitelistFromGoogle() {
     var gid = await resolveWhitelistGid();
     var url = buildWhitelistCsvUrl(gid);
     if (!url) throw new Error('未配置可用的 Google Sheets 发布地址');
-    var res = await fetch(url, { cache: 'no-store' });
+    var res = await fetchWithTimeout(url, { cache: 'no-store' }, WHITELIST_FETCH_TIMEOUT_MS);
     if (!res.ok) throw new Error('Whitelist 拉取失败: HTTP ' + res.status);
     var text = await res.text();
     var rows = parseCsvRows(text);
     return pickWhitelistEmails(rows);
+  }
+
+  async function fetchWhitelistFromFallback() {
+    var url = readAuthWhitelistFallbackUrl();
+    var res = await fetchWithTimeout(url, { cache: 'no-store' }, WHITELIST_FETCH_TIMEOUT_MS);
+    if (!res.ok) throw new Error('Whitelist 镜像拉取失败: HTTP ' + res.status);
+    var data = await res.json();
+    if (data && Array.isArray(data.emails)) return normalizeWhitelistEmails(data.emails);
+    if (Array.isArray(data)) return normalizeWhitelistEmails(data);
+    throw new Error('Whitelist 镜像格式无效');
+  }
+
+  /**
+   * 拉取授权邮箱名单：优先 Google 表格实时 CSV；失败时回退同源镜像（大陆手机网络等场景）。
+   */
+  async function fetchWhitelistEmailsLive() {
+    try {
+      return await fetchWhitelistFromGoogle();
+    } catch (googleErr) {
+      console.warn('[IPO Auth] Google Whitelist 不可用，尝试同源镜像', googleErr);
+      try {
+        var fallback = await fetchWhitelistFromFallback();
+        if (!fallback.length) throw new Error('Whitelist 镜像为空');
+        console.log('[IPO Auth] 已使用 Whitelist 同源镜像（' + fallback.length + ' 个邮箱）');
+        return fallback;
+      } catch (fallbackErr) {
+        console.warn('[IPO Auth] Whitelist 镜像亦失败', fallbackErr);
+        throw googleErr;
+      }
+    }
   }
 
   /**
@@ -307,7 +369,7 @@
     box.innerHTML =
       '<div class="ipo-auth-card">' +
       '<div class="ipo-auth-title">访问授权验证</div>' +
-      '<div class="ipo-auth-sub">请输入已授权邮箱；系统将实时对照 Google 表格 Whitelist 名单。</div>' +
+      '<div class="ipo-auth-sub">请输入已授权邮箱；系统将对照 Whitelist 名单（优先在线表格，网络受限时使用备用名单）。</div>' +
       '<input class="ipo-auth-input" id="email-input" type="email" autocomplete="email" spellcheck="false" />' +
       '<button class="ipo-auth-btn" id="ipo-auth-submit" type="button">立即进入</button>' +
       '<div class="ipo-auth-tip">如需访问，请发送 姓名+邮箱 至管理员：xiongting3422@Gmail.com </div>' +
@@ -344,7 +406,9 @@
         lock();
         err.textContent = '您的邮箱尚未获得授权，请联系管理员@vickyxiong（熊婷） 申请';
       } catch (e) {
-        err.textContent = '授权服务暂时不可用，请稍后再试';
+        console.warn('[IPO Auth] 登录校验失败', e);
+        err.textContent =
+          '授权服务暂时不可用（可能无法访问 Google 表格）。请切换网络后重试，或联系管理员更新名单镜像。';
       } finally {
         btn.disabled = false;
         btn.textContent = '立即进入';
