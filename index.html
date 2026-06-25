@@ -1433,6 +1433,104 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
     top:132px;
   }
 }
+/* 手机端：验证弹窗改为纵向流式布局，避免按钮与底部文案重叠 */
+@media (max-width:768px){
+  #ipo-auth-overlay.auth-popup-overlay .auth-popup-card{
+    width:min(420px,92vw)!important;
+    min-height:auto!important;
+    height:auto!important;
+    max-height:min(92vh,720px);
+    overflow-y:auto;
+  }
+  .auth-popup-shell{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:auto;
+    padding:36px 22px 28px;
+    box-sizing:border-box;
+  }
+  .auth-popup-brand,
+  .auth-welcome-img,
+  .auth-tagline,
+  .auth-field-label,
+  .auth-popup-field,
+  .auth-popup-action,
+  .auth-popup-footer-wrap{
+    position:static!important;
+    left:auto!important;
+    top:auto!important;
+    bottom:auto!important;
+    transform:none!important;
+    margin-left:0!important;
+  }
+  .auth-popup-brand{
+    width:140px;
+    height:auto;
+    margin:0 auto 18px;
+  }
+  .auth-welcome-img{
+    width:min(260px,78vw);
+    max-width:100%;
+    margin:0 auto 10px;
+  }
+  .auth-tagline{
+    width:100%;
+    max-width:100%;
+    margin:0 0 24px;
+    font-size:clamp(17px,4.8vw,22px);
+    white-space:normal;
+    line-height:1.35;
+  }
+  .auth-field-label{
+    width:100%;
+    max-width:100%;
+    margin:0 0 10px;
+    font-size:13px;
+  }
+  .auth-popup-field{
+    width:100%;
+    max-width:100%;
+    height:52px;
+    margin:0 0 18px;
+  }
+  #ipo-auth-overlay.auth-popup-overlay .auth-popup-input{
+    height:52px!important;
+    font-size:16px!important;
+  }
+  .auth-popup-action{
+    width:100%;
+    max-width:100%;
+    height:52px;
+    margin:0 0 14px;
+  }
+  #ipo-auth-overlay.auth-popup-overlay .auth-popup-submit{
+    height:52px!important;
+    font-size:16px!important;
+  }
+  .auth-popup-error-slot{
+    width:100%;
+    max-width:100%;
+    min-height:28px;
+    margin:0 0 12px;
+    padding:0 2px;
+  }
+  #ipo-auth-overlay.auth-popup-overlay .auth-popup-error{
+    font-size:12px!important;
+    line-height:1.5;
+    padding:0 4px;
+  }
+  .auth-popup-footer-wrap{
+    width:100%;
+    max-width:100%;
+    margin-top:4px;
+    padding:0 2px;
+  }
+  .auth-popup-footer-text{
+    font-size:11px;
+    line-height:1.6;
+  }
+}
 @keyframes authPopupScaleIn{
   from{opacity:0;transform:translateY(8px) scale(.97);}
   to{opacity:1;transform:translateY(0) scale(1);}
