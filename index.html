@@ -891,57 +891,96 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
     width:100%;
     box-sizing:border-box;
   }
+  #tab-home .ipo-home-lb-card > .lb-toolbar,
+  #tab-home .ipo-home-lb-card > .ipo-lb-table-head{
+    margin-bottom:14px!important;
+    padding-bottom:2px!important;
+  }
+  #tab-home .ipo-home-lb-card > #ipo-table-container,
+  #tab-home .ipo-home-lb-card > #ipo-break-table-container{
+    margin-top:10px!important;
+    clear:both;
+  }
   #tab-home .ipo-lb-table-10,
   #ipo-table-2026,
   #ipo-table-2026-break,
   #ipo-table-container table,
   #ipo-break-table-container table{
     width:auto!important;
-    min-width:920px!important;
+    min-width:980px!important;
     table-layout:fixed!important;
   }
   #tab-home .ipo-lb-table-10 th:nth-child(1),
-  #tab-home .ipo-lb-table-10 td:nth-child(1){width:88px;min-width:88px;max-width:88px;}
+  #tab-home .ipo-lb-table-10 td:nth-child(1){width:92px!important;min-width:92px!important;max-width:92px!important;}
   #tab-home .ipo-lb-table-10 th:nth-child(2),
-  #tab-home .ipo-lb-table-10 td:nth-child(2){width:68px;min-width:68px;max-width:68px;}
+  #tab-home .ipo-lb-table-10 td:nth-child(2){width:72px!important;min-width:72px!important;max-width:72px!important;}
   #tab-home .ipo-lb-table-10 th:nth-child(3),
-  #tab-home .ipo-lb-table-10 td:nth-child(3){width:118px;min-width:118px;max-width:118px;white-space:normal!important;word-break:break-word;}
+  #tab-home .ipo-lb-table-10 td:nth-child(3){width:128px!important;min-width:128px!important;max-width:128px!important;white-space:normal!important;word-break:break-word;overflow-wrap:anywhere;}
   #tab-home .ipo-lb-table-10 th:nth-child(4),
-  #tab-home .ipo-lb-table-10 td:nth-child(4){width:92px;min-width:92px;max-width:92px;}
+  #tab-home .ipo-lb-table-10 td:nth-child(4){width:92px!important;min-width:92px!important;max-width:92px!important;}
   #tab-home .ipo-lb-table-10 th:nth-child(5),
-  #tab-home .ipo-lb-table-10 td:nth-child(5){width:76px;min-width:76px;max-width:76px;}
+  #tab-home .ipo-lb-table-10 td:nth-child(5){width:76px!important;min-width:76px!important;max-width:76px!important;}
   #tab-home .ipo-lb-table-10 th:nth-child(6),
-  #tab-home .ipo-lb-table-10 td:nth-child(6){width:84px;min-width:84px;max-width:84px;}
+  #tab-home .ipo-lb-table-10 td:nth-child(6){width:84px!important;min-width:84px!important;max-width:84px!important;}
   #tab-home .ipo-lb-table-10 th:nth-child(7),
-  #tab-home .ipo-lb-table-10 td:nth-child(7){width:92px;min-width:92px;max-width:92px;}
+  #tab-home .ipo-lb-table-10 td:nth-child(7){width:92px!important;min-width:92px!important;max-width:92px!important;}
   #tab-home .ipo-lb-table-10 th:nth-child(8),
-  #tab-home .ipo-lb-table-10 td:nth-child(8){width:84px;min-width:84px;max-width:84px;}
+  #tab-home .ipo-lb-table-10 td:nth-child(8){width:84px!important;min-width:84px!important;max-width:84px!important;}
   #tab-home .ipo-lb-table-10 th:nth-child(9),
-  #tab-home .ipo-lb-table-10 td:nth-child(9){width:92px;min-width:92px;max-width:92px;}
+  #tab-home .ipo-lb-table-10 td:nth-child(9){width:92px!important;min-width:92px!important;max-width:92px!important;}
   #tab-home .ipo-lb-table-10 th:nth-child(10),
-  #tab-home .ipo-lb-table-10 td:nth-child(10){width:96px;min-width:96px;max-width:96px;}
+  #tab-home .ipo-lb-table-10 td:nth-child(10){width:96px!important;min-width:96px!important;max-width:96px!important;}
   #tab-home .ipo-lb-table-10 th:nth-child(1),
   #tab-home .ipo-lb-table-10 td:nth-child(1){
     position:sticky;
     left:0;
-    z-index:3;
-    background:#fff;
+    z-index:4;
+    background:#fff!important;
     box-shadow:2px 0 6px rgba(0,0,0,.06);
   }
+  #tab-home .ipo-lb-table-10 th:nth-child(2),
+  #tab-home .ipo-lb-table-10 td:nth-child(2){
+    position:sticky;
+    left:92px;
+    z-index:3;
+    background:#fff!important;
+    box-shadow:2px 0 6px rgba(0,0,0,.04);
+  }
   #tab-home .ipo-lb-table-10 thead th:nth-child(1){
+    z-index:6;
+    background:var(--lb-head-bg,#f8f9fa)!important;
+  }
+  #tab-home .ipo-lb-table-10 thead th:nth-child(2){
     z-index:5;
     background:var(--lb-head-bg,#f8f9fa)!important;
   }
-  #tab-home .ipo-lb-table-10 .lb-tr.lb-tr-neg td:nth-child(1){background:rgba(220,38,38,.02);}
+  #tab-home .ipo-lb-table-10 .lb-tr.lb-tr-neg td:nth-child(1),
+  #tab-home .ipo-lb-table-10 .lb-tr.lb-tr-neg td:nth-child(2){background:#fff7f7!important;}
+  #tab-home .ipo-lb-table-10 .lb-tr.lb-tr-neg:hover td:nth-child(1),
+  #tab-home .ipo-lb-table-10 .lb-tr.lb-tr-neg:hover td:nth-child(2){background:#fff0f0!important;}
   #tab-home .ipo-lb-table-10 th,
   #tab-home .ipo-lb-table-10 td{
-    overflow:hidden;
+    overflow:hidden!important;
     text-overflow:ellipsis;
+    box-sizing:border-box;
   }
   #tab-home .ipo-lb-table-10 td.lb-td-sector,
   #tab-home .ipo-lb-table-10 th:nth-child(3){
-    overflow:visible;
+    overflow:hidden!important;
     text-overflow:clip;
+    white-space:normal!important;
+  }
+  #tab-home .ipo-lb-table-10 td.lb-td-sector .lb-sector-stack{
+    max-width:100%;
+    overflow:hidden;
+    word-break:break-word;
+    overflow-wrap:anywhere;
+  }
+  #tab-home .ipo-lb-table-10 td.lb-td-sector .lb-sector-stack > div{
+    max-width:100%;
+    overflow:hidden;
+    word-break:break-word;
+    overflow-wrap:anywhere;
   }
   #tab-home .ipo-lb-table-10 .lb-metric-pos,
   #tab-home .ipo-lb-table-10 .lb-metric-neg{font-size:11px!important;}
@@ -1937,7 +1976,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
         </select>
       </div>
     </div>
-    <div id="ipo-break-table-container" style="display:block !important;overflow-y:auto;max-height:447px;min-height:80px;padding-right:14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent;width:100%;max-width:100%;box-sizing:border-box;" class="lb-scroll-wrap">
+    <div id="ipo-break-table-container" style="display:block !important;overflow-y:auto;max-height:447px;min-height:120px;padding-right:14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent;width:100%;max-width:100%;box-sizing:border-box;" class="lb-scroll-wrap">
       <table id="ipo-table-2026-break" class="lb-table ipo-lb-table-10">
         <thead>
           <tr>
@@ -2900,7 +2939,7 @@ window.__IPO_SHEET_CONFIG__ = window.__IPO_SHEET_CONFIG__ || {};
 window.__IPO_APP_CONFIG__ = window.__IPO_APP_CONFIG__ || {};
 // 可选：window.__IPO_AI_CONFIG__ = { apiKey: '…', model: 'claude-sonnet-4-20250514', proxyUrl: 'https://你的后端/claude' };
 </script>
-<script src="./ipo-live-data.js?v=41"></script>
+<script src="./ipo-live-data.js?v=42"></script>
 <script src="./launched-audit-data.js?v=1"></script>
 <script src="./ipo-break-risk-signals-data.js?v=1"></script>
 <script src="./script.js?v=16"></script>
