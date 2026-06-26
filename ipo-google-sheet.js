@@ -591,10 +591,10 @@
     return 'unknown';
   }
 
-  /** 顶部卡片状态排序权重：越「进行中」越靠前 */
-  const IPO_CARD_STATUS_PRI = { active: 0, dark: 1, pending_dark: 2, listed: 3, unknown: 9 };
+  /** 顶部卡片状态排序：认购中 → 待暗盘 → 暗盘中 → 已上市（同优先级内招股结束日由新到旧） */
+  const IPO_CARD_STATUS_PRI = { active: 0, pending_dark: 1, dark: 2, listed: 3, unknown: 9 };
 
-  /** 顶部横滑卡片：Top 13；先按状态（认购中>暗盘>待暗盘>已上市），再按招股结束日由新到旧 */
+  /** 顶部横滑卡片：Top 13；含已上市，不排除任何有效状态 */
   function buildIpoCardStocks(rows) {
     const eligible = _ipoBaseEligibleRows(rows);
     if (!eligible.length) return [];
