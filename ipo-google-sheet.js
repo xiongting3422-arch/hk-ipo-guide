@@ -578,11 +578,9 @@
     if (subEnd && subEnd.getTime() >= t0m) return 'active';
     if (subEnd && subEnd.getTime() < t0m) {
       if (!listDate || listDate.getTime() > t0m) {
+        if (darkDate && darkDate.getTime() === t0m) return 'dark';
         if (darkDate && darkDate.getTime() > t0m) return 'pending_dark';
-        if (darkDate && darkDate.getTime() < t0m) return 'pending_dark';
-        const base = getCompareTableStatusKey(row);
-        if (base === 'closed') return 'pending_dark';
-        if (base === 'listed') return 'listed';
+        /* 招股已结束、上市日未到或未设 → 待暗盘（不用汇总表「结束≤前天」判已上市） */
         return 'pending_dark';
       }
     }
@@ -593,18 +591,25 @@
     return 'unknown';
   }
 
-  /** 横滑卡片：认购中 + 暗盘中 + 待暗盘（+ 已上市作补充）；总数 >13 时剔除已上市；最多 13 只 */
+  /** 顶部卡片状态排序权重：越「进行中」越靠前 */
+  const IPO_CARD_STATUS_PRI = { active: 0, dark: 1, pending_dark: 2, listed: 3, unknown: 9 };
+
+  /** 顶部横滑卡片：Top 13；先按状态（认购中>暗盘>待暗盘>已上市），再按招股结束日由新到旧 */
   function buildIpoCardStocks(rows) {
-    const sorted = _sortRowsBySubEndDesc(_ipoBaseEligibleRows(rows));
-    if (!sorted.length) return [];
-    const tagged = sorted.map(r => ({ row: r, status: getIpoExtendedStatusKey(r) }));
-    let out = tagged.filter(({ status }) =>
-      status === 'active' || status === 'dark' || status === 'pending_dark' || status === 'listed',
-    );
-    if (out.length > IPO_SHEET_CARD_TOP_N) {
-      out = out.filter(({ status }) => status !== 'listed');
-    }
-    return out.slice(0, IPO_SHEET_CARD_TOP_N).map(t => t.row);
+    const eligible = _ipoBaseEligibleRows(rows);
+    if (!eligible.length) return [];
+    const tagged = eligible.map(row => {
+      const status = getIpoExtendedStatusKey(row);
+      const subEnd = getSubEndDateFromRow(row);
+      return {
+        row,
+        status,
+        pri: IPO_CARD_STATUS_PRI[status] ?? 9,
+        sub: subEnd ? subEnd.getTime() : 0,
+      };
+    });
+    tagged.sort((a, b) => a.pri - b.pri || b.sub - a.sub);
+    return tagged.slice(0, IPO_SHEET_CARD_TOP_N).map(t => t.row);
   }
 
   /** 汇总表：认购中 + 待暗盘 + 暗盘中；列数 >2 时由表格横向滚动展示 */
@@ -1368,6 +1373,7 @@
   global.filterCurrentIpoForList = filterCurrentIpoForList;
   global.buildIpoTopSixStocks = buildIpoTopSixStocks;
   global.buildIpoCardStocks = buildIpoCardStocks;
+  global.__IPO_SHEET_CARD_TOP_N__ = IPO_SHEET_CARD_TOP_N;
   global.buildIpoCompareStocks = buildIpoCompareStocks;
   global.buildExtendedIpoForTable = buildExtendedIpoForTable;
   global.getCompareTableStatusKey = getCompareTableStatusKey;
