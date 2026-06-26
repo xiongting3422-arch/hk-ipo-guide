@@ -1086,6 +1086,13 @@
     return { cls: 'ipo-tab-weather-rainy', icon: '🌧️', label: '阴天' };
   }
 
+  /** 各状态均展示打新天气；无总分时用待评分占位 */
+  function _resolveIpoTabWeather(totalScore) {
+    const w = _computeIpoTabWeather(totalScore);
+    if (w) return w;
+    return { cls: 'ipo-tab-weather-cloudy', icon: '⛅', label: '待评分' };
+  }
+
   function _applyIpoTabWeatherToCard(tab, weather) {
     if (!tab) return;
     const left = tab.querySelector('.ipo-tab-card-left');
@@ -1129,7 +1136,7 @@
   function _buildIpoTabCardHtml(m, listedRow, idx, isActive) {
     const status = _computeIpoTabTimeStatus(listedRow);
     m.timeStatus = status;
-    const weather = status.key === 'active' ? _computeIpoTabWeather(m.totalScore) : null;
+    const weather = _resolveIpoTabWeather(m.totalScore);
     const safeName = String(m.name).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const weatherHintHtml = weather
       ? `<div class="ipo-tab-weather-hint">打新天气：${_esc(weather.label)}</div>`
@@ -1159,7 +1166,7 @@
     const listedRow = (m && m.sheetRow) || {};
     const status = _computeIpoTabTimeStatus(listedRow);
     tab.setAttribute('data-time-status', status.key);
-    const weather = status.key === 'active' ? _computeIpoTabWeather(totalScore) : null;
+    const weather = _resolveIpoTabWeather(totalScore);
     _applyIpoTabWeatherToCard(tab, weather);
   }
 

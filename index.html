@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<script src="./config.js?v=20260626b"></script>
+<script src="./config.js?v=20260626c"></script>
 <script>
 (function () {
-  var BUILD = String((window.__IPO_APP_BUILD__ || '20260626b')).trim();
+  var BUILD = String((window.__IPO_APP_BUILD__ || '20260626c')).trim();
   var STORAGE_KEY = '__ipo_app_build_v1__';
   try {
     var prev = localStorage.getItem(STORAGE_KEY);
@@ -672,12 +672,13 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 .ipo-tabs-scroll--fit{overflow-x:hidden;scrollbar-width:none;}
 .ipo-tabs-scroll--fit::-webkit-scrollbar{display:none;}
 .ipo-tabs-scroll--fit .ipo-tab-card{flex:1 1 0;min-width:0;}
-.ipo-tabs-scroll--scroll{overflow-x:auto;scrollbar-width:thin;scroll-snap-type:x proximity;}
+.ipo-tabs-scroll--scroll{overflow-x:auto;scrollbar-width:thin;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;--ipo-tab-visible:5;}
 .ipo-tabs-scroll--scroll .ipo-tab-card{scroll-snap-align:start;}
 .ipo-tabs-scroll--scroll::after{content:'';position:absolute;right:0;top:0;bottom:10px;width:28px;pointer-events:none;background:linear-gradient(to left,rgba(255,255,255,.92),transparent);opacity:0;transition:opacity .2s;}
 .ipo-tabs-scroll--scroll[data-ipo-tab-count]{position:relative;}
-.ipo-tabs-scroll--scroll[data-ipo-tab-count]:not([data-ipo-tab-count='1']):not([data-ipo-tab-count='2']):not([data-ipo-tab-count='3']):not([data-ipo-tab-count='4']):not([data-ipo-tab-count='5']):not([data-ipo-tab-count='6'])::after{opacity:1;}
-.ipo-tabs-scroll--scroll .ipo-tab-card{flex:0 0 calc((100cqw - 60px) / 6);min-width:calc((100cqw - 60px) / 6);max-width:calc((100cqw - 60px) / 6);}
+.ipo-tabs-scroll--scroll[data-ipo-tab-count]:not([data-ipo-tab-count='1'])::after{opacity:1;}
+.ipo-tabs-scroll--scroll .ipo-tab-card{flex:0 0 calc((100cqw - 60px) / var(--ipo-tab-visible, 5));min-width:calc((100cqw - 60px) / var(--ipo-tab-visible, 5));max-width:calc((100cqw - 60px) / var(--ipo-tab-visible, 5));}
+#tab-listed .ipo-tabs-scroll--scroll{overflow-x:auto!important;overflow-y:hidden!important;}
 .ipo-tab-batch{display:flex;flex-direction:column;gap:0;}
 .ipo-tab-batch-label{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;padding:0 4px 6px;white-space:nowrap;}
 .ipo-tab-batch-cards{display:flex;gap:12px;align-items:stretch;}
@@ -2948,7 +2949,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   数据来源：以上信息仅vicky收集提供，一切后果由她负责 &nbsp;｜&nbsp; 本页信息仅供参考，不构成投资建议 &nbsp;｜&nbsp; 更新：<span id="site-footer-updated">—</span>
 </footer>
 
-<script src="./config.js?v=20260626b"></script>
+<script src="./config.js?v=20260626c"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 /* Sheet / AI 配置见 config.js；此处仅保留可选运行时覆盖 */
@@ -8702,7 +8703,7 @@ window.STOCKS = STOCKS;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 <script src="./ipo-list-radar.js?v=24"></script>
-<script src="./ipo-google-sheet.js?v=28"></script>
+<script src="./ipo-google-sheet.js?v=29"></script>
 <script>window.process=window.process||{env:{NODE_ENV:'production'}};</script>
 <script src="./ipo-sentiment-dashboard.js?v=20260625boardv12"></script>
 <script>
