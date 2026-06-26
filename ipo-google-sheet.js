@@ -1226,6 +1226,14 @@
       typeof global.buildIpoListDetailShellHtml === 'function' ? global.buildIpoListDetailShellHtml() : '';
     wrapper.innerHTML = `${tabsHtml}<div class="ipo-tab-content-wrap" id="ipo-tab-content" style="margin-top:6px;">${shell}</div>`;
 
+    rows.forEach(r => {
+      const code = _extractCodeFromRow(r);
+      const m = code && models[code];
+      if (m && typeof global.updateIpoTabCardWeather === 'function') {
+        global.updateIpoTabCardWeather(code, m.totalScore);
+      }
+    });
+
     const restoreName =
       prevActive && global.stockData && global.stockData[prevActive] ? prevActive : firstName;
     const firstModel = restoreName && global.stockData ? global.stockData[restoreName] : null;
