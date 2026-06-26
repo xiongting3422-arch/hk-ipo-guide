@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<script src="./config.js?v=20260626a"></script>
+<script src="./config.js?v=20260626b"></script>
 <script>
 (function () {
-  var BUILD = String((window.__IPO_APP_BUILD__ || '20260626a')).trim();
+  var BUILD = String((window.__IPO_APP_BUILD__ || '20260626b')).trim();
   var STORAGE_KEY = '__ipo_app_build_v1__';
   try {
     var prev = localStorage.getItem(STORAGE_KEY);
@@ -2948,7 +2948,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   数据来源：以上信息仅vicky收集提供，一切后果由她负责 &nbsp;｜&nbsp; 本页信息仅供参考，不构成投资建议 &nbsp;｜&nbsp; 更新：<span id="site-footer-updated">—</span>
 </footer>
 
-<script src="./config.js?v=20260626a"></script>
+<script src="./config.js?v=20260626b"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 /* Sheet / AI 配置见 config.js；此处仅保留可选运行时覆盖 */
@@ -8702,7 +8702,7 @@ window.STOCKS = STOCKS;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 <script src="./ipo-list-radar.js?v=24"></script>
-<script src="./ipo-google-sheet.js?v=27"></script>
+<script src="./ipo-google-sheet.js?v=28"></script>
 <script>window.process=window.process||{env:{NODE_ENV:'production'}};</script>
 <script src="./ipo-sentiment-dashboard.js?v=20260625boardv12"></script>
 <script>
@@ -10962,7 +10962,7 @@ function buildIpoAccordion() {
   const starColor = rc => rc==='r5'?'#16a34a':rc==='r4'?'#f97316':rc==='r3'?'#d97706':'#dc2626';
 
   // ── Tab cards row ──
-  let tabsHtml = `<div class="ipo-tabs-scroll">`;
+  let tabsHtml = `<div class="ipo-tabs-scroll ipo-tabs-scroll--scroll" data-ipo-tab-count="0">`;
   let firstCode = null;
 
   batches.forEach((batch, bi) => {
