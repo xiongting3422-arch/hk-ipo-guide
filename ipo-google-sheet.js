@@ -1207,8 +1207,13 @@
 
     let firstName = null;
     const tabCount = rows.length;
-    /* 桌面/手机统一横滑：一屏约 6 卡宽，超出可左右滑动（避免 ≤6 时 --fit 把少量卡片拉满整行） */
-    const tabScrollCls = 'ipo-tabs-scroll ipo-tabs-scroll--scroll';
+    /* 网页端 ≤6 张均分一行（--fit）；超过 6 张或手机端才横滑（--scroll） */
+    const isMobileTabBar =
+      typeof global.matchMedia === 'function' && global.matchMedia('(max-width: 768px)').matches;
+    const tabScrollCls =
+      tabCount > IPO_SHEET_TOP_N || isMobileTabBar
+        ? 'ipo-tabs-scroll ipo-tabs-scroll--scroll'
+        : 'ipo-tabs-scroll ipo-tabs-scroll--fit';
     let tabsHtml = `<div class="${tabScrollCls}" data-ipo-tab-count="${tabCount}">`;
     rows.forEach((r, idx) => {
       const m = models[_extractCodeFromRow(r)] || rowToIpoDisplayModel(r);
