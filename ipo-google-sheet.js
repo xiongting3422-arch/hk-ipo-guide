@@ -503,6 +503,10 @@
   }
 
   const IPO_SHEET_TOP_N = 6;
+  /** 上市新股 Tab 顶部横滑卡片：最多 13 只 */
+  const IPO_SHEET_CARD_TOP_N = 13;
+  /** 网页端一屏可见卡片数（超出则横滑） */
+  const IPO_TAB_VISIBLE_DESKTOP = 6;
 
   function _dedupeIpoRowsByCode(rows) {
     const seen = new Set();
@@ -589,7 +593,7 @@
     return 'unknown';
   }
 
-  /** 横滑卡片：认购中 + 暗盘中 + 待暗盘（+ 已上市作补充）；总数 >6 时剔除已上市；最多 6 只 */
+  /** 横滑卡片：认购中 + 暗盘中 + 待暗盘（+ 已上市作补充）；总数 >13 时剔除已上市；最多 13 只 */
   function buildIpoCardStocks(rows) {
     const sorted = _sortRowsBySubEndDesc(_ipoBaseEligibleRows(rows));
     if (!sorted.length) return [];
@@ -597,10 +601,10 @@
     let out = tagged.filter(({ status }) =>
       status === 'active' || status === 'dark' || status === 'pending_dark' || status === 'listed',
     );
-    if (out.length > IPO_SHEET_TOP_N) {
+    if (out.length > IPO_SHEET_CARD_TOP_N) {
       out = out.filter(({ status }) => status !== 'listed');
     }
-    return out.slice(0, IPO_SHEET_TOP_N).map(t => t.row);
+    return out.slice(0, IPO_SHEET_CARD_TOP_N).map(t => t.row);
   }
 
   /** 汇总表：认购中 + 待暗盘 + 暗盘中；列数 >2 时由表格横向滚动展示 */
@@ -1207,13 +1211,13 @@
 
     let firstName = null;
     const tabCount = rows.length;
-    /* 网页端 ≤6 张均分一行（--fit）；超过 6 张或手机端才横滑（--scroll） */
+    /* 网页端 ≤6 张均分一行；7～13 张一屏 6 张 + 横滑；手机端始终横滑 */
     const isMobileTabBar =
       typeof global.matchMedia === 'function' && global.matchMedia('(max-width: 768px)').matches;
     const tabScrollCls =
-      tabCount > IPO_SHEET_TOP_N || isMobileTabBar
-        ? 'ipo-tabs-scroll ipo-tabs-scroll--scroll'
-        : 'ipo-tabs-scroll ipo-tabs-scroll--fit';
+      tabCount <= IPO_TAB_VISIBLE_DESKTOP && !isMobileTabBar
+        ? 'ipo-tabs-scroll ipo-tabs-scroll--fit'
+        : 'ipo-tabs-scroll ipo-tabs-scroll--scroll';
     let tabsHtml = `<div class="${tabScrollCls}" data-ipo-tab-count="${tabCount}">`;
     rows.forEach((r, idx) => {
       const m = models[_extractCodeFromRow(r)] || rowToIpoDisplayModel(r);
