@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<script src="./config.js?v=20260626d"></script>
+<script src="./config.js?v=20260626e"></script>
 <script>
 (function () {
-  var BUILD = String((window.__IPO_APP_BUILD__ || '20260626d')).trim();
+  var BUILD = String((window.__IPO_APP_BUILD__ || '20260626e')).trim();
   var STORAGE_KEY = '__ipo_app_build_v1__';
   try {
     var prev = localStorage.getItem(STORAGE_KEY);
@@ -685,6 +685,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 #tab-listed .ipo-tabs-scroll--scroll .ipo-tab-card{
   --ipo-tab-card-w:max(148px,calc((100% - 60px) / var(--ipo-tab-visible, 4.5)));
   flex:0 0 var(--ipo-tab-card-w)!important;
+  flex-shrink:0!important;
   min-width:var(--ipo-tab-card-w)!important;
   max-width:var(--ipo-tab-card-w)!important;
 }
@@ -813,18 +814,20 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   #tab-listed .ipo-tabs-scroll .ipo-tab-card,
   #tab-listed .ipo-tabs-scroll--fit .ipo-tab-card,
   #tab-listed .ipo-tabs-scroll--scroll .ipo-tab-card{
-    --ipo-tab-card-w:max(132px,calc((100vw - 36px) / 2.4));
+    --ipo-tab-card-w:max(136px,calc((100vw - 36px) / 2.2));
     flex:0 0 var(--ipo-tab-card-w)!important;
+    flex-shrink:0!important;
     min-width:var(--ipo-tab-card-w)!important;
     max-width:var(--ipo-tab-card-w)!important;
     scroll-snap-align:start;
   }
   #tab-listed .ipo-tabs-scroll--scroll .ipo-tab-card{
     flex:0 0 var(--ipo-tab-card-w)!important;
+    flex-shrink:0!important;
     min-width:var(--ipo-tab-card-w)!important;
     max-width:var(--ipo-tab-card-w)!important;
   }
-  #tab-listed .ipo-tab-card{min-height:108px;padding:12px 10px;}
+  #tab-listed .ipo-tab-card{min-height:118px;padding:12px 10px;}
   #tab-listed .ipo-tab-name{
     font-size:15px;
     line-height:1.3;
@@ -836,8 +839,15 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
     text-overflow:ellipsis;
   }
   #tab-listed .ipo-tab-weather-icon{font-size:24px;right:8px;bottom:8px;}
-  #tab-listed .ipo-tab-weather-hint{font-size:9px;line-height:1.3;}
+  #tab-listed .ipo-tab-weather-hint{font-size:9px;line-height:1.3;display:block!important;visibility:visible!important;}
   #tab-listed .ipo-tab-status{font-size:9px;padding:2px 7px;}
+  #tab-listed #ipo-compare-table .ipo-cmp-viewport .ipo-cmp-scroll{
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  #tab-listed #ipo-compare-table .ipo-cmp-viewport--fit .ipo-cmp-matrix{
+    min-width:calc(110px + var(--ipo-cmp-cols, 4) * 148px);
+  }
   #tab-listed .page{padding-left:12px;padding-right:12px;}
   #tab-listed .ipo-detail-inner{padding:10px 0 0;}
   #tab-listed .ipo-radar-total-label{font-size:24px;}
@@ -2959,7 +2969,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   数据来源：以上信息仅vicky收集提供，一切后果由她负责 &nbsp;｜&nbsp; 本页信息仅供参考，不构成投资建议 &nbsp;｜&nbsp; 更新：<span id="site-footer-updated">—</span>
 </footer>
 
-<script src="./config.js?v=20260626d"></script>
+<script src="./config.js?v=20260626e"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 /* Sheet / AI 配置见 config.js；此处仅保留可选运行时覆盖 */
@@ -8712,8 +8722,8 @@ window.CAL_STOCKS = CAL_STOCKS;
 window.STOCKS = STOCKS;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-<script src="./ipo-list-radar.js?v=24"></script>
-<script src="./ipo-google-sheet.js?v=30"></script>
+<script src="./ipo-list-radar.js?v=20260626e"></script>
+<script src="./ipo-google-sheet.js?v=20260626e"></script>
 <script>window.process=window.process||{env:{NODE_ENV:'production'}};</script>
 <script src="./ipo-sentiment-dashboard.js?v=20260625boardv12"></script>
 <script>
@@ -9676,12 +9686,12 @@ function buildCompareTableFromListedSheet(el, stocks, fieldOrder) {
   }
   const n = stocks.length;
   const viewportCls =
-    n > 4 ? 'ipo-cmp-viewport ipo-cmp-viewport--scroll' : 'ipo-cmp-viewport ipo-cmp-viewport--fit';
+    n >= 2 ? 'ipo-cmp-viewport ipo-cmp-viewport--scroll' : 'ipo-cmp-viewport ipo-cmp-viewport--fit';
   const minW = 110 + n * Math.ceil((1400 - 110) / 4.5);
   const nameCodes = stocks.map(s => _cmpNameCodeFromRow(s));
   let html = `<div class="${viewportCls}" style="--ipo-cmp-cols:${n};">
   <div class="ipo-cmp-scroll">
-  <table class="ipo-cmp-matrix" style="border-collapse:collapse;width:100%;min-width:${n > 4 ? '100%' : minW + 'px'};font-size:13px;background:#fff;">
+  <table class="ipo-cmp-matrix" style="border-collapse:collapse;width:100%;min-width:${n >= 2 ? '100%' : minW + 'px'};font-size:13px;background:#fff;">
     <thead style="position:sticky;top:0;z-index:15;">
       <tr style="background:#f4f4f5;border-bottom:2px solid rgba(0,0,0,.1);">
         <th style="padding:12px 16px;text-align:left;vertical-align:top;font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.06em;white-space:nowrap;position:sticky;left:0;top:0;background:#f4f4f5;z-index:20;min-width:110px;box-shadow:2px 0 0 0 rgba(0,0,0,.13),6px 0 12px rgba(0,0,0,.06);">指标 \\ 个股</th>`;

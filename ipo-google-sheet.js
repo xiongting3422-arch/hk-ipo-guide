@@ -603,12 +603,12 @@
     return out.slice(0, IPO_SHEET_TOP_N).map(t => t.row);
   }
 
-  /** 汇总表：认购中 + 待暗盘；超过 6 只时由表格横向滚动展示 */
+  /** 汇总表：认购中 + 待暗盘 + 暗盘中；列数 >2 时由表格横向滚动展示 */
   function buildIpoCompareStocks(rows) {
     const sorted = _sortRowsBySubEndDesc(_ipoBaseEligibleRows(rows));
     return sorted.filter(r => {
       const s = getIpoExtendedStatusKey(r);
-      return s === 'active' || s === 'pending_dark';
+      return s === 'active' || s === 'pending_dark' || s === 'dark';
     });
   }
 
