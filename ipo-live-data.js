@@ -1806,6 +1806,12 @@ window.fetchMasterDataFromSheet = async function fetchMasterDataFromSheet() {
       }
     }
 
+    const homeOk = !!(home && home.ok && home.rows && home.rows.length);
+    if (!homeOk) {
+      _ipoSheetFetchSucceeded = false;
+      console.warn('[IPO Sheet] IPO主页 数据未就绪，本次同步视为失败');
+      return false;
+    }
     return true;
   } catch (e) {
     _ipoSheetFetchSucceeded = false;

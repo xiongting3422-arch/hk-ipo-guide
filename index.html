@@ -5,6 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
+<script src="./config.js?v=20260626a"></script>
+<script>
+(function () {
+  var BUILD = String((window.__IPO_APP_BUILD__ || '20260626a')).trim();
+  var STORAGE_KEY = '__ipo_app_build_v1__';
+  try {
+    var prev = localStorage.getItem(STORAGE_KEY);
+    if (prev === BUILD) return;
+    localStorage.setItem(STORAGE_KEY, BUILD);
+    var url = new URL(window.location.href);
+    if (url.searchParams.get('b') === BUILD) return;
+    url.searchParams.set('b', BUILD);
+    url.searchParams.set('_cb', String(Date.now()));
+    window.location.replace(url.toString());
+  } catch (_) {}
+})();
+</script>
 <title>IPO打新指南 · 港股新股实时资讯</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23f97316'/%3E%3Crect x='0' y='0' width='64' height='3' rx='2' fill='rgba(255,255,255,.25)'/%3E%3Ctext x='32' y='28' text-anchor='middle' font-family='DM Mono,monospace' font-size='16' font-weight='900' letter-spacing='2' fill='white'%3EIPO%3C/text%3E%3Crect x='16' y='36' width='5' height='14' rx='2' fill='rgba(255,255,255,.9)'/%3E%3Crect x='24' y='30' width='5' height='20' rx='2' fill='rgba(255,255,255,.9)'/%3E%3Crect x='32' y='33' width='5' height='17' rx='2' fill='rgba(255,255,255,.9)'/%3E%3Crect x='40' y='27' width='5' height='23' rx='2' fill='rgba(255,255,255,.9)'/%3E%3C/svg%3E">
 <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23f97316'/%3E%3Ctext x='32' y='28' text-anchor='middle' font-family='monospace' font-size='16' font-weight='900' letter-spacing='2' fill='white'%3EIPO%3C/text%3E%3Crect x='16' y='36' width='5' height='14' rx='2' fill='rgba(255,255,255,.9)'/%3E%3Crect x='24' y='30' width='5' height='20' rx='2' fill='rgba(255,255,255,.9)'/%3E%3Crect x='32' y='33' width='5' height='17' rx='2' fill='rgba(255,255,255,.9)'/%3E%3Crect x='40' y='27' width='5' height='23' rx='2' fill='rgba(255,255,255,.9)'/%3E%3C/svg%3E">
@@ -2931,7 +2948,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   数据来源：以上信息仅vicky收集提供，一切后果由她负责 &nbsp;｜&nbsp; 本页信息仅供参考，不构成投资建议 &nbsp;｜&nbsp; 更新：<span id="site-footer-updated">—</span>
 </footer>
 
-<script src="./config.js?v=1"></script>
+<script src="./config.js?v=20260626a"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 /* Sheet / AI 配置见 config.js；此处仅保留可选运行时覆盖 */
@@ -2939,7 +2956,7 @@ window.__IPO_SHEET_CONFIG__ = window.__IPO_SHEET_CONFIG__ || {};
 window.__IPO_APP_CONFIG__ = window.__IPO_APP_CONFIG__ || {};
 // 可选：window.__IPO_AI_CONFIG__ = { apiKey: '…', model: 'claude-sonnet-4-20250514', proxyUrl: 'https://你的后端/claude' };
 </script>
-<script src="./ipo-live-data.js?v=42"></script>
+<script src="./ipo-live-data.js?v=20260626a"></script>
 <script src="./launched-audit-data.js?v=1"></script>
 <script src="./ipo-break-risk-signals-data.js?v=1"></script>
 <script src="./script.js?v=16"></script>
@@ -8421,14 +8438,14 @@ function updateSiteFooterRefreshTime(ts) {
 }
 
 function initSiteFooterRefreshTime() {
-  let t = window._lastPageRefreshAt;
-  if (!t) {
-    try {
-      const raw = sessionStorage.getItem(IPO_LAST_PAGE_REFRESH_KEY);
-      if (raw) t = parseInt(raw, 10);
-    } catch (_) {}
+  const el = document.getElementById('site-footer-updated');
+  if (!el) return;
+  const synced = Number(window.__IPO_LAST_SHEET_SYNC_AT__ || window._lastPageRefreshAt || 0);
+  if (synced && Number.isFinite(synced)) {
+    updateSiteFooterRefreshTime(synced);
+    return;
   }
-  if (t && Number.isFinite(t)) updateSiteFooterRefreshTime(t);
+  el.textContent = '同步中…';
 }
 
 function formatHeaderDate(d = new Date()) {
@@ -8727,7 +8744,12 @@ window.STOCKS = STOCKS;
 
   updateCalendarStatusLabels();
   updateHeaderDate();
-  if (sheetOk) updateSiteFooterRefreshTime(Date.now());
+  if (sheetOk) {
+    updateSiteFooterRefreshTime(Date.now());
+  } else {
+    const footerEl = document.getElementById('site-footer-updated');
+    if (footerEl) footerEl.textContent = '表格未同步（请下拉刷新或点导航 ↻）';
+  }
   const { timeStr } = formatNow();
   const rt = document.getElementById('nav-refresh-time');
   if (rt) rt.textContent = timeStr;
