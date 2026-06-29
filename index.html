@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<script src="./config.js?v=20260627b"></script>
+<script src="./config.js?v=20260627c"></script>
 <script>
 (function () {
-  var BUILD = String((window.__IPO_APP_BUILD__ || '20260627b')).trim();
+  var BUILD = String((window.__IPO_APP_BUILD__ || '20260627c')).trim();
   var STORAGE_KEY = '__ipo_app_build_v1__';
   try {
     var prev = localStorage.getItem(STORAGE_KEY);
@@ -634,7 +634,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 .cal-hdr-day.wkd .cal-hdr-dw{color:rgba(100,100,100,.32);}
 .td-circle{width:32px;height:32px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;margin:0 auto;box-shadow:0 2px 8px rgba(239,68,68,.4);}
 /* Stock rows */
-.cal-lbl{padding:10px 12px 10px 0;border-right:1.5px solid rgba(0,0,0,.08);display:flex;flex-direction:column;justify-content:center;gap:1px;position:sticky;left:0;background:#ffffff;z-index:15;transition:background .12s;box-shadow:4px 0 10px rgba(255,255,255,.98);}
+.cal-lbl{padding:10px 12px 10px 14px;border-right:1.5px solid rgba(0,0,0,.08);display:flex;flex-direction:column;justify-content:center;gap:1px;position:sticky;left:0;background:#ffffff;z-index:15;transition:background .12s;box-shadow:4px 0 10px rgba(255,255,255,.98);}
 .cal-grp-lbl{padding:7px 0 7px 14px;font-size:11px;font-weight:800;letter-spacing:.08em;white-space:nowrap;text-transform:uppercase;display:flex;align-items:center;gap:7px;position:sticky;left:0;z-index:14;background:#fff;box-shadow:4px 0 10px rgba(255,255,255,.98);}
 .cal-row{display:grid;border-top:1px solid rgba(0,0,0,.055);cursor:pointer;transition:background .12s;}
 .cal-tl{position:relative;overflow:hidden;isolation:isolate;}
@@ -2958,7 +2958,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   数据来源：以上信息仅vicky收集提供，一切后果由她负责 &nbsp;｜&nbsp; 本页信息仅供参考，不构成投资建议 &nbsp;｜&nbsp; 更新：<span id="site-footer-updated">—</span>
 </footer>
 
-<script src="./config.js?v=20260627b"></script>
+<script src="./config.js?v=20260627c"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 /* Sheet / AI 配置见 config.js；此处仅保留可选运行时覆盖 */
@@ -6977,7 +6977,7 @@ function renderCalendar() {
     const lbl = document.createElement('div');
     lbl.className = 'cal-lbl';
     lbl.style.borderLeft = `3px solid ${gc.leftBd}`;
-    const sectorMaxW = LABEL_W - 22;
+    const sectorMaxW = LABEL_W - 29;
     lbl.innerHTML = `<div style="font-family:'DM Mono',monospace;font-size:10px;color:#9ca3af;letter-spacing:.02em;">${s.code}.HK</div><div class="cal-lbl-name" style="font-size:13px;font-weight:700;color:#111827;white-space:nowrap;margin-top:1px;overflow:hidden;text-overflow:ellipsis;max-width:${sectorMaxW}px;">${s.name}</div><div style="display:flex;align-items:center;gap:5px;margin-top:4px;"><span style="font-size:10px;color:${gc.hdrTxt};opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:${sectorMaxW}px;">${s.sector}</span></div>`;
     row.appendChild(lbl);
 
@@ -8711,8 +8711,8 @@ window.CAL_STOCKS = CAL_STOCKS;
 window.STOCKS = STOCKS;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-<script src="./ipo-list-radar.js?v=20260627b"></script>
-<script src="./ipo-google-sheet.js?v=20260627b"></script>
+<script src="./ipo-list-radar.js?v=20260627c"></script>
+<script src="./ipo-google-sheet.js?v=20260627c"></script>
 <script>window.process=window.process||{env:{NODE_ENV:'production'}};</script>
 <script src="./ipo-sentiment-dashboard.js?v=20260625boardv12"></script>
 <script>
