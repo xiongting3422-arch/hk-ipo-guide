@@ -6,7 +6,7 @@
   'use strict';
 
   /** 每次部署递增；用于手机端 HTML/资源缓存失效（见 index.html 头部脚本） */
-  global.__IPO_APP_BUILD__ = '20260627c';
+  global.__IPO_APP_BUILD__ = '20260701a';
 
   /* ── Google Sheet（文件 → 共享 → 发布到网络 → /pub 链接） ── */
   global.__IPO_SHEET_CONFIG__ = Object.assign(

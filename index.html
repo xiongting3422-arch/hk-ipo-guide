@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<script src="./config.js?v=20260627c"></script>
+<script src="./config.js?v=20260701a"></script>
 <script>
 (function () {
-  var BUILD = String((window.__IPO_APP_BUILD__ || '20260627c')).trim();
+  var BUILD = String((window.__IPO_APP_BUILD__ || '20260701a')).trim();
   var STORAGE_KEY = '__ipo_app_build_v1__';
   try {
     var prev = localStorage.getItem(STORAGE_KEY);
@@ -2958,7 +2958,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   数据来源：以上信息仅vicky收集提供，一切后果由她负责 &nbsp;｜&nbsp; 本页信息仅供参考，不构成投资建议 &nbsp;｜&nbsp; 更新：<span id="site-footer-updated">—</span>
 </footer>
 
-<script src="./config.js?v=20260627c"></script>
+<script src="./config.js?v=20260701a"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 /* Sheet / AI 配置见 config.js；此处仅保留可选运行时覆盖 */
@@ -6743,24 +6743,18 @@ function calNearestPricingListingAnchor(fromDay) {
   return calStartOfDay(fromDay);
 }
 
+/** 打新时间表 15 日视窗内「今日」列索引（0-based，2 = 左起第 3 列） */
+const CAL_TODAY_COL_IDX = 2;
+
 /**
- * 将“今日”置于视窗中部列（第 8 列，idx=7）；若今日无活动则锚定最近的定价/上市日。
+ * 将「今日」置于视窗左起第 3 列（idx=2），右侧尽量展示未来日程。
  */
 function calComputeIdealViewStartDate() {
-  const CENTER = 7;
-  const today = ipoToday();
-  let anchor = today;
-  if (calHasTimelineActivityOnDate(today)) {
-    anchor = today;
-  } else {
-    anchor = calNearestPricingListingAnchor(today);
-  }
-  return calAddDays(anchor, -CENTER);
+  return calAddDays(ipoToday(), -CAL_TODAY_COL_IDX);
 }
 
 /**
- * 将 `.cal-wrap` 横向滚动，使「今日」列大致居中（与 MASTER / CAL_TODAY 对齐）。
- * 若当前 15 日内不含今日，则退化为锚点列（第 8 列，idx=7）。
+ * 将 `.cal-wrap` 横向滚动，使「今日」列靠左（约视窗 1/3 处），右侧留出更多未来日期。
  */
 function scrollToToday(opts) {
   const fromGlobal = window.__IPO_TIMELINE_SCROLL_BEHAVIOR__;
@@ -6777,7 +6771,8 @@ function scrollToToday(opts) {
     if (!targetEl) return;
     const wr = wrap.getBoundingClientRect();
     const mr = targetEl.getBoundingClientRect();
-    const delta = (mr.left + mr.right) / 2 - (wr.left + wr.right) / 2;
+    const targetX = wr.left + wr.width / 3;
+    const delta = (mr.left + mr.right) / 2 - targetX;
     const next = wrap.scrollLeft + delta;
     const max = Math.max(0, wrap.scrollWidth - wrap.clientWidth);
     const left = Math.max(0, Math.min(next, max));
@@ -6790,7 +6785,7 @@ function scrollToToday(opts) {
       let el = document.getElementById('cal-hdr-today')
         || document.querySelector('.cal-hdr-day[data-cal-is-today="1"]')
         || (ymd && document.querySelector(`.cal-hdr-day[data-cal-ymd="${ymd}"]`));
-      if (!el) el = document.querySelector('.cal-hdr-day[data-cal-col-idx="7"]');
+      if (!el) el = document.querySelector(`.cal-hdr-day[data-cal-col-idx="${CAL_TODAY_COL_IDX}"]`);
       if (el) run(el);
     });
   });
@@ -6810,7 +6805,7 @@ const BAR_COLORS = {
 function calShift(n) { calViewStartDate = calAddDays(calViewStartDate, n); renderTimeline(); }
 function calGoToday() {
   CAL_TODAY = ipoToday();
-  calViewStartDate = calAddDays(CAL_TODAY, -7);
+  calViewStartDate = calAddDays(CAL_TODAY, -CAL_TODAY_COL_IDX);
   renderTimeline();
 }
 
@@ -8711,8 +8706,8 @@ window.CAL_STOCKS = CAL_STOCKS;
 window.STOCKS = STOCKS;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-<script src="./ipo-list-radar.js?v=20260627c"></script>
-<script src="./ipo-google-sheet.js?v=20260627c"></script>
+<script src="./ipo-list-radar.js?v=20260701a"></script>
+<script src="./ipo-google-sheet.js?v=20260701a"></script>
 <script>window.process=window.process||{env:{NODE_ENV:'production'}};</script>
 <script src="./ipo-sentiment-dashboard.js?v=20260625boardv12"></script>
 <script>
