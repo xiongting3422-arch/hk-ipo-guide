@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<script src="./config.js?v=20260701a"></script>
+<script src="./config.js?v=20260701b"></script>
 <script>
 (function () {
   var BUILD = String((window.__IPO_APP_BUILD__ || '20260701a')).trim();
@@ -2958,7 +2958,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
   数据来源：以上信息仅vicky收集提供，一切后果由她负责 &nbsp;｜&nbsp; 本页信息仅供参考，不构成投资建议 &nbsp;｜&nbsp; 更新：<span id="site-footer-updated">—</span>
 </footer>
 
-<script src="./config.js?v=20260701a"></script>
+<script src="./config.js?v=20260701b"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 /* Sheet / AI 配置见 config.js；此处仅保留可选运行时覆盖 */
@@ -4068,6 +4068,11 @@ function switchTab(name) {
       if (typeof renderGreyMarket === 'function') renderGreyMarket();
       if (typeof renderRecentPerformance === 'function') renderRecentPerformance();
     } catch (e) { console.warn('grey tab refresh', e); }
+  }
+  if (name === 'calendar') {
+    try {
+      if (typeof renderTimeline === 'function') renderTimeline();
+    } catch (e) { console.warn('calendar tab refresh', e); }
   }
   if (name === 'listed') {
     try {
@@ -6812,6 +6817,116 @@ function calGoToday() {
 /** 打新时间表 Tab 时间轴：最多展示标的数（仅 renderCalendar，不改 CAL_STOCKS / MASTER） */
 const CAL_SCHEDULE_DISPLAY_MAX = 15;
 
+function _cellFromScheduleRow(row, aliases) {
+  if (!row || typeof row !== 'object') return '';
+  for (const a of aliases) {
+    if (row[a] != null && String(row[a]).trim()) return String(row[a]).trim();
+  }
+  const keys = Object.keys(row);
+  for (const a of aliases) {
+    const hit = keys.find(k => k === a || k.includes(a));
+    if (hit != null && row[hit] != null && String(row[hit]).trim()) return String(row[hit]).trim();
+  }
+  return '';
+}
+
+/** 打新时间表 Sheet → CAL_STOCKS（日历/暗盘 MASTER 的数据根；不依赖暗盘涨幅列） */
+function hydrateCalStocksFromScheduleSheet() {
+  const schedRows = Array.isArray(window.__IPO_SCHEDULE_SHEET_ROWS__) ? window.__IPO_SCHEDULE_SHEET_ROWS__ : [];
+  if (!schedRows.length) return 0;
+  const sectorByCode = {};
+  const enrichRows = [
+    ...(Array.isArray(window.__IPO_LISTED_SHEET_ROWS__) ? window.__IPO_LISTED_SHEET_ROWS__ : []),
+    ...(Array.isArray(window.__IPO_DARK_SHEET_ROWS__) ? window.__IPO_DARK_SHEET_ROWS__ : []),
+  ];
+  enrichRows.forEach(row => {
+    const code = _codeFromScheduleSheetRow(row);
+    if (!code) return;
+    const sector = _cellFromScheduleRow(row, ['行业板块', '板块', '行业']);
+    if (sector) sectorByCode[code] = sector;
+  });
+
+  let n = 0;
+  schedRows.forEach(row => {
+    const code = _codeFromScheduleSheetRow(row);
+    const name = _nameFromScheduleSheetRow(row);
+    if (!code || !name) return;
+    let cs = CAL_STOCKS.find(s => String(s.code).replace(/\D/g, '').padStart(5, '0') === code);
+    if (!cs) {
+      cs = {
+        code,
+        name,
+        sector: '—',
+        ipoPrice: '—',
+        status: 'open',
+        statusLabel: '',
+        batch: 'sheet',
+        sub: null,
+        pricing: null,
+        results: null,
+        dark: null,
+        list: null,
+      };
+      CAL_STOCKS.push(cs);
+    }
+    cs.name = name;
+    const sector = _cellFromScheduleRow(row, ['行业板块', '板块', '行业']) || sectorByCode[code];
+    if (sector) cs.sector = sector;
+
+    const subS = _cellFromScheduleRow(row, ['招股开始', '认购开始']);
+    const subE = _cellFromScheduleRow(row, ['招股结束', '招股截止', '认购截止']);
+    const pricing = _cellFromScheduleRow(row, ['定价日期', '定价日']);
+    const results = _cellFromScheduleRow(row, ['结果公布日期', '结果公布']);
+    const dark = _cellFromScheduleRow(row, ['暗盘时间', '暗盘日期']);
+    const list = _cellFromScheduleRow(row, ['上市日期', '挂牌日', '上市日']);
+    if (subS && subE) cs.sub = [subS, subE];
+    if (pricing) cs.pricing = pricing;
+    if (results) cs.results = results;
+    if (dark) cs.dark = dark;
+    if (list) cs.list = list;
+    hydrateCalStockDates(cs);
+    n += 1;
+  });
+  return n;
+}
+window.hydrateCalStocksFromScheduleSheet = hydrateCalStocksFromScheduleSheet;
+
+function _calStockFromScheduleRow(row) {
+  if (!row) return null;
+  const code = _codeFromScheduleSheetRow(row);
+  const name = _nameFromScheduleSheetRow(row);
+  if (!code || !name) return null;
+  const existing = CAL_STOCKS.find(s => String(s.code).replace(/\D/g, '').padStart(5, '0') === code);
+  if (existing) return existing;
+  const cs = {
+    code,
+    name,
+    sector: _cellFromScheduleRow(row, ['行业板块', '板块', '行业']) || '—',
+    ipoPrice: '—',
+    status: 'open',
+    statusLabel: '',
+    batch: 'sheet',
+    sub: null,
+    pricing: null,
+    results: null,
+    dark: null,
+    list: null,
+  };
+  const subS = _cellFromScheduleRow(row, ['招股开始', '认购开始']);
+  const subE = _cellFromScheduleRow(row, ['招股结束', '招股截止', '认购截止']);
+  const pricing = _cellFromScheduleRow(row, ['定价日期', '定价日']);
+  const results = _cellFromScheduleRow(row, ['结果公布日期', '结果公布']);
+  const dark = _cellFromScheduleRow(row, ['暗盘时间', '暗盘日期']);
+  const list = _cellFromScheduleRow(row, ['上市日期', '挂牌日', '上市日']);
+  if (subS && subE) cs.sub = [subS, subE];
+  if (pricing) cs.pricing = pricing;
+  if (results) cs.results = results;
+  if (dark) cs.dark = dark;
+  if (list) cs.list = list;
+  hydrateCalStockDates(cs);
+  return cs;
+}
+
 function _codeFromScheduleSheetRow(row) {
   if (!row || typeof row !== 'object') return null;
   return _normalizeStockCode(row['股票代码'] || row['代码'] || row['代号'] || row.code || '');
@@ -6845,10 +6960,20 @@ function _calStockAnchorDate(s) {
 
 /** 打新时间表时间轴渲染用：始终最多 15 只，优先 Sheet 自上而下，较久远的行自然落在第 16 位及以后而不展示 */
 function getCalStocksForScheduleDisplay() {
+  hydrateCalStocksFromScheduleSheet();
   const topCodes = getScheduleTopDisplayCodes(CAL_SCHEDULE_DISPLAY_MAX);
   if (topCodes.length) {
-    const byCode = Object.fromEntries(CAL_STOCKS.map(s => [String(s.code).padStart(5, '0'), s]));
-    const picked = topCodes.map(c => byCode[c]).filter(Boolean);
+    const byCode = Object.fromEntries(
+      CAL_STOCKS.map(s => [String(s.code).replace(/\D/g, '').padStart(5, '0'), s]),
+    );
+    const schedByCode = Object.fromEntries(
+      (Array.isArray(window.__IPO_SCHEDULE_SHEET_ROWS__) ? window.__IPO_SCHEDULE_SHEET_ROWS__ : [])
+        .map(row => [_codeFromScheduleSheetRow(row), row])
+        .filter(([c]) => c),
+    );
+    const picked = topCodes
+      .map(c => byCode[c] || _calStockFromScheduleRow(schedByCode[c]))
+      .filter(Boolean);
     if (picked.length) return picked;
   }
   return [...CAL_STOCKS]
@@ -7700,6 +7825,7 @@ function syncMasterFromCalStocksAndPerf() {
     };
   });
 }
+window.syncMasterFromCalStocksAndPerf = syncMasterFromCalStocksAndPerf;
 
 /** 将 MASTER 中的日期/名称写回 CAL_STOCKS（外部 JSON 只改 MASTER 后用于刷新时间轴） */
 function applyMasterToCalStocks() {
@@ -7954,6 +8080,35 @@ function buildGreyScheduleRowsFromMaster() {
   return rows.sort((a, b) => (b.darkDate?.getTime() || 0) - (a.darkDate?.getTime() || 0));
 }
 
+/** 打新时间表 Sheet 兜底：MASTER 未就绪时仍可展示暗盘日程 */
+function buildGreyScheduleRowsFromScheduleSheet() {
+  hydrateCalStocksFromScheduleSheet();
+  const today = calStartOfDay(ipoToday());
+  const t0 = today.getTime();
+  const rows = [];
+  (Array.isArray(window.__IPO_SCHEDULE_SHEET_ROWS__) ? window.__IPO_SCHEDULE_SHEET_ROWS__ : []).forEach(row => {
+    const code = _codeFromScheduleSheetRow(row);
+    const name = _nameFromScheduleSheetRow(row);
+    if (!code) return;
+    const darkRaw = _cellFromScheduleRow(row, ['暗盘时间', '暗盘日期']);
+    const listRaw = _cellFromScheduleRow(row, ['上市日期', '挂牌日', '上市日']);
+    const darkDate = parseIpoDate(darkRaw);
+    if (!darkDate) return;
+    const g0 = calStartOfDay(darkDate).getTime();
+    if (g0 < t0) return;
+    const listDate = parseIpoDate(listRaw);
+    rows.push({
+      code,
+      name: name || code,
+      darkRaw,
+      listRaw,
+      darkDate: calStartOfDay(darkDate),
+      listDate: listDate ? calStartOfDay(listDate) : null,
+    });
+  });
+  return rows.sort((a, b) => (b.darkDate?.getTime() || 0) - (a.darkDate?.getTime() || 0));
+}
+
 function mergeGreyScheduleRows(masterRows, remoteRows) {
   const key = it => `${it.code}|${it.darkDate ? it.darkDate.getTime() : String(it.darkRaw || '')}`;
   const map = new Map();
@@ -7971,13 +8126,18 @@ function mergeGreyScheduleRows(masterRows, remoteRows) {
 
 /** 暗盘 Tab：今日暗盘 + 时间表均源于 MASTER，并合并 AASTOCKS 爬虫增量 */
 function renderGreyMarket() {
+  hydrateCalStocksFromScheduleSheet();
   syncMasterFromCalStocksAndPerf();
   const liveRows = sortGreyLiveCardRows(
     collectGreyMarketTodayRows(),
     window.GREY_SORT_LIVE || { key: 'darkDate', dir: 'desc' },
   );
   renderGreyTodaySection(liveRows);
-  renderGreyScheduleSection(mergeGreyScheduleRows(buildGreyScheduleRowsFromMaster(), window._greySchedule || []));
+  const masterSched = buildGreyScheduleRowsFromMaster();
+  const sheetSched = masterSched.length ? [] : buildGreyScheduleRowsFromScheduleSheet();
+  renderGreyScheduleSection(
+    mergeGreyScheduleRows(mergeGreyScheduleRows(masterSched, sheetSched), window._greySchedule || []),
+  );
   syncGreySortSelects();
 }
 
@@ -8051,6 +8211,7 @@ function renderRecentPerformance() {
 }
 
 window.rerenderAllIpoViews = function rerenderAllIpoViews() {
+  hydrateCalStocksFromScheduleSheet();
   if (document.getElementById('lb-tbody')) renderLbRows(PERF_ALL.slice());
   if (document.getElementById('listed-tbody')) buildListedTable();
   renderGreyMarket();
@@ -8706,8 +8867,8 @@ window.CAL_STOCKS = CAL_STOCKS;
 window.STOCKS = STOCKS;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-<script src="./ipo-list-radar.js?v=20260701a"></script>
-<script src="./ipo-google-sheet.js?v=20260701a"></script>
+<script src="./ipo-list-radar.js?v=20260701b"></script>
+<script src="./ipo-google-sheet.js?v=20260701b"></script>
 <script>window.process=window.process||{env:{NODE_ENV:'production'}};</script>
 <script src="./ipo-sentiment-dashboard.js?v=20260625boardv12"></script>
 <script>

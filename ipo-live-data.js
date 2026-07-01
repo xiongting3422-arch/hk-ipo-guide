@@ -1724,6 +1724,14 @@ window.fetchMasterDataFromSheet = async function fetchMasterDataFromSheet() {
     window.__IPO_LISTED_SHEET_ROWS__ = listed.rows || [];
     window.__IPO_DARK_SHEET_ROWS__ = dark.rows || [];
     window.__IPO_SCHEDULE_SHEET_ROWS__ = sched.rows || [];
+    if (typeof window.hydrateCalStocksFromScheduleSheet === 'function') {
+      try {
+        const n = window.hydrateCalStocksFromScheduleSheet();
+        if (n > 0) console.log('[IPO Sheet] 打新时间表 → CAL_STOCKS', n, '只');
+      } catch (e) {
+        console.warn('[IPO Sheet] hydrateCalStocksFromScheduleSheet', e);
+      }
+    }
 
     // V11: 上市新股详情卡 UI 与双源数据在 ipo-google-sheet.js（rowToIpoDisplayModel、v11EnrichBullBearFromAI），表格：63719317
     // 「有无绿鞋」展示/着色：ipo-google-sheet.js _v11ParseGreenShoeForDetail + switchIpoTabFromSheetModel（本文件无 display:none 隐藏该格）
@@ -1796,6 +1804,20 @@ window.fetchMasterDataFromSheet = async function fetchMasterDataFromSheet() {
       }
       if (ok) {
         _applyTierDataFromZhDarkRows(dark.rows);
+      }
+    }
+    if (typeof window.hydrateCalStocksFromScheduleSheet === 'function') {
+      try {
+        window.hydrateCalStocksFromScheduleSheet();
+      } catch (e) {
+        console.warn('[IPO Sheet] hydrateCalStocksFromScheduleSheet (post-apply)', e);
+      }
+    }
+    if (typeof window.syncMasterFromCalStocksAndPerf === 'function') {
+      try {
+        window.syncMasterFromCalStocksAndPerf();
+      } catch (e) {
+        console.warn('[IPO Sheet] syncMasterFromCalStocksAndPerf', e);
       }
     }
 

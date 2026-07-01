@@ -27,7 +27,7 @@ const ROSTER_PATH = path.join(ROOT, 'data/ipo-list.json');
 const DB_PATH = path.join(ROOT, 'data/ipo-analysis-db.json');
 const FRONTEND_MIRROR_PATH = path.join(ROOT, 'data/ipo-stock-analysis.json');
 
-const { buildRosterPayload, normStockCode } = require('../lib/ipo-roster');
+const { buildRosterPayload, normStockCode, extractNameFromRow } = require('../lib/ipo-roster');
 const {
   fetchListedSheetRows,
   findStockRow,
@@ -115,14 +115,20 @@ async function loadOrBuildRoster(flags) {
   return roster;
 }
 
-function findPendingStocks(roster, db, flags) {
+function findPendingStocks(roster, db, flags, sheetRows) {
   const stocks = (roster.stocks || []).filter(s => s.code && s.name);
   if (flags.code) {
-    const target = stocks.filter(s => normStockCode(s.code) === flags.code);
-    if (!target.length) {
-      throw new Error(`代码 ${flags.code} 不在当前网页展示名册中`);
+    const fromRoster = stocks.filter(s => normStockCode(s.code) === flags.code);
+    if (fromRoster.length) return fromRoster.slice(0, flags.limit);
+    const row = findStockRow(sheetRows || [], { code: flags.code });
+    if (!row) {
+      throw new Error(
+        `代码 ${flags.code} 不在当前网页展示名册中，且未在 Google Sheet「上市新股」表找到`,
+      );
     }
-    return target.slice(0, flags.limit);
+    const name = extractNameFromRow(row) || flags.code;
+    console.log(`[run-ipo-audit] --code 定向：从 Sheet 解析 ${name} (${flags.code})`);
+    return [{ code: flags.code, name }].slice(0, flags.limit);
   }
   return stocks.filter(s => !hasCompleteAnalysis(db.stocks[normStockCode(s.code)])).slice(0, flags.limit);
 }
@@ -224,7 +230,8 @@ async function main() {
 
   const roster = await loadOrBuildRoster(flags);
   const db = loadAnalysisDb();
-  const pending = findPendingStocks(roster, db, flags);
+  const sheetRows = await fetchListedSheetRows();
+  const pending = findPendingStocks(roster, db, flags, sheetRows);
 
   if (!pending.length) {
     console.log('[run-ipo-audit] 当前展示名册全部已有六维分析，无需审计');
@@ -238,7 +245,6 @@ async function main() {
     pending.map(s => s.name).join('、'),
   );
 
-  const sheetRows = await fetchListedSheetRows();
   const audited = [];
 
   for (const stock of pending) {
