@@ -343,11 +343,11 @@
       const dDark = dDarkSheet || parseIsoDate(g('darkDate'));
       if (dList) {
         cs.listDateObj = c0(dList);
-        cs.list = dList.getDate();
+        cs.list = `${dList.getFullYear()}-${String(dList.getMonth() + 1).padStart(2, '0')}-${String(dList.getDate()).padStart(2, '0')}`;
       }
       if (dDark) {
         cs.darkDateObj = c0(dDark);
-        cs.dark = dDark.getDate();
+        cs.dark = `${dDark.getFullYear()}-${String(dDark.getMonth() + 1).padStart(2, '0')}-${String(dDark.getDate()).padStart(2, '0')}`;
       }
       if (dSubS && dSubE) {
         cs.subStartDate = c0(dSubS);

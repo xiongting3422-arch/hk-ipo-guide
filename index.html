@@ -8,7 +8,7 @@
 <script src="./config.js?v=20260701c"></script>
 <script>
 (function () {
-  var BUILD = String((window.__IPO_APP_BUILD__ || '20260701c')).trim();
+  var BUILD = String((window.__IPO_APP_BUILD__ || '20260701d')).trim();
   var STORAGE_KEY = '__ipo_app_build_v1__';
   try {
     var prev = localStorage.getItem(STORAGE_KEY);
@@ -6702,18 +6702,35 @@ function calToDateMaybe(v) {
   if (Number.isFinite(v)) return new Date(CAL_SEED_YEAR, CAL_SEED_MONTH_IDX, v);
   return null;
 }
+/** 优先解析 YYYY-MM-DD 完整日期；避免把「9」误当成 3 月 9 日 */
+function _calParseFieldDate(v) {
+  if (v instanceof Date && !isNaN(v)) return calStartOfDay(v);
+  if (typeof v === 'string' && /\d{4}/.test(v)) {
+    const d = parseIpoDate(v);
+    if (d && !isNaN(d)) return calStartOfDay(d);
+  }
+  return calToDateMaybe(v);
+}
 function hydrateCalStockDates(s) {
   if (!s) return;
   if (!s.subStartDate || !s.subEndDate) {
     if (Array.isArray(s.sub) && s.sub.length === 2) {
-      s.subStartDate = calToDateMaybe(s.sub[0]);
-      s.subEndDate = calToDateMaybe(s.sub[1]);
+      s.subStartDate = _calParseFieldDate(s.sub[0]);
+      s.subEndDate = _calParseFieldDate(s.sub[1]);
     }
   }
-  if (!s.pricingDate) s.pricingDate = calToDateMaybe(s.pricing);
-  if (!s.resultsDate) s.resultsDate = calToDateMaybe(s.results);
-  if (!s.darkDateObj) s.darkDateObj = calToDateMaybe(s.dark);
-  if (!s.listDateObj) s.listDateObj = calToDateMaybe(s.list);
+  const dPr = _calParseFieldDate(s.pricing);
+  if (dPr) s.pricingDate = dPr;
+  else if (!s.pricingDate) s.pricingDate = calToDateMaybe(s.pricing);
+  const dRes = _calParseFieldDate(s.results);
+  if (dRes) s.resultsDate = dRes;
+  else if (!s.resultsDate) s.resultsDate = calToDateMaybe(s.results);
+  const dDark = _calParseFieldDate(s.dark);
+  if (dDark) s.darkDateObj = dDark;
+  else if (!s.darkDateObj) s.darkDateObj = calToDateMaybe(s.dark);
+  const dList = _calParseFieldDate(s.list);
+  if (dList) s.listDateObj = dList;
+  else if (!s.listDateObj) s.listDateObj = calToDateMaybe(s.list);
 }
 
 /** 某日是否在时间轴上有可见活动（招股条、定价/结果/暗盘/上市节点） */
@@ -6876,10 +6893,26 @@ function hydrateCalStocksFromScheduleSheet() {
     const dark = _cellFromScheduleRow(row, ['暗盘时间', '暗盘日期']);
     const list = _cellFromScheduleRow(row, ['上市日期', '挂牌日', '上市日']);
     if (subS && subE) cs.sub = [subS, subE];
-    if (pricing) cs.pricing = pricing;
-    if (results) cs.results = results;
-    if (dark) cs.dark = dark;
-    if (list) cs.list = list;
+    if (pricing) {
+      cs.pricing = pricing;
+      const d = parseIpoDate(pricing);
+      if (d && !isNaN(d.getTime())) cs.pricingDate = calStartOfDay(d);
+    }
+    if (results) {
+      cs.results = results;
+      const d = parseIpoDate(results);
+      if (d && !isNaN(d.getTime())) cs.resultsDate = calStartOfDay(d);
+    }
+    if (dark) {
+      cs.dark = dark;
+      const d = parseIpoDate(dark);
+      if (d && !isNaN(d.getTime())) cs.darkDateObj = calStartOfDay(d);
+    }
+    if (list) {
+      cs.list = list;
+      const d = parseIpoDate(list);
+      if (d && !isNaN(d.getTime())) cs.listDateObj = calStartOfDay(d);
+    }
     hydrateCalStockDates(cs);
     n += 1;
   });
@@ -6915,10 +6948,26 @@ function _calStockFromScheduleRow(row) {
   const dark = _cellFromScheduleRow(row, ['暗盘时间', '暗盘日期']);
   const list = _cellFromScheduleRow(row, ['上市日期', '挂牌日', '上市日']);
   if (subS && subE) cs.sub = [subS, subE];
-  if (pricing) cs.pricing = pricing;
-  if (results) cs.results = results;
-  if (dark) cs.dark = dark;
-  if (list) cs.list = list;
+  if (pricing) {
+    cs.pricing = pricing;
+    const d = parseIpoDate(pricing);
+    if (d && !isNaN(d.getTime())) cs.pricingDate = calStartOfDay(d);
+  }
+  if (results) {
+    cs.results = results;
+    const d = parseIpoDate(results);
+    if (d && !isNaN(d.getTime())) cs.resultsDate = calStartOfDay(d);
+  }
+  if (dark) {
+    cs.dark = dark;
+    const d = parseIpoDate(dark);
+    if (d && !isNaN(d.getTime())) cs.darkDateObj = calStartOfDay(d);
+  }
+  if (list) {
+    cs.list = list;
+    const d = parseIpoDate(list);
+    if (d && !isNaN(d.getTime())) cs.listDateObj = calStartOfDay(d);
+  }
   hydrateCalStockDates(cs);
   return cs;
 }
@@ -7162,23 +7211,35 @@ function renderCalendar() {
     }
 
     // ④ Event circles — positioned ON the timeline, clearly separated from bar
-    const evMap = new Map();
+    const calEvents = [];
     const ev = (d, cls, tipFn, lbl) => {
       if (d == null) return;
       const dt = d instanceof Date ? d : new Date(d);
       if (!(dt instanceof Date) || isNaN(dt.getTime())) return;
       const tip = typeof tipFn === 'function' ? tipFn(dt) : String(tipFn);
-      evMap.set(calDateKey(dt), { d: dt, cls, tip, lbl });
+      calEvents.push({ d: dt, cls, tip, lbl });
     };
     ev(s.pricingDate, 'cev-price', dt => `定价 ${calFmtMonthDay(dt)}`, '定');
     ev(s.resultsDate, 'cev-result', dt => `结果 ${calFmtMonthDay(dt)}`, '结');
     ev(s.darkDateObj, 'cev-dark', dt => `暗盘 ${calFmtMonthDay(dt)}`, '暗');
     ev(s.listDateObj, 'cev-list', dt => `上市 ${calFmtMonthDay(dt)}`, '市');
-    evMap.forEach(({d, cls, tip, lbl}) => {
-      if (d < days[0] || d > days[DAYS-1]) return;
+    const dayCounts = new Map();
+    calEvents.forEach(({ d }) => {
+      if (d < days[0] || d > days[DAYS - 1]) return;
+      const k = calDateKey(d);
+      dayCounts.set(k, (dayCounts.get(k) || 0) + 1);
+    });
+    const dayIdx = new Map();
+    calEvents.forEach(({ d, cls, tip, lbl }) => {
+      if (d < days[0] || d > days[DAYS - 1]) return;
+      const dk = calDateKey(d);
+      const i = dayIdx.get(dk) || 0;
+      dayIdx.set(dk, i + 1);
+      const total = dayCounts.get(dk) || 1;
+      const yOff = total > 1 ? (i - (total - 1) / 2) * 16 : 0;
       const ic = document.createElement('div');
       ic.className = `cal-ev-dot ${cls}`;
-      ic.style.cssText = `position:absolute;top:50%;left:${cPctDate(d).toFixed(2)}%;transform:translate(-50%,-50%);z-index:6;`;
+      ic.style.cssText = `position:absolute;top:50%;left:${cPctDate(d).toFixed(2)}%;transform:translate(-50%, calc(-50% + ${yOff}px));z-index:6;`;
       ic.title = tip;
       ic.textContent = lbl;
       tl.appendChild(ic);
