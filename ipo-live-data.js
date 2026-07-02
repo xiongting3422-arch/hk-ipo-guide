@@ -38,6 +38,11 @@ function _publishIpoHomeLbMapped(mapped) {
   const m = Array.isArray(mapped) ? mapped : [];
   window.__IPO_HOME_LB_MAPPED__ = m;
   window.allData = m;
+  if (typeof window.renderPublicOfferLotsTable === 'function' && document.getElementById('dashboard-sector-body')) {
+    try {
+      window.renderPublicOfferLotsTable();
+    } catch (e) {}
+  }
 }
 
 /** 与「2026新股涨幅榜」同源：上市日期落在 2026 自然年（本地日历日边界） */

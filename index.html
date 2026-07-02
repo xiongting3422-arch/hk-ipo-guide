@@ -1099,7 +1099,7 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 
 /* ━━━━━━━━━ DATA DASHBOARD TAB ━━━━━━━━━ */
 #tab-dashboard{background:#fff;}
-.dashboard-page{max-width:1200px;margin:0 auto;padding:32px 32px 72px;}
+.dashboard-page{max-width:1400px;margin:0 auto;padding:36px 32px 80px;}
 .dashboard-page-title{font-size:22px;font-weight:800;color:var(--t1);letter-spacing:.02em;margin:0 0 24px;text-align:center;}
 .dashboard-verdict-panel{background:linear-gradient(135deg,#fff7ed 0%,#fff 55%,#f0f9ff 100%);border:1px solid rgba(249,115,22,.18);border-radius:var(--r-lg);padding:24px 26px 22px;margin-bottom:24px;box-shadow:0 4px 24px rgba(249,115,22,.08);position:relative;overflow:hidden;}
 .dashboard-verdict-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#fb923c,#38bdf8);}
@@ -1141,6 +1141,80 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 .dashboard-inject-status{font-size:13px;color:var(--green);font-weight:600;opacity:0;transition:opacity .25s;}
 .dashboard-inject-status.is-visible{opacity:1;}
 .dashboard-inject-status.is-error{color:var(--red);}
+.dashboard-public-lots{margin-top:0;margin-bottom:32px;background:#fff;border:1px solid #ebebeb;border-radius:var(--r-lg);box-shadow:0 4px 24px rgba(15,23,42,.06);padding:22px 20px 18px;position:relative;overflow:hidden;}
+.dashboard-public-lots::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#38bdf8,var(--accent));}
+.dashboard-public-lots-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;align-items:start;}
+.dashboard-public-lots-panel{min-width:0;}
+.dashboard-public-lots-head{margin-bottom:10px;}
+.dashboard-panel-title-row{display:flex;align-items:center;gap:8px;}
+.dashboard-public-lots-head h2{font-size:16px;font-weight:800;color:var(--t1);margin:0;}
+.dashboard-panel-info-btn{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;border:1px solid rgba(0,0,0,.12);border-radius:50%;background:#f8fafc;color:var(--t3);cursor:pointer;transition:color .15s,border-color .15s,background .15s,transform .1s;}
+.dashboard-panel-info-btn:hover{color:var(--accent);border-color:rgba(249,115,22,.35);background:#fff7ed;}
+.dashboard-panel-info-btn.is-open{color:var(--accent);border-color:rgba(249,115,22,.45);background:#fff7ed;}
+.dashboard-panel-meta{margin:0 0 10px;}
+.dashboard-panel-meta[hidden]{display:none;}
+.dashboard-panel-meta-hint{font-size:12px;color:var(--t3);line-height:1.55;margin:0 0 8px;}
+.dashboard-panel-meta .dashboard-pe-note{margin:0;}
+.dashboard-public-lots-hint{font-size:12px;color:var(--t3);line-height:1.5;}
+.dashboard-pe-note{font-size:12px;color:var(--t2);line-height:1.65;margin:0 0 12px;padding:10px 12px;background:#f8fafc;border:1px solid rgba(0,0,0,.06);border-radius:8px;}
+.dashboard-pe-note strong{color:var(--t1);font-weight:700;}
+.dashboard-public-lots-table-wrap{overflow:auto;border:1px solid rgba(0,0,0,.08);border-radius:10px;-webkit-overflow-scrolling:touch;max-height:calc(41px + 43px * 10);}
+.dashboard-public-lots-table{width:100%;border-collapse:collapse;font-size:13px;min-width:0;}
+.dashboard-public-lots-table th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.04em;background:#f8f9fa;border-bottom:1px solid rgba(0,0,0,.08);white-space:nowrap;position:sticky;top:0;z-index:1;}
+.dashboard-public-lots-table th.pol-num,.dashboard-public-lots-table td.pol-num{text-align:right;font-family:'DM Mono',monospace;}
+.dashboard-public-lots-table td{padding:11px 14px;border-bottom:1px solid rgba(0,0,0,.06);color:var(--t1);vertical-align:middle;}
+.dashboard-public-lots-table tr:last-child td{border-bottom:none;}
+.dashboard-public-lots-table tbody tr:hover td{background:rgba(249,115,22,.04);}
+.dashboard-public-lots-name{font-weight:700;color:var(--t1);}
+.dashboard-public-lots-code{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);}
+.dashboard-public-lots-val{font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#0f766e;white-space:pre-line;line-height:1.45;}
+.dashboard-public-lots-handfee{font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#c2410c;line-height:1.45;}
+.dashboard-public-lots-mcap{font-family:'DM Mono',monospace;font-weight:700;font-size:12px;color:#7c3aed;line-height:1.45;}
+.dashboard-public-lots-pe{font-family:'DM Mono',monospace;font-weight:800;font-size:13px;color:#b45309;}
+.dashboard-public-lots-pe.is-loss{color:#dc2626;}
+.dashboard-public-lots-pe.is-na{color:var(--t3);font-weight:600;}
+.dashboard-public-lots-ps{font-family:'DM Mono',monospace;font-weight:800;font-size:13px;color:#4f46e5;}
+.dashboard-public-lots-ps.is-na{color:var(--t3);font-weight:600;}
+.dashboard-cornerstone-section{margin-top:0;padding-top:0;border-top:none;}
+.dashboard-secondary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:22px;padding-top:20px;border-top:1px dashed rgba(0,0,0,.1);align-items:start;}
+.dashboard-sector-section .dashboard-public-lots-head{margin-bottom:10px;}
+.dashboard-sector-stocks-col{display:flex;flex-direction:column;gap:0;}
+.dashboard-sector-name{font-weight:800;font-size:13px;color:var(--t1);line-height:1.35;}
+.dashboard-sector-active{font-size:11px;color:var(--t3);margin-top:2px;}
+.dashboard-sector-score{font-family:'DM Mono',monospace;font-weight:800;font-size:13px;color:#0f766e;}
+.dashboard-sector-score.is-mid{color:#b45309;}
+.dashboard-sector-score.is-low{color:#dc2626;}
+.dashboard-sector-pct{font-family:'DM Mono',monospace;font-weight:700;font-size:12px;color:#0369a1;}
+.dashboard-sector-pct.is-neg{color:#dc2626;}
+.dashboard-sector-trend{font-size:12px;font-weight:700;color:var(--t2);line-height:1.4;}
+.dashboard-sector-trend.is-up{color:#0f766e;}
+.dashboard-sector-trend.is-down{color:#dc2626;}
+.dashboard-sector-tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(15,118,110,.1);color:#0f766e;white-space:nowrap;}
+.dashboard-sector-tag.is-weak{background:rgba(220,38,38,.08);color:#dc2626;}
+.dashboard-sector-stock-item{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:4px 0;font-size:12px;line-height:1.4;}
+.dashboard-sector-stock-item + .dashboard-sector-stock-item{border-top:1px solid rgba(0,0,0,.04);}
+.dashboard-sector-stock-name{font-weight:700;color:var(--t1);}
+.dashboard-sector-stock-code{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);white-space:nowrap;}
+.dashboard-sector-trend-sub{display:block;font-size:10px;font-weight:600;color:var(--t3);margin-top:3px;line-height:1.35;}
+.dashboard-sector-score-tip{cursor:help;border-bottom:1px dotted rgba(15,118,110,.35);}
+.dashboard-discount-section .dashboard-public-lots-head{margin-bottom:10px;}
+.dashboard-discount-ah{font-size:12px;font-weight:700;color:var(--t2);}
+.dashboard-discount-rate{font-family:'DM Mono',monospace;font-weight:800;font-size:13px;color:#0369a1;}
+.dashboard-discount-rate.is-premium{color:#b45309;}
+.dashboard-discount-rate.is-na{color:var(--t3);font-weight:600;}
+@media(max-width:1400px){.dashboard-public-lots-grid{grid-template-columns:repeat(2,1fr);}.dashboard-secondary-grid{grid-template-columns:1fr 1fr;}.dashboard-secondary-grid .dashboard-cornerstone-section{grid-column:1/-1;}}
+@media(max-width:1100px){.dashboard-public-lots-grid{grid-template-columns:1fr;}.dashboard-secondary-grid{grid-template-columns:1fr;}.dashboard-secondary-grid .dashboard-cornerstone-section{grid-column:auto;}}
+.dashboard-cornerstone-section .dashboard-public-lots-head{margin-bottom:10px;}
+.dashboard-cornerstone-invest{font-family:'DM Mono',monospace;font-weight:800;font-size:13px;color:#0f766e;}
+.dashboard-cornerstone-invest-btn{background:none;border:none;padding:0;margin:0;font:inherit;font-family:'DM Mono',monospace;font-weight:800;font-size:13px;color:#0f766e;cursor:pointer;text-decoration:underline dotted rgba(15,118,110,.45);text-underline-offset:3px;text-align:right;}
+.dashboard-cornerstone-invest-btn:hover,.dashboard-cornerstone-invest-btn.is-open{color:#0d9488;}
+.dashboard-cornerstone-invest-btn.is-disabled{cursor:default;text-decoration:none;color:var(--t3);font-weight:600;}
+.dashboard-cornerstone-pct{font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#7c3aed;}
+.dashboard-cornerstone-co{font-size:12px;color:var(--t2);line-height:1.65;white-space:pre-line;}
+.dashboard-cornerstone-detail-row td{background:#f8fafc;padding:10px 14px 14px;border-bottom:1px solid rgba(0,0,0,.08);vertical-align:top;}
+.dashboard-cornerstone-detail-row[hidden]{display:none;}
+.dashboard-cornerstone-detail-label{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.04em;margin-bottom:6px;}
+.dashboard-public-lots-empty{padding:28px 16px;text-align:center;font-size:13px;color:var(--t3);line-height:1.6;}
 @media(max-width:960px){.dashboard-charts-grid{grid-template-columns:1fr;}.dashboard-cards{grid-template-columns:1fr;}.dashboard-page{padding:24px 16px 56px;}#dashboard-pie-chart,#dashboard-dist-chart{height:320px;}.dashboard-summary-verdict{font-size:17px;}}
 
 /* 新股数据汇总表：左对齐 + V7 三态（认购中 / 已截止 / 已上市） */
@@ -2808,6 +2882,130 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 <!-- ═══════════════════════ TAB: DATA DASHBOARD ═══════════════════════ -->
 <div id="tab-dashboard" class="tab-content">
 <div class="page dashboard-page">
+  <section class="dashboard-public-lots" id="dashboard-public-lots" aria-label="公配手数、市值与PE/PS对比">
+    <div class="dashboard-public-lots-grid">
+      <div class="dashboard-public-lots-panel">
+        <div class="dashboard-public-lots-head">
+          <div class="dashboard-panel-title-row">
+            <h2>公配手数</h2>
+            <button type="button" class="dashboard-panel-info-btn" aria-expanded="false" aria-controls="dashboard-lots-meta" title="展开说明"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7.2v4.5M8 5.1h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          </div>
+        </div>
+        <div class="dashboard-panel-meta" id="dashboard-lots-meta" hidden>
+          <p class="dashboard-panel-meta-hint" id="dashboard-public-lots-hint">来源：上市新股表 · 仅认购中</p>
+        </div>
+        <div class="dashboard-public-lots-table-wrap" id="dashboard-public-lots-body">
+          <div class="dashboard-public-lots-empty">正在同步线上表格…</div>
+        </div>
+      </div>
+      <div class="dashboard-public-lots-panel">
+        <div class="dashboard-public-lots-head">
+          <div class="dashboard-panel-title-row">
+            <h2>认购一手金额</h2>
+            <button type="button" class="dashboard-panel-info-btn" aria-expanded="false" aria-controls="dashboard-handfee-meta" title="展开说明"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7.2v4.5M8 5.1h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          </div>
+        </div>
+        <div class="dashboard-panel-meta" id="dashboard-handfee-meta" hidden>
+          <p class="dashboard-panel-meta-hint" id="dashboard-handfee-hint">来源：上市新股表 · 一手入场费 · 与公配手数同批标的</p>
+        </div>
+        <div class="dashboard-public-lots-table-wrap" id="dashboard-handfee-body">
+          <div class="dashboard-public-lots-empty">正在同步线上表格…</div>
+        </div>
+      </div>
+      <div class="dashboard-public-lots-panel">
+        <div class="dashboard-public-lots-head">
+          <div class="dashboard-panel-title-row">
+            <h2>市值对比</h2>
+            <button type="button" class="dashboard-panel-info-btn" aria-expanded="false" aria-controls="dashboard-mcap-meta" title="展开说明"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7.2v4.5M8 5.1h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          </div>
+        </div>
+        <div class="dashboard-panel-meta" id="dashboard-mcap-meta" hidden>
+          <p class="dashboard-panel-meta-hint" id="dashboard-mcap-compare-hint">来源：上市新股表 · 市值（港元）· 与左侧同批标的</p>
+        </div>
+        <div class="dashboard-public-lots-table-wrap" id="dashboard-mcap-compare-body">
+          <div class="dashboard-public-lots-empty">正在同步线上表格…</div>
+        </div>
+      </div>
+      <div class="dashboard-public-lots-panel">
+        <div class="dashboard-public-lots-head">
+          <div class="dashboard-panel-title-row">
+            <h2>PE / PS对比</h2>
+            <button type="button" class="dashboard-panel-info-btn" aria-expanded="false" aria-controls="dashboard-pe-meta" title="展开说明"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7.2v4.5M8 5.1h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          </div>
+        </div>
+        <div class="dashboard-panel-meta" id="dashboard-pe-meta" hidden>
+          <p class="dashboard-panel-meta-hint" id="dashboard-pe-compare-hint">来源：上市新股表 · 第14–24行推算</p>
+          <p class="dashboard-pe-note" id="dashboard-pe-compare-note">
+            <strong>发行 PE</strong> ≈ 市值（港元，第18行中值）÷ 估算净利润（亿港元）；净利润优先从「财务状况」解析，或填写「发行市盈率」行直接展示。<br>
+            <strong>预估 PS</strong> ≈ 市值（港元）÷ 估算营收（亿港元）；营收优先从「财务状况」解析（如「营收约 X 亿元」），或填写「发行市销率 / 市销率」行直接展示。<br>
+            <strong>PE 越大</strong>：估值偏贵、成长溢价更高；<strong>PS 越大</strong>：市场为每一元收入支付更高溢价，常见于未盈利或高成长标的。
+          </p>
+        </div>
+        <div class="dashboard-public-lots-table-wrap" id="dashboard-pe-compare-body">
+          <div class="dashboard-public-lots-empty">正在同步线上表格…</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-secondary-grid">
+    <div class="dashboard-public-lots-panel dashboard-cornerstone-section" id="dashboard-cornerstone-section" aria-label="基石实力对比">
+      <div class="dashboard-public-lots-head">
+        <div class="dashboard-panel-title-row">
+          <h2>基石实力对比</h2>
+          <button type="button" class="dashboard-panel-info-btn" aria-expanded="false" aria-controls="dashboard-cs-meta" title="展开说明"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7.2v4.5M8 5.1h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+        </div>
+      </div>
+      <div class="dashboard-panel-meta" id="dashboard-cs-meta" hidden>
+        <p class="dashboard-panel-meta-hint" id="dashboard-cornerstone-hint">来源：上市新股表 · 基石认购占比 / 基石认购公司</p>
+        <p class="dashboard-pe-note">
+          按<strong>基石投入金额（估算）</strong>从高到低排序：优先汇总「基石认购公司」中披露的认购金额；若无明细，则用「基石认购占比 × 募资总额」估算。点击「基石投入」可展开/收起对应基石认购公司详情。
+        </p>
+      </div>
+      <div class="dashboard-public-lots-table-wrap" id="dashboard-cornerstone-body">
+        <div class="dashboard-public-lots-empty">正在同步线上表格…</div>
+      </div>
+    </div>
+
+    <div class="dashboard-public-lots-panel dashboard-discount-section" id="dashboard-discount-section" aria-label="折价率对比">
+      <div class="dashboard-public-lots-head">
+        <div class="dashboard-panel-title-row">
+          <h2>折价率对比</h2>
+          <button type="button" class="dashboard-panel-info-btn" aria-expanded="false" aria-controls="dashboard-discount-meta" title="展开说明"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7.2v4.5M8 5.1h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+        </div>
+      </div>
+      <div class="dashboard-panel-meta" id="dashboard-discount-meta" hidden>
+        <p class="dashboard-panel-meta-hint" id="dashboard-discount-hint">来源：上市新股表 · A+H 股 / 折价率</p>
+        <p class="dashboard-pe-note">
+          与左侧同批<strong>认购中</strong>标的；有折价率数据的按数值从大到小排序，无数据（「/」或空）排在后面。
+        </p>
+      </div>
+      <div class="dashboard-public-lots-table-wrap" id="dashboard-discount-body">
+        <div class="dashboard-public-lots-empty">正在同步线上表格…</div>
+      </div>
+    </div>
+
+    <div class="dashboard-public-lots-panel dashboard-sector-section" id="dashboard-sector-section" aria-label="赛道对比">
+      <div class="dashboard-public-lots-head">
+        <div class="dashboard-panel-title-row">
+          <h2>赛道对比</h2>
+          <button type="button" class="dashboard-panel-info-btn" aria-expanded="false" aria-controls="dashboard-sector-meta" title="展开说明"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7.2v4.5M8 5.1h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+        </div>
+      </div>
+      <div class="dashboard-panel-meta" id="dashboard-sector-meta" hidden>
+        <p class="dashboard-panel-meta-hint" id="dashboard-sector-hint">来源：IPO主页 · 市场趋势 + 历史新股表现</p>
+        <p class="dashboard-pe-note" id="dashboard-sector-note">
+          按<strong>赛道赚钱效应</strong>排序，仅展示当前<strong>认购中</strong>新股所在赛道；左侧列为该赛道认购中标的，右侧为赛道综合表现。<br>
+          <strong>综合分（0–100）</strong>：首日胜率 32% + 累计均涨 28% + 近90日首日涨幅 22% + 涨势稳定性 10% + 市场趋势 8%。≥65 偏强，45–64 中性，&lt;45 偏弱。<br>
+          <strong>近势</strong>：无表格「市场趋势」列时，显示该赛道近90日内已上市新股的<strong>首日涨幅均值</strong>；下方小字为样本说明。
+        </p>
+      </div>
+      <div class="dashboard-public-lots-table-wrap" id="dashboard-sector-body">
+        <div class="dashboard-public-lots-empty">正在同步线上表格…</div>
+      </div>
+    </div>
+    </div>
+  </section>
+
   <h1 class="dashboard-page-title">IPO 策略看板</h1>
 
   <section class="dashboard-verdict-panel" aria-label="配售流派与核心结论">
@@ -4085,6 +4283,7 @@ function switchTab(name) {
       if (typeof ensureDashboardCharts === 'function') ensureDashboardCharts();
       if (typeof dashboardPieChart !== 'undefined' && dashboardPieChart) dashboardPieChart.resize();
       if (typeof dashboardDistChart !== 'undefined' && dashboardDistChart) dashboardDistChart.resize();
+      if (typeof renderPublicOfferLotsTable === 'function') renderPublicOfferLotsTable();
     } catch (e) { console.warn('dashboard tab refresh', e); }
   }
   const activeBtn = document.querySelector('.tab-btn.active');
@@ -4599,6 +4798,8 @@ function injectDashboardRules() {
 
 function initDashboardTab() {
   renderDashboard(normalizeDashboardPayload(DASHBOARD_DEFAULT));
+  if (typeof initDashboardPanelMetaToggles === 'function') initDashboardPanelMetaToggles();
+  if (typeof renderPublicOfferLotsTable === 'function') renderPublicOfferLotsTable();
   const btn = document.getElementById('dashboard-inject-btn');
   const input = document.getElementById('dashboard-json-input');
   if (btn) btn.addEventListener('click', injectDashboardRules);
@@ -4615,6 +4816,964 @@ function initDashboardTab() {
     dashboardDistChart?.resize();
   });
 }
+
+function _parsePublicOfferLotsSortValue(raw) {
+  const s = String(raw || '').replace(/,/g, '').trim();
+  if (!s || s === '/' || s === '—' || s === '-') return null;
+  const firstLine = s.split(/\n/)[0];
+  const m = firstLine.match(/(\d+(?:\.\d+)?)/);
+  return m ? parseFloat(m[1]) : null;
+}
+
+function _parseMarketCapHkdSortValue(raw) {
+  const s = String(raw || '').replace(/,/g, '').trim();
+  if (!s || s === '/' || s === '—' || s === '-' || /自动抓取/.test(s)) return null;
+  const nums = [...s.matchAll(/(\d+(?:\.\d+)?)\s*亿/g)].map(m => parseFloat(m[1]));
+  if (!nums.length) {
+    const m = s.match(/(\d+(?:\.\d+)?)/);
+    return m ? parseFloat(m[1]) : null;
+  }
+  return Math.max(...nums);
+}
+
+function _parseHandFeeHkdSortValue(raw) {
+  const s = String(raw || '').replace(/,/g, '').trim();
+  if (!s || s === '/' || s === '—' || s === '-' || /自动抓取|待定|暂无/.test(s)) return null;
+  const nums = [...s.matchAll(/(\d+(?:\.\d+)?)/g)].map(m => parseFloat(m[1])).filter(n => Number.isFinite(n) && n > 0);
+  if (!nums.length) return null;
+  return Math.max(...nums);
+}
+
+function _isActiveSubscriptionRow(row) {
+  const extFn = window.__ipoGetExtendedStatus || window.getIpoExtendedStatusKey;
+  const key = typeof extFn === 'function' && row ? extFn(row) : 'unknown';
+  return key === 'active';
+}
+
+function _listedRowByCode(code) {
+  const rows = Array.isArray(window.__IPO_LISTED_SHEET_ROWS__) ? window.__IPO_LISTED_SHEET_ROWS__ : [];
+  return rows.find(r => {
+    const codeRaw = _cellFromScheduleRow(r, ['股票代码', '代码', '代号']);
+    const m = String(codeRaw || '').match(/(\d{4,5})/);
+    return m && m[1].padStart(5, '0') === code;
+  }) || null;
+}
+
+function buildPublicOfferLotsRows() {
+  const rows = Array.isArray(window.__IPO_LISTED_SHEET_ROWS__) ? window.__IPO_LISTED_SHEET_ROWS__ : [];
+  const seen = new Set();
+  const out = [];
+  rows.forEach(row => {
+    if (!row || typeof row !== 'object') return;
+    const codeRaw = _cellFromScheduleRow(row, ['股票代码', '代码', '代号']);
+    const m = String(codeRaw || '').match(/(\d{4,5})/);
+    const code = m ? m[1].padStart(5, '0') : '';
+    const name = _cellFromScheduleRow(row, ['股票名称', '名称', 'IPO名称']) || code;
+    if (!code || seen.has(code)) return;
+    if (!_isActiveSubscriptionRow(row)) return;
+    const lotsRaw = _cellFromScheduleRow(row, ['公开发售部分（手数）', '公开发售手数']);
+    if (!lotsRaw) return;
+    const sortVal = _parsePublicOfferLotsSortValue(lotsRaw);
+    if (sortVal == null || !Number.isFinite(sortVal)) return;
+    seen.add(code);
+    out.push({ code, name, lotsRaw, sortVal });
+  });
+  return out.sort((a, b) => b.sortVal - a.sortVal);
+}
+
+function _parseMoneyYiMid(raw) {
+  const s = String(raw || '').replace(/,/g, '').trim();
+  if (!s || s === '/' || s === '—' || s === '-' || /自动抓取/.test(s)) return null;
+  const nums = [...s.matchAll(/(\d+(?:\.\d+)?)\s*亿/g)].map(m => parseFloat(m[1]));
+  if (nums.length >= 2) return Math.round(((nums[0] + nums[nums.length - 1]) / 2) * 100) / 100;
+  if (nums.length === 1) return nums[0];
+  const wan = s.match(/(\d+(?:\.\d+)?)\s*万/);
+  if (wan) return Math.round((parseFloat(wan[1]) / 10000) * 10000) / 10000;
+  return null;
+}
+
+/** 从「财务状况」解析净利润（亿元人民币）；亏损返回负数或 null */
+function _parseNetProfitCnyYiFromRow(row) {
+  const note = _cellFromScheduleRow(row, ['财务状况', '财务点评', '财务摘要']);
+  if (!note) return null;
+  const lossYiM = note.match(/(?:净亏损|累计.*亏损)[^。\n]*?([+-]?\d+(?:\.\d+)?)\s*亿/);
+  if (lossYiM) return -Math.abs(parseFloat(lossYiM[1]));
+  const lossWanM = note.match(/(?:净亏损|累计.*亏损)[^。\n]*?([+-]?\d+(?:\.\d+)?)\s*万/);
+  if (lossWanM) return -Math.abs(parseFloat(lossWanM[1])) / 10000;
+  const profitLines = note.split(/[。\n]/).filter(l => /净利润|净利/.test(l));
+  const profitChunk = profitLines.length ? profitLines.join(' ') : note;
+  const wanHits = [...profitChunk.matchAll(/(\d+(?:\.\d+)?)\s*万(?:元)?/g)].map(m => parseFloat(m[1]));
+  if (wanHits.length) {
+    const v = wanHits[wanHits.length - 1];
+    if (Number.isFinite(v)) return v / 10000;
+  }
+  const profitYiM = profitChunk.match(/(?:净利润|净利)[^。\n]*?([+-]?\d+(?:\.\d+)?)\s*亿/);
+  if (profitYiM) {
+    const v = parseFloat(profitYiM[1]);
+    return Number.isFinite(v) ? v : null;
+  }
+  if (/亏损|净亏损|尚未盈利|持续亏损|深度亏损/.test(note)) return -0.0001;
+  return null;
+}
+
+/** 从「财务状况」或独立列解析营收（亿元人民币） */
+function _parseRevenueCnyYiFromRow(row) {
+  const direct = _cellFromScheduleRow(row, ['营收', '营业收入', '年收入', '营收（人民币）', '营业收入（人民币）']);
+  if (direct) {
+    const yi = _parseMoneyYiMid(direct);
+    if (yi != null && yi > 0) return yi;
+    const wanM = String(direct).match(/(\d+(?:\.\d+)?)\s*万(?:元)?/);
+    if (wanM) {
+      const v = parseFloat(wanM[1]) / 10000;
+      if (v > 0) return v;
+    }
+  }
+  const note = _cellFromScheduleRow(row, ['财务状况', '财务点评', '财务摘要']);
+  if (!note) return null;
+  const revRes = [
+    ...note.matchAll(/(?:营业收入|营收|销售收入)[^。\n]*?(\d+(?:\.\d+)?)\s*亿/g),
+    ...note.matchAll(/收入[^。\n]*?(\d+(?:\.\d+)?)\s*亿元人民币/g),
+  ].map(m => parseFloat(m[1])).filter(n => Number.isFinite(n) && n > 0);
+  if (revRes.length) return revRes[revRes.length - 1];
+  const wanRev = note.match(/(?:营业收入|营收|销售收入)[^。\n]*?(\d+(?:\.\d+)?)\s*万(?:元)?/);
+  if (wanRev) {
+    const v = parseFloat(wanRev[1]) / 10000;
+    if (v > 0) return v;
+  }
+  return null;
+}
+
+/**
+ * 预估 PS ≈ 市值（第18行，亿港元）÷ 估算营收（亿港元，由人民币营收×1.1换算）
+ */
+function _computePsFromListedRows14To24(row) {
+  if (!row) return { ps: null, label: '—', formula: '' };
+  const marketCapYi = _parseMoneyYiMid(_cellFromScheduleRow(row, ['市值（港元）', '市值(港元)', '市值']));
+  const explicitPs = (() => {
+    const raw = _cellFromScheduleRow(row, ['发行市销率', '市销率', 'PS', '发行PS', 'P/S', '发行P/S']);
+    const n = parseFloat(String(raw || '').replace(/[^\d.]/g, ''));
+    return Number.isFinite(n) && n > 0 ? Math.round(n * 10) / 10 : null;
+  })();
+  if (explicitPs != null) {
+    return { ps: explicitPs, label: `${explicitPs}x`, formula: '表格披露发行市销率' };
+  }
+  const revenueCnyYi = _parseRevenueCnyYiFromRow(row);
+  if (marketCapYi == null) {
+    return { ps: null, label: '待披露', formula: '缺少市值（第18行）' };
+  }
+  if (revenueCnyYi == null || revenueCnyYi <= 0) {
+    return { ps: null, label: '待披露', formula: '缺可解析营收（财务状况或营收列）' };
+  }
+  const revenueHkdYi = Math.round(revenueCnyYi * 1.1 * 100) / 100;
+  const ps = Math.round((marketCapYi / revenueHkdYi) * 10) / 10;
+  return {
+    ps,
+    label: `${ps}x`,
+    formula: `市值${marketCapYi}亿÷营收约${revenueCnyYi}亿×1.1`,
+  };
+}
+
+/**
+ * 上市新股表第14–24行口径推算发行 PE：
+ * PE ≈ 市值（第18行，亿港元中值）÷ 估算净利润（亿港元）
+ * 净利润优先从财务状况解析；若无净利则尝试 营收×净利率 估算
+ */
+function _computePeFromListedRows14To24(row) {
+  if (!row) return { pe: null, label: '—', sortVal: null, formula: '' };
+  const marketCapYi = _parseMoneyYiMid(_cellFromScheduleRow(row, ['市值（港元）', '市值(港元)', '市值']));
+  const explicitPe = (() => {
+    const raw = _cellFromScheduleRow(row, ['发行市盈率', '市盈率', 'PE', '发行PE']);
+    const n = parseFloat(String(raw || '').replace(/[^\d.]/g, ''));
+    return Number.isFinite(n) && n > 0 ? Math.round(n * 10) / 10 : null;
+  })();
+
+  if (explicitPe != null) {
+    return {
+      pe: explicitPe,
+      label: `${explicitPe}x`,
+      sortVal: explicitPe,
+      formula: '表格披露发行市盈率',
+    };
+  }
+
+  let profitCnyYi = _parseNetProfitCnyYiFromRow(row);
+  const financialNote = _cellFromScheduleRow(row, ['财务状况', '财务点评', '财务摘要']);
+  if ((profitCnyYi == null || profitCnyYi <= 0) && financialNote) {
+    const revM = financialNote.match(/营收[^。\n]*?(\d+(?:\.\d+)?)\s*亿/);
+    const marginM = financialNote.match(/净利率[^。\n]*?(\d+(?:\.\d+)?)\s*%/);
+    if (revM && marginM) {
+      const est = (parseFloat(revM[1]) * parseFloat(marginM[1])) / 100;
+      if (est > 0) profitCnyYi = est;
+    }
+    if ((profitCnyYi == null || profitCnyYi <= 0) && revM) {
+      const wanProfit = financialNote.match(/净利润[^。\n]*?(\d+(?:\.\d+)?)\s*万(?:元)?/);
+      if (wanProfit) profitCnyYi = parseFloat(wanProfit[1]) / 10000;
+    }
+  }
+
+  if (marketCapYi == null) {
+    return { pe: null, label: '待披露', sortVal: -Infinity, formula: '缺少市值（第18行）' };
+  }
+  if (profitCnyYi != null && profitCnyYi <= 0) {
+    return { pe: null, label: '亏损', sortVal: -Infinity, formula: '净利润为负，PE 不适用' };
+  }
+  if (profitCnyYi != null && profitCnyYi > 0) {
+    const profitHkdYi = Math.round(profitCnyYi * 1.1 * 100) / 100;
+    const pe = Math.round((marketCapYi / profitHkdYi) * 10) / 10;
+    return {
+      pe,
+      label: `${pe}x`,
+      sortVal: pe,
+      formula: `市值${marketCapYi}亿÷净利约${profitCnyYi}亿×1.1`,
+    };
+  }
+
+  return { pe: null, label: '待披露', sortVal: -Infinity, formula: '第14–24行市值已取，缺可解析净利润' };
+}
+
+function buildPeCompareRows(lotsItems) {
+  return (lotsItems || []).map(it => {
+    const row = _listedRowByCode(it.code);
+    const peMeta = _computePeFromListedRows14To24(row);
+    const psMeta = _computePsFromListedRows14To24(row);
+    return {
+      code: it.code,
+      name: it.name,
+      peLabel: peMeta.label,
+      sortVal: peMeta.sortVal,
+      formula: peMeta.formula,
+      pe: peMeta.pe,
+      psLabel: psMeta.label,
+      psFormula: psMeta.formula,
+      ps: psMeta.ps,
+    };
+  }).sort((a, b) => {
+    const av = a.sortVal != null && Number.isFinite(a.sortVal) ? a.sortVal : -Infinity;
+    const bv = b.sortVal != null && Number.isFinite(b.sortVal) ? b.sortVal : -Infinity;
+    return bv - av;
+  });
+}
+
+function buildHandFeeCompareRows(lotsItems) {
+  const withVal = [];
+  const noVal = [];
+  (lotsItems || []).forEach(it => {
+    const row = _listedRowByCode(it.code);
+    const feeRaw = row
+      ? _cellFromScheduleRow(row, ['一手入场费', '每手金额', '入场费', '每手认购额', '一手金额'])
+      : '';
+    const sortVal = _parseHandFeeHkdSortValue(feeRaw);
+    const item = { code: it.code, name: it.name, feeRaw: feeRaw || '', sortVal };
+    if (sortVal != null && Number.isFinite(sortVal)) withVal.push(item);
+    else noVal.push(item);
+  });
+  withVal.sort((a, b) => b.sortVal - a.sortVal);
+  return [...withVal, ...noVal];
+}
+
+function buildMarketCapCompareRows(lotsItems) {
+  return (lotsItems || []).map(it => {
+    const row = _listedRowByCode(it.code);
+    const mcapRaw = row
+      ? _cellFromScheduleRow(row, ['市值（港元）', '市值(港元)', '市值'])
+      : '';
+    const sortVal = _parseMarketCapHkdSortValue(mcapRaw);
+    return { code: it.code, name: it.name, mcapRaw: mcapRaw || '', sortVal };
+  }).sort((a, b) => {
+    const av = a.sortVal != null && Number.isFinite(a.sortVal) ? a.sortVal : -Infinity;
+    const bv = b.sortVal != null && Number.isFinite(b.sortVal) ? b.sortVal : -Infinity;
+    return bv - av;
+  });
+}
+
+function _parseCornerstonePct(raw) {
+  const s = String(raw || '').trim();
+  if (!s || s === '暂无' || s === '—' || s === '-') return null;
+  const m = s.match(/(\d+(?:\.\d+)?)\s*%/);
+  return m ? parseFloat(m[1]) : null;
+}
+
+function _sumCornerstoneInvestHkdM(coRaw) {
+  const s = String(coRaw || '');
+  if (!s || /暂无/.test(s)) return null;
+  let total = 0;
+  const add = (n, fx) => {
+    if (Number.isFinite(n) && n > 0) total += n * fx;
+  };
+  for (const m of s.matchAll(/(\d+(?:\.\d+)?)\s*百万美元/gi)) add(parseFloat(m[1]), 7.8);
+  for (const m of s.matchAll(/(\d+(?:\.\d+)?)\s*百万港元/gi)) add(parseFloat(m[1]), 1);
+  for (const m of s.matchAll(/(\d+(?:\.\d+)?)\s*百万\s*美元/gi)) add(parseFloat(m[1]), 7.8);
+  for (const m of s.matchAll(/(\d+(?:\.\d+)?)\s*百万\s*港元/gi)) add(parseFloat(m[1]), 1);
+  for (const m of s.matchAll(/人民币\s*(\d+(?:\.\d+)?)\s*百万/gi)) add(parseFloat(m[1]) / 0.92, 1);
+  for (const m of s.matchAll(/(\d+(?:\.\d+)?)\s*万美元/gi)) add(parseFloat(m[1]) / 100, 7.8);
+  return total > 0 ? Math.round(total * 10) / 10 : null;
+}
+
+function _estimateCornerstoneInvestHkdM(row, pct, coRaw) {
+  let investM = _sumCornerstoneInvestHkdM(coRaw);
+  if (investM != null) return { investM, source: '明细加总' };
+  const pctN = pct != null ? pct : _parseCornerstonePct(_cellFromScheduleRow(row, ['基石认购占比', '基石占比', '基石投资者认购占比']));
+  const raiseYi = _parseMoneyYiMid(_cellFromScheduleRow(row, ['募资总额（港元）', '募资总额', '集资总额']));
+  if (pctN != null && raiseYi != null) {
+    investM = Math.round(raiseYi * (pctN / 100) * 100 * 10) / 10;
+    return { investM, source: '占比×募资总额' };
+  }
+  return { investM: null, source: '' };
+}
+
+function buildCornerstoneCompareRows(lotsItems) {
+  return (lotsItems || []).map(it => {
+    const row = _listedRowByCode(it.code);
+    const pctRaw = row ? _cellFromScheduleRow(row, ['基石认购占比', '基石占比', '基石投资者认购占比']) : '';
+    const coRaw = row ? _cellFromScheduleRow(row, ['基石认购公司', '基石投资者', '基石投资者名单', '基石名单']) : '';
+    const pct = _parseCornerstonePct(pctRaw);
+    const { investM, source } = _estimateCornerstoneInvestHkdM(row, pct, coRaw);
+    const hasCorner = (pct != null) || (coRaw && !/暂无/.test(coRaw));
+    return {
+      code: it.code,
+      name: it.name,
+      pctRaw: pctRaw || '—',
+      coRaw: coRaw || '—',
+      pct,
+      investM,
+      investSource: source,
+      sortVal: investM != null ? investM : (pct != null ? pct : -Infinity),
+      hasCorner,
+    };
+  }).sort((a, b) => {
+    const av = a.sortVal != null && Number.isFinite(a.sortVal) ? a.sortVal : -Infinity;
+    const bv = b.sortVal != null && Number.isFinite(b.sortVal) ? b.sortVal : -Infinity;
+    return bv - av;
+  });
+}
+
+function _parseAhDiscountSortValue(raw) {
+  const s = String(raw || '').trim();
+  if (!s || s === '/' || s === '—' || s === '-') return null;
+  const m = s.replace(/%+/g, '%').match(/([+-]?\d+(?:\.\d+)?)\s*%/);
+  return m ? parseFloat(m[1]) : null;
+}
+
+function _normalizeSectorBroadKey(raw) {
+  const s = String(raw || '').trim();
+  if (!s || s === '—' || s === '-' || s === '/') return '';
+  const seps = [' · ', '·', ' | ', '|', ' / ', '/', '／', '、'];
+  for (let i = 0; i < seps.length; i++) {
+    const sep = seps[i];
+    if (s.indexOf(sep) >= 0) return s.split(sep)[0].trim();
+  }
+  return s;
+}
+
+function _parseSectorTrendScore(raw) {
+  const s = String(raw || '').trim();
+  if (!s || s === '—' || s === '-' || s === '/') return null;
+  const pct = _parseAhDiscountSortValue(s);
+  if (pct != null && Number.isFinite(pct)) return Math.max(-100, Math.min(100, pct));
+  if (/强势|景气|上行|火热|追捧|领涨|顺风|向好|回暖|爆发/.test(s)) return 18;
+  if (/偏强|温和上涨|稳中有升|回升/.test(s)) return 9;
+  if (/震荡|分化|中性|平稳|盘整/.test(s)) return 0;
+  if (/偏弱|承压|回调|下行|疲软|降温/.test(s)) return -9;
+  if (/弱势|逆风|暴跌|低迷|冷落|破发|承压/.test(s)) return -18;
+  return null;
+}
+
+function _homeSheetMarketTrendCell(row) {
+  if (!row || typeof row !== 'object') return '';
+  const keys = ['市场趋势', '板块趋势', '赛道趋势', '市场走势', '行业趋势'];
+  for (let i = 0; i < keys.length; i++) {
+    const v = row[keys[i]];
+    if (v != null && String(v).trim() && String(v).trim() !== '/') return String(v).trim();
+  }
+  return '';
+}
+
+function _buildSectorHistoricalStatsMap() {
+  const mapped = Array.isArray(window.__IPO_HOME_LB_MAPPED__) ? window.__IPO_HOME_LB_MAPPED__ : [];
+  const homeRows = (window.__IPO_HOME_SHEET__ && window.__IPO_HOME_SHEET__.rows) || [];
+  const now = Date.now();
+  const recentMs = 90 * 24 * 3600 * 1000;
+  const bySector = {};
+
+  const ensure = key => {
+    if (!bySector[key]) {
+      bySector[key] = { fds: [], cums: [], recentFds: [], trends: [], count: 0 };
+    }
+    return bySector[key];
+  };
+
+  mapped.forEach(r => {
+    const key = _normalizeSectorBroadKey(r.sectorBroad || r.sectorLabel);
+    if (!key) return;
+    const b = ensure(key);
+    b.count++;
+    if (r.fd != null && Number.isFinite(r.fd)) {
+      b.fds.push(r.fd);
+      if (r.listMs != null && Number.isFinite(r.listMs) && now - r.listMs <= recentMs) {
+        b.recentFds.push(r.fd);
+      }
+    }
+    if (r.cum != null && Number.isFinite(r.cum)) b.cums.push(r.cum);
+  });
+
+  homeRows.forEach(row => {
+    const sector = _normalizeSectorBroadKey(row['行业板块'] || row['板块'] || row['行业']);
+    const trend = _homeSheetMarketTrendCell(row);
+    if (!sector || !trend) return;
+    ensure(sector).trends.push(trend);
+  });
+
+  const stats = {};
+  Object.keys(bySector).forEach(key => {
+    const b = bySector[key];
+    const fds = b.fds;
+    const winCount = fds.filter(x => x >= 0).length;
+    const winRate = fds.length ? winCount / fds.length : null;
+    const avgFd = fds.length ? fds.reduce((a, c) => a + c, 0) / fds.length : null;
+    const avgCum = b.cums.length ? b.cums.reduce((a, c) => a + c, 0) / b.cums.length : null;
+    const recentPool = b.recentFds.length ? b.recentFds : fds;
+    const recentAvgFd = recentPool.length ? recentPool.reduce((a, c) => a + c, 0) / recentPool.length : null;
+    let stability = null;
+    if (fds.length >= 3) {
+      const mean = avgFd;
+      const variance = fds.reduce((s, x) => s + (x - mean) * (x - mean), 0) / fds.length;
+      stability = Math.max(0, Math.min(100, 100 - Math.sqrt(variance) * 2.5));
+    } else if (fds.length >= 1) {
+      stability = 55;
+    }
+    const trendScores = b.trends.map(_parseSectorTrendScore).filter(x => x != null);
+    const trendRaw = b.trends.length ? b.trends[b.trends.length - 1] : '';
+    const trendScore = trendScores.length
+      ? trendScores.reduce((a, c) => a + c, 0) / trendScores.length
+      : null;
+    stats[key] = {
+      winRate,
+      avgFd,
+      avgCum,
+      recentAvgFd,
+      recentN: b.recentFds.length,
+      stability,
+      trendRaw,
+      trendScore,
+      sampleN: fds.length,
+    };
+  });
+  return stats;
+}
+
+function _computeIpoMarketBenchmark() {
+  const mapped = Array.isArray(window.__IPO_HOME_LB_MAPPED__) ? window.__IPO_HOME_LB_MAPPED__ : [];
+  const cums = [];
+  const fds = [];
+  mapped.forEach(r => {
+    if (r.cum != null && Number.isFinite(r.cum)) cums.push(r.cum);
+    if (r.fd != null && Number.isFinite(r.fd)) fds.push(r.fd);
+  });
+  return {
+    avgCum: cums.length ? cums.reduce((a, c) => a + c, 0) / cums.length : null,
+    avgFd: fds.length ? fds.reduce((a, c) => a + c, 0) / fds.length : null,
+    winRate: fds.length ? fds.filter(x => x >= 0).length / fds.length : null,
+    sampleN: fds.length,
+  };
+}
+
+function _sectorCompositeScore(st, market) {
+  let score = 0;
+  let weight = 0;
+  if (st.winRate != null) {
+    score += st.winRate * 100 * 0.32;
+    weight += 0.32;
+  }
+  if (st.avgCum != null) {
+    score += Math.max(-50, Math.min(50, st.avgCum)) * 0.28 * 2;
+    weight += 0.28;
+  }
+  if (st.recentAvgFd != null) {
+    score += Math.max(-35, Math.min(35, st.recentAvgFd)) * 0.22 * (100 / 35);
+    weight += 0.22;
+  }
+  if (st.stability != null) {
+    score += st.stability * 0.1;
+    weight += 0.1;
+  }
+  if (st.trendScore != null) {
+    score += ((st.trendScore + 20) / 40) * 100 * 0.08;
+    weight += 0.08;
+  } else if (market && market.avgFd != null && st.recentAvgFd != null) {
+    const rel = st.recentAvgFd - market.avgFd;
+    score += Math.max(-20, Math.min(20, rel)) * 0.08 * 2.5;
+    weight += 0.08;
+  }
+  if (!weight) return null;
+  return Math.round(score / weight);
+}
+
+function _sectorScoreBreakdownTip(st, market, composite) {
+  const parts = [];
+  if (st.winRate != null) parts.push(`首日胜率 ${Math.round(st.winRate * 100)}%（权重32%）`);
+  if (st.avgCum != null) parts.push(`累计均涨 ${st.avgCum >= 0 ? '+' : ''}${st.avgCum.toFixed(1)}%（28%）`);
+  if (st.recentAvgFd != null) parts.push(`近90日首日 ${st.recentAvgFd >= 0 ? '+' : ''}${st.recentAvgFd.toFixed(1)}%（22%）`);
+  if (st.stability != null) parts.push(`稳定性 ${Math.round(st.stability)}（10%）`);
+  if (st.trendScore != null) parts.push('市场趋势（8%）');
+  else if (market && market.avgFd != null && st.recentAvgFd != null) parts.push('相对全市场近势（8%）');
+  const band = composite == null ? '' : (composite >= 65 ? ' · 偏强' : (composite >= 45 ? ' · 中性' : ' · 偏弱'));
+  return parts.length ? `${parts.join(' · ')}${band}` : '';
+}
+
+function buildSectorTrackCompareRows(lotsItems) {
+  const sectorStats = _buildSectorHistoricalStatsMap();
+  const market = _computeIpoMarketBenchmark();
+  const activeBySector = {};
+  (lotsItems || []).forEach(it => {
+    const row = _listedRowByCode(it.code);
+    const sectorRaw = row ? _cellFromScheduleRow(row, ['行业板块', '板块', '行业']) : '';
+    const key = _normalizeSectorBroadKey(sectorRaw) || '未分类';
+    if (!activeBySector[key]) activeBySector[key] = [];
+    activeBySector[key].push({
+      code: it.code,
+      name: it.name,
+      sectorLabel: sectorRaw || key,
+    });
+  });
+
+  const rows = Object.keys(activeBySector).map(sector => {
+    const st = sectorStats[sector] || {};
+    const composite = _sectorCompositeScore(st, market);
+    let marketTag = '';
+    if (st.avgCum != null && market.avgCum != null) {
+      if (st.avgCum >= market.avgCum + 5) marketTag = '强于大盘';
+      else if (st.avgCum <= market.avgCum - 5) marketTag = '弱于大盘';
+    }
+    let trendPct = '';
+    let trendNote = '';
+    if (st.trendRaw) {
+      trendPct = st.trendRaw;
+      trendNote = 'IPO主页·市场趋势';
+    } else if (st.recentAvgFd != null && Number.isFinite(st.recentAvgFd)) {
+      trendPct = `${st.recentAvgFd >= 0 ? '+' : ''}${st.recentAvgFd.toFixed(1)}%`;
+      const n = st.recentN || 0;
+      trendNote = n > 0
+        ? `近90日内${n}只新股首日均值`
+        : (st.sampleN ? `历史${st.sampleN}只新股首日均值` : '');
+    }
+    const activeStocks = activeBySector[sector] || [];
+    return {
+      sector,
+      activeCount: activeStocks.length,
+      activeStocks,
+      winRate: st.winRate,
+      avgCum: st.avgCum,
+      recentAvgFd: st.recentAvgFd,
+      trendPct: trendPct || '—',
+      trendNote,
+      trendScore: st.trendScore,
+      sampleN: st.sampleN || 0,
+      composite,
+      marketTag,
+      scoreTip: _sectorScoreBreakdownTip(st, market, composite),
+      sortVal: composite != null ? composite : -Infinity,
+    };
+  });
+
+  return rows.sort((a, b) => {
+    const av = a.sortVal != null && Number.isFinite(a.sortVal) ? a.sortVal : -Infinity;
+    const bv = b.sortVal != null && Number.isFinite(b.sortVal) ? b.sortVal : -Infinity;
+    return bv - av;
+  });
+}
+
+function buildAhDiscountCompareRows(lotsItems) {
+  const withData = [];
+  const noData = [];
+  (lotsItems || []).forEach(it => {
+    const row = _listedRowByCode(it.code);
+    const ahRaw = row ? _cellFromScheduleRow(row, ['A+H 股', 'A+H', 'A+H股', '是否A+H']) : '';
+    const discountRaw = row ? _cellFromScheduleRow(row, ['折价率', 'AH折价率', 'A+H折价率', '折让率']) : '';
+    const sortVal = _parseAhDiscountSortValue(discountRaw);
+    const item = {
+      code: it.code,
+      name: it.name,
+      ahRaw: ahRaw || '—',
+      discountRaw: discountRaw || '—',
+      sortVal,
+    };
+    if (sortVal != null && Number.isFinite(sortVal)) withData.push(item);
+    else noData.push(item);
+  });
+  withData.sort((a, b) => b.sortVal - a.sortVal);
+  return [...withData, ...noData];
+}
+
+function renderPublicOfferLotsTable() {
+  const host = document.getElementById('dashboard-public-lots-body');
+  const handFeeHost = document.getElementById('dashboard-handfee-body');
+  const mcapHost = document.getElementById('dashboard-mcap-compare-body');
+  const peHost = document.getElementById('dashboard-pe-compare-body');
+  const csHost = document.getElementById('dashboard-cornerstone-body');
+  const discountHost = document.getElementById('dashboard-discount-body');
+  const sectorHost = document.getElementById('dashboard-sector-body');
+  const hint = document.getElementById('dashboard-public-lots-hint');
+  const handFeeHint = document.getElementById('dashboard-handfee-hint');
+  const mcapHint = document.getElementById('dashboard-mcap-compare-hint');
+  const peHint = document.getElementById('dashboard-pe-compare-hint');
+  const csHint = document.getElementById('dashboard-cornerstone-hint');
+  const discountHint = document.getElementById('dashboard-discount-hint');
+  const sectorHint = document.getElementById('dashboard-sector-hint');
+  const sectorNote = document.getElementById('dashboard-sector-note');
+  if (!host) return;
+  const items = buildPublicOfferLotsRows();
+  const handFeeItems = buildHandFeeCompareRows(items);
+  const mcapItems = buildMarketCapCompareRows(items);
+  const peItems = buildPeCompareRows(items);
+  const csItems = buildCornerstoneCompareRows(items);
+  const discountItems = buildAhDiscountCompareRows(items);
+  const sectorItems = buildSectorTrackCompareRows(items);
+  const marketBench = _computeIpoMarketBenchmark();
+  const hasSheet = Array.isArray(window.__IPO_LISTED_SHEET_ROWS__) && window.__IPO_LISTED_SHEET_ROWS__.length;
+  const emptyMsg = hasSheet
+    ? '暂无认购中的新股，或表格中「公开发售部分（手数）」为空'
+    : '正在同步线上表格…';
+  if (hint) {
+    hint.textContent = items.length
+      ? `来源：上市新股表 · 公开发售部分（手数）· 仅认购中 · 共 ${items.length} 只`
+      : '来源：上市新股表 · 仅认购中 · 暂无可展示标的';
+  }
+  if (handFeeHint) {
+    const nWith = handFeeItems.filter(it => it.sortVal != null).length;
+    handFeeHint.textContent = handFeeItems.length
+      ? `来源：上市新股表 · 一手入场费 · 同批 ${handFeeItems.length} 只 · 有数据 ${nWith} 只 · 按金额降序`
+      : '来源：上市新股表 · 一手入场费 · 与公配手数同批标的';
+  }
+  if (mcapHint) {
+    mcapHint.textContent = mcapItems.length
+      ? `来源：上市新股表 · 市值（港元）· 与左侧同批 ${mcapItems.length} 只 · 按市值降序`
+      : '来源：上市新股表 · 市值（港元）· 与左侧同批标的';
+  }
+  if (peHint) {
+    const nPe = peItems.filter(it => it.pe != null).length;
+    const nPs = peItems.filter(it => it.ps != null).length;
+    peHint.textContent = peItems.length
+      ? `发行 PE / 预估 PS · 同批 ${peItems.length} 只 · 可算 PE ${nPe} 只 · 可算 PS ${nPs} 只 · 按 PE 降序`
+      : '公式：市值÷净利 / 市值÷营收 · 与左侧同批标的';
+  }
+  if (csHint) {
+    csHint.textContent = csItems.length
+      ? `同批认购中 ${csItems.length} 只 · 按基石投入金额降序`
+      : '来源：上市新股表 · 基石认购占比 / 基石认购公司';
+  }
+  if (discountHint) {
+    const nWith = discountItems.filter(it => it.sortVal != null).length;
+    discountHint.textContent = discountItems.length
+      ? `同批 ${discountItems.length} 只 · 有折价率 ${nWith} 只 · 按折价率降序`
+      : '来源：上市新股表 · A+H 股 / 折价率';
+  }
+  if (sectorHint) {
+    const hasTrendCol = ((window.__IPO_HOME_SHEET__ && window.__IPO_HOME_SHEET__.headers) || []).some(h =>
+      /市场趋势|板块趋势|赛道趋势|市场走势/.test(String(h || ''))
+    ) || ((window.__IPO_HOME_SHEET__ && window.__IPO_HOME_SHEET__.rows) || []).some(r => !!_homeSheetMarketTrendCell(r));
+    sectorHint.textContent = sectorItems.length
+      ? `认购中涉及 ${sectorItems.length} 个赛道 · IPO主页样本 ${marketBench.sampleN || 0} 只 · 按综合分降序`
+      : '来源：IPO主页 · 市场趋势 + 历史新股表现';
+    if (sectorNote && marketBench.sampleN) {
+      const mktParts = [];
+      if (marketBench.winRate != null) mktParts.push(`全市场首日上涨率 ${Math.round(marketBench.winRate * 100)}%`);
+      if (marketBench.avgCum != null) {
+        mktParts.push(`累计均涨 ${marketBench.avgCum >= 0 ? '+' : ''}${marketBench.avgCum.toFixed(1)}%`);
+      }
+      const mktLine = mktParts.length ? `对照基准：${mktParts.join(' · ')}。` : '';
+      sectorNote.innerHTML = `按<strong>赛道赚钱效应</strong>排序；每行赛道下列出对应<strong>认购中</strong>标的，综合分反映该赛道历史与近期表现，供判断新股所处板块环境。${mktLine}<br>
+        <strong>综合分（0–100）</strong> = 首日胜率×32% + 累计均涨×28% + 近90日首日涨幅×22% + 涨势稳定性×10% + 市场趋势×8%。≥65 偏强 · 45–64 中性 · &lt;45 偏弱。悬停综合分可看分项。<br>
+        <strong>近势</strong>：优先读 IPO主页「市场趋势」${hasTrendCol ? '' : '（列待补充时用历史推算）'}；推算值为该赛道<strong>近90日内已上市新股的首日涨幅均值</strong>，小字标注样本数（如「近90日内2只新股」）。`;
+    }
+  }
+  const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const fmtLots = raw => esc(String(raw || '').trim()).replace(/\n/g, '<br>');
+  if (!items.length) {
+    host.innerHTML = `<div class="dashboard-public-lots-empty">${emptyMsg}</div>`;
+    if (handFeeHost) handFeeHost.innerHTML = `<div class="dashboard-public-lots-empty">${emptyMsg}</div>`;
+    if (mcapHost) mcapHost.innerHTML = `<div class="dashboard-public-lots-empty">${emptyMsg}</div>`;
+    if (peHost) peHost.innerHTML = `<div class="dashboard-public-lots-empty">${emptyMsg}</div>`;
+    if (csHost) csHost.innerHTML = `<div class="dashboard-public-lots-empty">${emptyMsg}</div>`;
+    if (discountHost) discountHost.innerHTML = `<div class="dashboard-public-lots-empty">${emptyMsg}</div>`;
+    if (sectorHost) sectorHost.innerHTML = `<div class="dashboard-public-lots-empty">${emptyMsg}</div>`;
+    return;
+  }
+  host.innerHTML = `<table class="dashboard-public-lots-table">
+    <thead>
+      <tr>
+        <th class="pol-num" style="width:52px">#</th>
+        <th>股票</th>
+        <th class="pol-num">公开发售手数</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${items.map((it, i) => `<tr>
+        <td class="pol-num">${i + 1}</td>
+        <td>
+          <div class="dashboard-public-lots-name">${esc(it.name)}</div>
+          <div class="dashboard-public-lots-code">${esc(it.code)}.HK</div>
+        </td>
+        <td class="pol-num"><span class="dashboard-public-lots-val">${fmtLots(it.lotsRaw)}</span></td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+  if (handFeeHost) {
+    handFeeHost.innerHTML = `<table class="dashboard-public-lots-table">
+    <thead>
+      <tr>
+        <th class="pol-num" style="width:52px">#</th>
+        <th>股票</th>
+        <th class="pol-num">一手入场费</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${handFeeItems.map((it, i) => `<tr>
+        <td class="pol-num">${i + 1}</td>
+        <td>
+          <div class="dashboard-public-lots-name">${esc(it.name)}</div>
+          <div class="dashboard-public-lots-code">${esc(it.code)}.HK</div>
+        </td>
+        <td class="pol-num"><span class="dashboard-public-lots-handfee">${it.feeRaw ? esc(it.feeRaw) : '—'}</span></td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+  }
+  if (!mcapHost) return;
+  mcapHost.innerHTML = `<table class="dashboard-public-lots-table">
+    <thead>
+      <tr>
+        <th class="pol-num" style="width:52px">#</th>
+        <th>股票</th>
+        <th class="pol-num">市值（港元）</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${mcapItems.map((it, i) => `<tr>
+        <td class="pol-num">${i + 1}</td>
+        <td>
+          <div class="dashboard-public-lots-name">${esc(it.name)}</div>
+          <div class="dashboard-public-lots-code">${esc(it.code)}.HK</div>
+        </td>
+        <td class="pol-num"><span class="dashboard-public-lots-mcap">${it.mcapRaw ? esc(it.mcapRaw) : '—'}</span></td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+  if (peHost) {
+    peHost.innerHTML = `<table class="dashboard-public-lots-table">
+    <thead>
+      <tr>
+        <th class="pol-num" style="width:52px">#</th>
+        <th>股票</th>
+        <th class="pol-num">发行 PE</th>
+        <th class="pol-num">预估 PS</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${peItems.map((it, i) => {
+        const peCls = it.peLabel === '亏损'
+          ? 'dashboard-public-lots-pe is-loss'
+          : (it.pe == null ? 'dashboard-public-lots-pe is-na' : 'dashboard-public-lots-pe');
+        const peTip = it.formula ? ` title="${esc(it.formula)}"` : '';
+        const psCls = it.ps == null ? 'dashboard-public-lots-ps is-na' : 'dashboard-public-lots-ps';
+        const psTip = it.psFormula ? ` title="${esc(it.psFormula)}"` : '';
+        return `<tr>
+        <td class="pol-num">${i + 1}</td>
+        <td>
+          <div class="dashboard-public-lots-name">${esc(it.name)}</div>
+          <div class="dashboard-public-lots-code">${esc(it.code)}.HK</div>
+        </td>
+        <td class="pol-num"><span class="${peCls}"${peTip}>${esc(it.peLabel)}</span></td>
+        <td class="pol-num"><span class="${psCls}"${psTip}>${esc(it.psLabel)}</span></td>
+      </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+  }
+  if (csHost) {
+    const fmtCo = raw => esc(String(raw || '').trim()).replace(/\n/g, '<br>');
+    csHost.innerHTML = `<table class="dashboard-public-lots-table dashboard-cornerstone-table">
+    <thead>
+      <tr>
+        <th class="pol-num" style="width:52px">#</th>
+        <th>股票</th>
+        <th class="pol-num" style="width:96px">基石占比</th>
+        <th class="pol-num" style="width:140px">基石投入</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${csItems.map((it, i) => {
+        const investLabel = it.investM != null
+          ? `约 ${it.investM} 百万港元`
+          : (it.pct != null ? '仅占比可估' : '暂无');
+        const canExpand = it.coRaw && it.coRaw !== '—' && !/^暂无$/.test(String(it.coRaw).trim());
+        const rowId = `cs-${it.code}`;
+        const investTip = it.investSource ? esc(it.investSource) : '';
+        const investCell = canExpand
+          ? `<button type="button" class="dashboard-cornerstone-invest-btn" data-cs-toggle="${rowId}" title="${investTip || '点击查看基石认购公司'}">${esc(investLabel)}</button>`
+          : `<span class="dashboard-cornerstone-invest-btn is-disabled"${investTip ? ` title="${esc(investTip)}"` : ''}>${esc(investLabel)}</span>`;
+        const detailRow = canExpand
+          ? `<tr class="dashboard-cornerstone-detail-row" id="${rowId}" hidden>
+        <td colspan="4">
+          <div class="dashboard-cornerstone-detail-label">基石认购公司 · ${esc(it.name)}</div>
+          <div class="dashboard-cornerstone-co">${fmtCo(it.coRaw)}</div>
+        </td>
+      </tr>`
+          : '';
+        return `<tr data-cs-main="${rowId}">
+        <td class="pol-num">${i + 1}</td>
+        <td>
+          <div class="dashboard-public-lots-name">${esc(it.name)}</div>
+          <div class="dashboard-public-lots-code">${esc(it.code)}.HK</div>
+        </td>
+        <td class="pol-num"><span class="dashboard-cornerstone-pct">${esc(it.pctRaw)}</span></td>
+        <td class="pol-num">${investCell}</td>
+      </tr>${detailRow}`;
+      }).join('')}
+    </tbody>
+  </table>`;
+    if (!csHost._csToggleBound) {
+      csHost._csToggleBound = true;
+      csHost.addEventListener('click', e => {
+        const btn = e.target.closest('[data-cs-toggle]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-cs-toggle');
+        const detail = document.getElementById(id);
+        if (!detail) return;
+        const willOpen = detail.hidden;
+        csHost.querySelectorAll('.dashboard-cornerstone-detail-row').forEach(el => { el.hidden = true; });
+        csHost.querySelectorAll('.dashboard-cornerstone-invest-btn[data-cs-toggle]').forEach(el => {
+          el.classList.remove('is-open');
+        });
+        if (willOpen) {
+          detail.hidden = false;
+          btn.classList.add('is-open');
+          detail.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+      });
+    }
+  }
+  if (discountHost) {
+    discountHost.innerHTML = `<table class="dashboard-public-lots-table dashboard-discount-table">
+    <thead>
+      <tr>
+        <th class="pol-num" style="width:52px">#</th>
+        <th>股票</th>
+        <th style="width:72px">A+H</th>
+        <th class="pol-num">折价率</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${discountItems.map((it, i) => {
+        const hasRate = it.sortVal != null && Number.isFinite(it.sortVal);
+        const rateCls = !hasRate
+          ? 'dashboard-discount-rate is-na'
+          : (it.sortVal > 0 ? 'dashboard-discount-rate is-premium' : 'dashboard-discount-rate');
+        const rateText = hasRate
+          ? (String(it.discountRaw).trim() || `${it.sortVal}%`)
+          : '—';
+        return `<tr>
+        <td class="pol-num">${i + 1}</td>
+        <td>
+          <div class="dashboard-public-lots-name">${esc(it.name)}</div>
+          <div class="dashboard-public-lots-code">${esc(it.code)}.HK</div>
+        </td>
+        <td><span class="dashboard-discount-ah">${esc(it.ahRaw)}</span></td>
+        <td class="pol-num"><span class="${rateCls}">${esc(rateText)}</span></td>
+      </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+  }
+  if (sectorHost) {
+    const fmtPct = (n, digits) => {
+      if (n == null || !Number.isFinite(n)) return '—';
+      return `${n >= 0 ? '+' : ''}${n.toFixed(digits != null ? digits : 1)}%`;
+    };
+    sectorHost.innerHTML = `<table class="dashboard-public-lots-table dashboard-sector-table">
+    <thead>
+      <tr>
+        <th class="pol-num" style="width:44px">#</th>
+        <th style="min-width:120px">认购中标的</th>
+        <th style="min-width:100px">赛道</th>
+        <th class="pol-num" style="width:72px">综合分</th>
+        <th class="pol-num" style="width:88px">首日胜率</th>
+        <th style="width:108px">近势</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${sectorItems.map((it, i) => {
+        const scoreCls = it.composite == null
+          ? 'dashboard-sector-score is-low'
+          : (it.composite >= 65 ? 'dashboard-sector-score dashboard-sector-score-tip' : (it.composite >= 45 ? 'dashboard-sector-score is-mid dashboard-sector-score-tip' : 'dashboard-sector-score is-low dashboard-sector-score-tip'));
+        const winText = it.winRate != null && it.sampleN
+          ? `${Math.round(it.winRate * 100)}%<span style="display:block;font-size:10px;color:var(--t3);font-weight:600;">历史${it.sampleN}只样本</span>`
+          : '—';
+        const trendUp = it.trendScore != null ? it.trendScore > 3 : (it.recentAvgFd != null && it.recentAvgFd > 0);
+        const trendDown = it.trendScore != null ? it.trendScore < -3 : (it.recentAvgFd != null && it.recentAvgFd < 0);
+        const trendCls = trendUp ? 'dashboard-sector-trend is-up' : (trendDown ? 'dashboard-sector-trend is-down' : 'dashboard-sector-trend');
+        const tagHtml = it.marketTag
+          ? `<span class="dashboard-sector-tag${it.marketTag === '弱于大盘' ? ' is-weak' : ''}">${esc(it.marketTag)}</span>`
+          : '';
+        const cumHint = it.avgCum != null
+          ? `<span style="display:block;font-size:10px;color:var(--t3);font-weight:600;margin-top:2px;">赛道累计 ${fmtPct(it.avgCum, 1)}</span>`
+          : '';
+        const stocksHtml = (it.activeStocks || []).map(s => {
+          const subSector = s.sectorLabel && s.sectorLabel !== it.sector
+            ? `<div style="font-size:10px;color:var(--t3);margin:2px 0 6px 0;line-height:1.35;">${esc(s.sectorLabel)}</div>`
+            : '';
+          return `<div class="dashboard-sector-stock-item">
+            <span class="dashboard-sector-stock-name">${esc(s.name)}</span>
+            <span class="dashboard-sector-stock-code">${esc(s.code)}.HK</span>
+          </div>${subSector}`;
+        }).join('');
+        const scoreTip = it.scoreTip ? ` title="${esc(it.scoreTip)}"` : '';
+        const trendSub = it.trendNote
+          ? `<span class="dashboard-sector-trend-sub">${esc(it.trendNote)}</span>`
+          : '';
+        return `<tr>
+        <td class="pol-num">${i + 1}</td>
+        <td><div class="dashboard-sector-stocks-col">${stocksHtml || '—'}</div></td>
+        <td>
+          <div class="dashboard-sector-name">${esc(it.sector)}</div>
+          <div class="dashboard-sector-active">认购中 ${it.activeCount} 只${tagHtml ? ` · ${tagHtml}` : ''}</div>
+          ${cumHint}
+        </td>
+        <td class="pol-num"><span class="${scoreCls}"${scoreTip}>${it.composite != null ? it.composite : '—'}</span></td>
+        <td class="pol-num"><span class="dashboard-sector-pct${it.winRate != null && it.winRate < 0.5 ? ' is-neg' : ''}">${winText}</span></td>
+        <td><span class="${trendCls}">${esc(it.trendPct)}</span>${trendSub}</td>
+      </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+  }
+  initDashboardPanelMetaToggles();
+}
+function initDashboardPanelMetaToggles() {
+  const root = document.getElementById('dashboard-public-lots');
+  if (!root || root._metaToggleBound) return;
+  root._metaToggleBound = true;
+  root.addEventListener('click', e => {
+    const btn = e.target.closest('.dashboard-panel-info-btn');
+    if (!btn) return;
+    const id = btn.getAttribute('aria-controls');
+    const panel = id ? document.getElementById(id) : null;
+    if (!panel) return;
+    const willOpen = panel.hidden;
+    panel.hidden = !willOpen;
+    btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    btn.classList.toggle('is-open', willOpen);
+    btn.title = willOpen ? '收起说明' : '展开说明';
+  });
+}
+window.initDashboardPanelMetaToggles = initDashboardPanelMetaToggles;
+window.buildPublicOfferLotsRows = buildPublicOfferLotsRows;
+window.buildHandFeeCompareRows = buildHandFeeCompareRows;
+window.buildMarketCapCompareRows = buildMarketCapCompareRows;
+window.buildPeCompareRows = buildPeCompareRows;
+window.buildCornerstoneCompareRows = buildCornerstoneCompareRows;
+window.buildAhDiscountCompareRows = buildAhDiscountCompareRows;
+window.buildSectorTrackCompareRows = buildSectorTrackCompareRows;
+window.renderPublicOfferLotsTable = renderPublicOfferLotsTable;
 
 /* ━━━━━━━━━ IPO NEWS ━━━━━━━━━ */
 const IPO_NEWS_PROXIES = [
@@ -8276,6 +9435,7 @@ window.rerenderAllIpoViews = function rerenderAllIpoViews() {
   renderRecentPerformance();
   if (document.getElementById('ipo-acc-wrapper')) buildIpoAccordion();
   if (document.getElementById('ipo-compare-table')) buildCompareTable();
+  if (document.getElementById('dashboard-public-lots-body')) renderPublicOfferLotsTable();
 };
 
 window.updateTimelineView = function updateTimelineView() {

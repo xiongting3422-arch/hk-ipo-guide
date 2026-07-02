@@ -1362,6 +1362,13 @@
         console.warn('[IPO Sheet] buildCompareTable', e2);
       }
     }
+    if (typeof global.renderPublicOfferLotsTable === 'function') {
+      try {
+        global.renderPublicOfferLotsTable();
+      } catch (e2) {
+        console.warn('[IPO Sheet] renderPublicOfferLotsTable', e2);
+      }
+    }
   };
 
   global.filterIpoListedSheetRows = filterIpoListedSheetRows;
