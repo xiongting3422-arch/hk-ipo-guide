@@ -1257,6 +1257,42 @@
     if (restoreName && typeof global.switchStock === 'function') {
       global.switchStock(restoreName);
     }
+    _syncIpoAnalysisAfterAccordionBuild(models, rows);
+  }
+
+  /** 表格卡片渲染后强制拉取最新分析库，避免早于 sheet 加载时 hydrate 落空 */
+  function _syncIpoAnalysisAfterAccordionBuild(models, rows) {
+    if (typeof global.loadIpoAnalysisStore !== 'function') return;
+    global
+      .loadIpoAnalysisStore(true)
+      .then(function () {
+        if (typeof global.hydrateIpoModelsFromAnalysisStore === 'function') {
+          global.hydrateIpoModelsFromAnalysisStore();
+        }
+        (rows || []).forEach(function (r) {
+          const code = _extractCodeFromRow(r);
+          const m = code && models[code];
+          if (m && typeof global.updateIpoTabCardWeather === 'function') {
+            global.updateIpoTabCardWeather(code, m.totalScore);
+          }
+        });
+        const activeName =
+          typeof global.__ipoGetActiveTabStockName === 'function'
+            ? global.__ipoGetActiveTabStockName()
+            : null;
+        if (
+          activeName &&
+          global.stockData &&
+          global.stockData[activeName] &&
+          typeof global.loadIpoDetailAnalysis === 'function'
+        ) {
+          return global.loadIpoDetailAnalysis(global.stockData[activeName], activeName);
+        }
+        return null;
+      })
+      .catch(function (e) {
+        console.warn('[IPO Sheet] 分析库同步失败', e);
+      });
   }
 
   function switchIpoTabFromSheetModel(code) {

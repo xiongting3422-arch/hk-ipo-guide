@@ -612,10 +612,21 @@
   }
 
   async function loadAnalysisStore(force) {
-    if (analysisStore && !force) return analysisStore;
+    if (force) {
+      analysisStore = null;
+      analysisStorePromise = null;
+    } else if (analysisStore) {
+      return analysisStore;
+    }
     if (analysisStorePromise && !force) return analysisStorePromise;
     const baseUrl = resolveAnalysisStoreUrl();
-    const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
+    const build = String(global.__IPO_APP_BUILD__ || '').trim();
+    const url =
+      baseUrl +
+      (baseUrl.includes('?') ? '&' : '?') +
+      '_t=' +
+      Date.now() +
+      (build ? '&b=' + encodeURIComponent(build) : '');
     analysisStorePromise = fetch(url)
       .then(res => (res.ok ? res.json() : { stocks: {} }))
       .then(data => {
@@ -911,6 +922,7 @@
   global.switchStock = switchStock;
   global.loadIpoDetailAnalysis = loadIpoDetailAnalysis;
   global.loadIpoAnalysisStore = loadAnalysisStore;
+  global.hydrateIpoModelsFromAnalysisStore = hydrateModelsFromAnalysisStore;
   global.buildStockDataFromModels = buildStockDataMap;
   global.__ipoGetActiveTabStockName = function __ipoGetActiveTabStockName() {
     if (currentActiveStockKey) return currentActiveStockKey;

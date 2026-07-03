@@ -178,8 +178,26 @@ function gitPushDeploy(flags, commitMsg) {
   }
   execSync(`git commit -m ${JSON.stringify(commitMsg)}`, { cwd: ROOT, stdio: 'inherit' });
   const branch = process.env.GITHUB_BRANCH || 'main';
-  execSync(`git push origin ${branch}`, { cwd: ROOT, stdio: 'inherit' });
-  console.log('[run-ipo-audit] 已 push origin', branch);
+  const token = process.env.GITHUB_TOKEN || '';
+  const remote = token
+    ? `https://x-access-token:${token}@github.com/xiongting3422-arch/hk-ipo-guide.git`
+    : 'origin';
+  const pushTarget = token ? remote : 'origin';
+  execSync(`git push ${pushTarget} ${branch}`, { cwd: ROOT, stdio: 'inherit' });
+  console.log('[run-ipo-audit] 已 push', token ? 'origin (token)' : 'origin', branch);
+  if (token) {
+    try {
+      execSync(
+        'curl -sL -X POST -H "Authorization: Bearer ' +
+          token +
+          '" "https://api.github.com/repos/xiongting3422-arch/hk-ipo-guide/pages/builds"',
+        { cwd: ROOT, stdio: 'pipe' },
+      );
+      console.log('[run-ipo-audit] 已触发 GitHub Pages 重建');
+    } catch (e) {
+      console.warn('[run-ipo-audit] Pages 重建触发失败（可手动重建）', e.message);
+    }
+  }
 }
 
 function printVerboseAudit(entry) {
