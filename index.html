@@ -1143,14 +1143,29 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 .dashboard-inject-status.is-error{color:var(--red);}
 .dashboard-public-lots{margin-top:0;margin-bottom:32px;background:#fff;border:1px solid #ebebeb;border-radius:var(--r-lg);box-shadow:0 4px 24px rgba(15,23,42,.06);padding:22px 20px 18px;position:relative;overflow:hidden;}
 .dashboard-public-lots::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#38bdf8,var(--accent));}
+.dashboard-stock-filter{margin:0 0 18px;padding-bottom:16px;border-bottom:1px dashed rgba(0,0,0,.08);}
+.dashboard-stock-filter-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin-bottom:10px;}
+.dashboard-stock-filter-label{font-size:13px;font-weight:800;color:var(--t1);letter-spacing:.02em;}
+.dashboard-stock-filter-hint{font-size:12px;color:var(--t3);flex:1;min-width:160px;}
+.dashboard-stock-filter-actions{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.dashboard-stock-filter-clear,.dashboard-stock-filter-all{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--t2);cursor:pointer;transition:color .15s,border-color .15s,background .15s;}
+.dashboard-stock-filter-clear:hover,.dashboard-stock-filter-all:hover{color:var(--accent);border-color:rgba(249,115,22,.35);background:#fff7ed;}
+.dashboard-stock-filter-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.dashboard-stock-filter-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid rgba(0,0,0,.1);background:#f8fafc;color:var(--t2);font-size:12px;font-weight:600;line-height:1.2;cursor:pointer;transition:color .15s,border-color .15s,background .15s,box-shadow .15s;user-select:none;}
+.dashboard-stock-filter-chip:hover{border-color:rgba(249,115,22,.28);color:var(--t1);}
+.dashboard-stock-filter-chip.is-selected{color:#c2410c;border-color:rgba(249,115,22,.45);background:rgba(249,115,22,.08);box-shadow:0 0 0 1px rgba(249,115,22,.12);}
+.dashboard-stock-filter-chip-code{font-family:'DM Mono',monospace;font-size:10px;color:var(--t3);font-weight:500;}
+.dashboard-stock-filter-chip.is-selected .dashboard-stock-filter-chip-code{color:#ea580c;}
+.dashboard-stock-filter-empty{font-size:12px;color:var(--t3);padding:8px 0;}
 .dashboard-public-lots-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;align-items:start;}
 .dashboard-public-lots-panel{min-width:0;}
 .dashboard-public-lots-head{margin-bottom:10px;}
 .dashboard-panel-title-row{display:flex;align-items:center;gap:8px;}
 .dashboard-public-lots-head h2{font-size:16px;font-weight:800;color:var(--t1);margin:0;}
-.dashboard-panel-info-btn{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;border:1px solid rgba(0,0,0,.12);border-radius:50%;background:#f8fafc;color:var(--t3);cursor:pointer;transition:color .15s,border-color .15s,background .15s,transform .1s;}
-.dashboard-panel-info-btn:hover{color:var(--accent);border-color:rgba(249,115,22,.35);background:#fff7ed;}
-.dashboard-panel-info-btn.is-open{color:var(--accent);border-color:rgba(249,115,22,.45);background:#fff7ed;}
+.dashboard-panel-info-btn{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:auto;height:auto;padding:0;margin-left:2px;border:none;border-radius:0;background:transparent;color:var(--t3);cursor:pointer;transition:color .15s,opacity .15s;}
+.dashboard-panel-info-btn:hover{color:var(--accent);background:transparent;}
+.dashboard-panel-info-btn.is-open{color:var(--accent);background:transparent;}
+.dashboard-panel-info-btn svg{display:block;}
 .dashboard-panel-meta{margin:0 0 10px;}
 .dashboard-panel-meta[hidden]{display:none;}
 .dashboard-panel-meta-hint{font-size:12px;color:var(--t3);line-height:1.55;margin:0 0 8px;}
@@ -1158,9 +1173,17 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 .dashboard-public-lots-hint{font-size:12px;color:var(--t3);line-height:1.5;}
 .dashboard-pe-note{font-size:12px;color:var(--t2);line-height:1.65;margin:0 0 12px;padding:10px 12px;background:#f8fafc;border:1px solid rgba(0,0,0,.06);border-radius:8px;}
 .dashboard-pe-note strong{color:var(--t1);font-weight:700;}
-.dashboard-public-lots-table-wrap{overflow:auto;border:1px solid rgba(0,0,0,.08);border-radius:10px;-webkit-overflow-scrolling:touch;max-height:calc(41px + 43px * 10);}
+.dashboard-public-lots-table-wrap{overflow:auto;border:1px solid rgba(0,0,0,.08);border-radius:10px;-webkit-overflow-scrolling:touch;max-height:calc(41px + 43px * 10);scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.06) transparent;}
+.dashboard-public-lots-table-wrap::-webkit-scrollbar{width:2px;height:2px;}
+.dashboard-public-lots-table-wrap::-webkit-scrollbar-track{background:transparent;}
+.dashboard-public-lots-table-wrap::-webkit-scrollbar-thumb{background:rgba(0,0,0,.06);border-radius:1px;}
+.dashboard-public-lots-table-wrap::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.12);}
+.dashboard-public-lots-table-wrap:hover::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);}
 .dashboard-public-lots-table{width:100%;border-collapse:collapse;font-size:13px;min-width:0;}
 .dashboard-public-lots-table th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.04em;background:#f8f9fa;border-bottom:1px solid rgba(0,0,0,.08);white-space:nowrap;position:sticky;top:0;z-index:1;}
+.dashboard-public-lots-table th.pol-idx,.dashboard-public-lots-table td.pol-idx{width:26px;min-width:22px;max-width:28px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--t3);}
+.dashboard-public-lots-table th.pol-idx{padding:10px 4px 10px 6px;}
+.dashboard-public-lots-table td.pol-idx{padding:11px 4px 11px 6px;}
 .dashboard-public-lots-table th.pol-num,.dashboard-public-lots-table td.pol-num{text-align:right;font-family:'DM Mono',monospace;}
 .dashboard-public-lots-table td{padding:11px 14px;border-bottom:1px solid rgba(0,0,0,.06);color:var(--t1);vertical-align:middle;}
 .dashboard-public-lots-table tr:last-child td{border-bottom:none;}
@@ -1176,7 +1199,8 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 .dashboard-public-lots-ps{font-family:'DM Mono',monospace;font-weight:800;font-size:13px;color:#4f46e5;}
 .dashboard-public-lots-ps.is-na{color:var(--t3);font-weight:600;}
 .dashboard-cornerstone-section{margin-top:0;padding-top:0;border-top:none;}
-.dashboard-secondary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:22px;padding-top:20px;border-top:1px dashed rgba(0,0,0,.1);align-items:start;}
+.dashboard-secondary-grid{display:grid;grid-template-columns:minmax(0,0.82fr) minmax(0,0.82fr) minmax(0,1.36fr);gap:20px;margin-top:22px;padding-top:20px;border-top:1px dashed rgba(0,0,0,.1);align-items:start;}
+.dashboard-secondary-grid .dashboard-sector-section{min-width:0;}
 .dashboard-sector-section .dashboard-public-lots-head{margin-bottom:10px;}
 .dashboard-sector-stocks-col{display:flex;flex-direction:column;gap:0;}
 .dashboard-sector-name{font-weight:800;font-size:13px;color:var(--t1);line-height:1.35;}
@@ -2883,6 +2907,19 @@ footer a:hover{text-decoration:underline;color:#c8c8c8;}
 <div id="tab-dashboard" class="tab-content">
 <div class="page dashboard-page">
   <section class="dashboard-public-lots" id="dashboard-public-lots" aria-label="公配手数、市值与PE/PS对比">
+    <div class="dashboard-stock-filter" id="dashboard-stock-filter" aria-label="新股筛选器">
+      <div class="dashboard-stock-filter-head">
+        <span class="dashboard-stock-filter-label">新股筛选器</span>
+        <span class="dashboard-stock-filter-hint" id="dashboard-stock-filter-status">未选择时展示全部认购中标的</span>
+        <div class="dashboard-stock-filter-actions">
+          <button type="button" class="dashboard-stock-filter-all" id="dashboard-stock-filter-all" hidden>全选</button>
+          <button type="button" class="dashboard-stock-filter-clear" id="dashboard-stock-filter-clear" hidden>清除选择</button>
+        </div>
+      </div>
+      <div class="dashboard-stock-filter-chips" id="dashboard-stock-filter-chips">
+        <span class="dashboard-stock-filter-empty">正在同步线上表格…</span>
+      </div>
+    </div>
     <div class="dashboard-public-lots-grid">
       <div class="dashboard-public-lots-panel">
         <div class="dashboard-public-lots-head">
@@ -4799,6 +4836,7 @@ function injectDashboardRules() {
 function initDashboardTab() {
   renderDashboard(normalizeDashboardPayload(DASHBOARD_DEFAULT));
   if (typeof initDashboardPanelMetaToggles === 'function') initDashboardPanelMetaToggles();
+  if (typeof initDashboardStockFilter === 'function') initDashboardStockFilter();
   if (typeof renderPublicOfferLotsTable === 'function') renderPublicOfferLotsTable();
   const btn = document.getElementById('dashboard-inject-btn');
   const input = document.getElementById('dashboard-json-input');
@@ -4848,6 +4886,132 @@ function _isActiveSubscriptionRow(row) {
   const extFn = window.__ipoGetExtendedStatus || window.getIpoExtendedStatusKey;
   const key = typeof extFn === 'function' && row ? extFn(row) : 'unknown';
   return key === 'active';
+}
+
+/** 数据看板筛选器：仅「招股中 / 认购中」，排除暗盘、待上市、已上市 */
+function buildDashboardStockFilterOptions() {
+  const rows = Array.isArray(window.__IPO_LISTED_SHEET_ROWS__) ? window.__IPO_LISTED_SHEET_ROWS__ : [];
+  const seen = new Set();
+  const out = [];
+  rows.forEach(row => {
+    if (!row || typeof row !== 'object') return;
+    const codeRaw = _cellFromScheduleRow(row, ['股票代码', '代码', '代号']);
+    const m = String(codeRaw || '').match(/(\d{4,5})/);
+    const code = m ? m[1].padStart(5, '0') : '';
+    const name = _cellFromScheduleRow(row, ['股票名称', '名称', 'IPO名称']) || code;
+    if (!code || seen.has(code)) return;
+    if (!_isActiveSubscriptionRow(row)) return;
+    seen.add(code);
+    out.push({ code, name });
+  });
+  return out.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+}
+
+function _getDashboardStockFilterSelected() {
+  if (!window.__dashboardStockFilterSelected__) {
+    window.__dashboardStockFilterSelected__ = new Set();
+  }
+  return window.__dashboardStockFilterSelected__;
+}
+
+function _rowToDashboardLotsItem(row) {
+  if (!row) return null;
+  const codeRaw = _cellFromScheduleRow(row, ['股票代码', '代码', '代号']);
+  const m = String(codeRaw || '').match(/(\d{4,5})/);
+  const code = m ? m[1].padStart(5, '0') : '';
+  const name = _cellFromScheduleRow(row, ['股票名称', '名称', 'IPO名称']) || code;
+  if (!code) return null;
+  const lotsRaw = _cellFromScheduleRow(row, ['公开发售部分（手数）', '公开发售手数']);
+  const sortVal = lotsRaw ? _parsePublicOfferLotsSortValue(lotsRaw) : null;
+  return {
+    code,
+    name,
+    lotsRaw: lotsRaw || '',
+    sortVal: sortVal != null && Number.isFinite(sortVal) ? sortVal : null,
+  };
+}
+
+function getDashboardCompareItems() {
+  const selected = _getDashboardStockFilterSelected();
+  if (!selected.size) return buildPublicOfferLotsRows();
+  const items = [];
+  selected.forEach(code => {
+    const row = _listedRowByCode(code);
+    if (!row || !_isActiveSubscriptionRow(row)) return;
+    const item = _rowToDashboardLotsItem(row);
+    if (item) items.push(item);
+  });
+  items.sort((a, b) => {
+    const av = a.sortVal != null && Number.isFinite(a.sortVal) ? a.sortVal : -Infinity;
+    const bv = b.sortVal != null && Number.isFinite(b.sortVal) ? b.sortVal : -Infinity;
+    return bv - av;
+  });
+  return items;
+}
+
+function renderDashboardStockFilter() {
+  const chipsHost = document.getElementById('dashboard-stock-filter-chips');
+  const statusEl = document.getElementById('dashboard-stock-filter-status');
+  const clearBtn = document.getElementById('dashboard-stock-filter-clear');
+  const allBtn = document.getElementById('dashboard-stock-filter-all');
+  if (!chipsHost) return;
+  const options = buildDashboardStockFilterOptions();
+  const selected = _getDashboardStockFilterSelected();
+  const validCodes = new Set(options.map(o => o.code));
+  selected.forEach(code => {
+    if (!validCodes.has(code)) selected.delete(code);
+  });
+  const hasSheet = Array.isArray(window.__IPO_LISTED_SHEET_ROWS__) && window.__IPO_LISTED_SHEET_ROWS__.length;
+  if (!options.length) {
+    chipsHost.innerHTML = `<span class="dashboard-stock-filter-empty">${hasSheet ? '当前无招股中新股' : '正在同步线上表格…'}</span>`;
+    if (statusEl) statusEl.textContent = '仅展示招股中 · 不含暗盘 / 待上市';
+    if (clearBtn) clearBtn.hidden = true;
+    if (allBtn) allBtn.hidden = true;
+    return;
+  }
+  const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  chipsHost.innerHTML = options.map(o => {
+    const on = selected.has(o.code);
+    return `<button type="button" class="dashboard-stock-filter-chip${on ? ' is-selected' : ''}" data-dash-filter-code="${esc(o.code)}" aria-pressed="${on ? 'true' : 'false'}"><span>${esc(o.name)}</span><span class="dashboard-stock-filter-chip-code">${esc(o.code)}</span></button>`;
+  }).join('');
+  const nSel = selected.size;
+  if (statusEl) {
+    statusEl.textContent = nSel
+      ? `已选 ${nSel} 只`
+      : `共 ${options.length} 只招股中 · 未选择时展示全部（与默认逻辑一致）`;
+  }
+  if (clearBtn) clearBtn.hidden = nSel === 0;
+  if (allBtn) allBtn.hidden = options.length === 0;
+}
+
+function initDashboardStockFilter() {
+  const root = document.getElementById('dashboard-stock-filter');
+  if (!root || root._filterBound) return;
+  root._filterBound = true;
+  root.addEventListener('click', e => {
+    const chip = e.target.closest('[data-dash-filter-code]');
+    if (chip) {
+      const code = chip.getAttribute('data-dash-filter-code');
+      const selected = _getDashboardStockFilterSelected();
+      if (selected.has(code)) selected.delete(code);
+      else selected.add(code);
+      renderDashboardStockFilter();
+      renderPublicOfferLotsTable();
+      return;
+    }
+    if (e.target.closest('#dashboard-stock-filter-clear')) {
+      _getDashboardStockFilterSelected().clear();
+      renderDashboardStockFilter();
+      renderPublicOfferLotsTable();
+      return;
+    }
+    if (e.target.closest('#dashboard-stock-filter-all')) {
+      const selected = _getDashboardStockFilterSelected();
+      buildDashboardStockFilterOptions().forEach(o => selected.add(o.code));
+      renderDashboardStockFilter();
+      renderPublicOfferLotsTable();
+    }
+  });
 }
 
 function _listedRowByCode(code) {
@@ -5421,7 +5585,8 @@ function renderPublicOfferLotsTable() {
   const sectorHint = document.getElementById('dashboard-sector-hint');
   const sectorNote = document.getElementById('dashboard-sector-note');
   if (!host) return;
-  const items = buildPublicOfferLotsRows();
+  renderDashboardStockFilter();
+  const items = getDashboardCompareItems();
   const handFeeItems = buildHandFeeCompareRows(items);
   const mcapItems = buildMarketCapCompareRows(items);
   const peItems = buildPeCompareRows(items);
@@ -5431,12 +5596,19 @@ function renderPublicOfferLotsTable() {
   const marketBench = _computeIpoMarketBenchmark();
   const hasSheet = Array.isArray(window.__IPO_LISTED_SHEET_ROWS__) && window.__IPO_LISTED_SHEET_ROWS__.length;
   const emptyMsg = hasSheet
-    ? '暂无认购中的新股，或表格中「公开发售部分（手数）」为空'
+    ? (_getDashboardStockFilterSelected().size
+      ? '所选新股暂无对比数据'
+      : '暂无认购中的新股，或表格中「公开发售部分（手数）」为空')
     : '正在同步线上表格…';
   if (hint) {
+    const filterSel = _getDashboardStockFilterSelected().size;
     hint.textContent = items.length
-      ? `来源：上市新股表 · 公开发售部分（手数）· 仅认购中 · 共 ${items.length} 只`
-      : '来源：上市新股表 · 仅认购中 · 暂无可展示标的';
+      ? (filterSel
+        ? `来源：上市新股表 · 筛选 ${filterSel} 只 · 展示 ${items.length} 只`
+        : `来源：上市新股表 · 公开发售部分（手数）· 仅认购中 · 共 ${items.length} 只`)
+      : (filterSel
+        ? '所选标的暂无有效数据，或已不在招股中'
+        : '来源：上市新股表 · 仅认购中 · 暂无可展示标的');
   }
   if (handFeeHint) {
     const nWith = handFeeItems.filter(it => it.sortVal != null).length;
@@ -5501,14 +5673,14 @@ function renderPublicOfferLotsTable() {
   host.innerHTML = `<table class="dashboard-public-lots-table">
     <thead>
       <tr>
-        <th class="pol-num" style="width:52px">#</th>
+        <th class="pol-idx">#</th>
         <th>股票</th>
         <th class="pol-num">公开发售手数</th>
       </tr>
     </thead>
     <tbody>
       ${items.map((it, i) => `<tr>
-        <td class="pol-num">${i + 1}</td>
+        <td class="pol-idx">${i + 1}</td>
         <td>
           <div class="dashboard-public-lots-name">${esc(it.name)}</div>
           <div class="dashboard-public-lots-code">${esc(it.code)}.HK</div>
@@ -5521,14 +5693,14 @@ function renderPublicOfferLotsTable() {
     handFeeHost.innerHTML = `<table class="dashboard-public-lots-table">
     <thead>
       <tr>
-        <th class="pol-num" style="width:52px">#</th>
+        <th class="pol-idx">#</th>
         <th>股票</th>
         <th class="pol-num">一手入场费</th>
       </tr>
     </thead>
     <tbody>
       ${handFeeItems.map((it, i) => `<tr>
-        <td class="pol-num">${i + 1}</td>
+        <td class="pol-idx">${i + 1}</td>
         <td>
           <div class="dashboard-public-lots-name">${esc(it.name)}</div>
           <div class="dashboard-public-lots-code">${esc(it.code)}.HK</div>
@@ -5542,14 +5714,14 @@ function renderPublicOfferLotsTable() {
   mcapHost.innerHTML = `<table class="dashboard-public-lots-table">
     <thead>
       <tr>
-        <th class="pol-num" style="width:52px">#</th>
+        <th class="pol-idx">#</th>
         <th>股票</th>
         <th class="pol-num">市值（港元）</th>
       </tr>
     </thead>
     <tbody>
       ${mcapItems.map((it, i) => `<tr>
-        <td class="pol-num">${i + 1}</td>
+        <td class="pol-idx">${i + 1}</td>
         <td>
           <div class="dashboard-public-lots-name">${esc(it.name)}</div>
           <div class="dashboard-public-lots-code">${esc(it.code)}.HK</div>
@@ -5562,7 +5734,7 @@ function renderPublicOfferLotsTable() {
     peHost.innerHTML = `<table class="dashboard-public-lots-table">
     <thead>
       <tr>
-        <th class="pol-num" style="width:52px">#</th>
+        <th class="pol-idx">#</th>
         <th>股票</th>
         <th class="pol-num">发行 PE</th>
         <th class="pol-num">预估 PS</th>
@@ -5577,7 +5749,7 @@ function renderPublicOfferLotsTable() {
         const psCls = it.ps == null ? 'dashboard-public-lots-ps is-na' : 'dashboard-public-lots-ps';
         const psTip = it.psFormula ? ` title="${esc(it.psFormula)}"` : '';
         return `<tr>
-        <td class="pol-num">${i + 1}</td>
+        <td class="pol-idx">${i + 1}</td>
         <td>
           <div class="dashboard-public-lots-name">${esc(it.name)}</div>
           <div class="dashboard-public-lots-code">${esc(it.code)}.HK</div>
@@ -5594,7 +5766,7 @@ function renderPublicOfferLotsTable() {
     csHost.innerHTML = `<table class="dashboard-public-lots-table dashboard-cornerstone-table">
     <thead>
       <tr>
-        <th class="pol-num" style="width:52px">#</th>
+        <th class="pol-idx">#</th>
         <th>股票</th>
         <th class="pol-num" style="width:96px">基石占比</th>
         <th class="pol-num" style="width:140px">基石投入</th>
@@ -5620,7 +5792,7 @@ function renderPublicOfferLotsTable() {
       </tr>`
           : '';
         return `<tr data-cs-main="${rowId}">
-        <td class="pol-num">${i + 1}</td>
+        <td class="pol-idx">${i + 1}</td>
         <td>
           <div class="dashboard-public-lots-name">${esc(it.name)}</div>
           <div class="dashboard-public-lots-code">${esc(it.code)}.HK</div>
@@ -5656,7 +5828,7 @@ function renderPublicOfferLotsTable() {
     discountHost.innerHTML = `<table class="dashboard-public-lots-table dashboard-discount-table">
     <thead>
       <tr>
-        <th class="pol-num" style="width:52px">#</th>
+        <th class="pol-idx">#</th>
         <th>股票</th>
         <th style="width:72px">A+H</th>
         <th class="pol-num">折价率</th>
@@ -5672,7 +5844,7 @@ function renderPublicOfferLotsTable() {
           ? (String(it.discountRaw).trim() || `${it.sortVal}%`)
           : '—';
         return `<tr>
-        <td class="pol-num">${i + 1}</td>
+        <td class="pol-idx">${i + 1}</td>
         <td>
           <div class="dashboard-public-lots-name">${esc(it.name)}</div>
           <div class="dashboard-public-lots-code">${esc(it.code)}.HK</div>
@@ -5692,7 +5864,7 @@ function renderPublicOfferLotsTable() {
     sectorHost.innerHTML = `<table class="dashboard-public-lots-table dashboard-sector-table">
     <thead>
       <tr>
-        <th class="pol-num" style="width:44px">#</th>
+        <th class="pol-idx">#</th>
         <th style="min-width:120px">认购中标的</th>
         <th style="min-width:100px">赛道</th>
         <th class="pol-num" style="width:72px">综合分</th>
@@ -5731,7 +5903,7 @@ function renderPublicOfferLotsTable() {
           ? `<span class="dashboard-sector-trend-sub">${esc(it.trendNote)}</span>`
           : '';
         return `<tr>
-        <td class="pol-num">${i + 1}</td>
+        <td class="pol-idx">${i + 1}</td>
         <td><div class="dashboard-sector-stocks-col">${stocksHtml || '—'}</div></td>
         <td>
           <div class="dashboard-sector-name">${esc(it.sector)}</div>
@@ -5766,6 +5938,9 @@ function initDashboardPanelMetaToggles() {
   });
 }
 window.initDashboardPanelMetaToggles = initDashboardPanelMetaToggles;
+window.initDashboardStockFilter = initDashboardStockFilter;
+window.buildDashboardStockFilterOptions = buildDashboardStockFilterOptions;
+window.getDashboardCompareItems = getDashboardCompareItems;
 window.buildPublicOfferLotsRows = buildPublicOfferLotsRows;
 window.buildHandFeeCompareRows = buildHandFeeCompareRows;
 window.buildMarketCapCompareRows = buildMarketCapCompareRows;
