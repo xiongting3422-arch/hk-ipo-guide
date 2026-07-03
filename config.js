@@ -6,7 +6,7 @@
   'use strict';
 
   /** 每次部署递增；用于手机端 HTML/资源缓存失效（见 index.html 头部脚本） */
-  global.__IPO_APP_BUILD__ = '20260703b';
+  global.__IPO_APP_BUILD__ = '20260611a';
 
   /* ── Google Sheet（文件 → 共享 → 发布到网络 → /pub 链接） ── */
   global.__IPO_SHEET_CONFIG__ = Object.assign(
@@ -68,6 +68,12 @@
     },
     global.__IPO_APP_CONFIG__ || {},
   );
+
+  /**
+   * 上市新股 tab ·「近期新股详细情况」横向对比表
+   * false = 隐藏整块（含「导出图片」）；恢复展示口令：「展示近期新股详细情况表格」
+   */
+  global.__IPO_COMPARE_TABLE_VISIBLE__ = false;
 
   /**
    * 防呆：script.js 尚未加载时，控制台调用不抛 ReferenceError
