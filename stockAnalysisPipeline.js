@@ -492,7 +492,7 @@ function findStockRow(rows, { stockName, code }) {
 }
 
 function buildUserPrompt(payload) {
-  return [
+  const lines = [
     '请基于以下机器硬分与表格事实，输出严格 JSON（勿 Markdown）：',
     JSON.stringify(payload, null, 2),
     '',
@@ -503,7 +503,13 @@ function buildUserPrompt(payload) {
     '4. dimensions.cornerstone：若 cornerstone_investors 非空，必须引用具体机构名称与金额，不得写「名单未披露」。',
     '5. 各 score 在机器硬分基础上微调（±0.5 以内）；机器为 0.0 的基石/绿鞋/保荐人若硬分为0须保持 0.0。',
     '6. 六个 dimension 均须输出非空 one_liner 与 deep_analysis，valuation 不得省略；篇幅均衡，避免基石维过长导致 valuation 被截断。',
-  ].join('\n');
+  ];
+  if (payload && payload.research_note) {
+    lines.push(
+      '7. 若提供 research_note（招股书解读/补充研报），须与表格交叉核对后综合评估：冲突时以表格已填字段为准，解读中的财务细节、基石名单、募资用途、风险点须写入对应 dimension 的 deep_analysis。',
+    );
+  }
+  return lines.join('\n');
 }
 
 function repairJsonCandidate(jsonStr) {
@@ -619,6 +625,8 @@ async function runStockAnalysisPipeline(input = {}, options = {}) {
     derived_metrics: derivedMetrics,
     table_fields: fields,
   };
+  const researchNote = String(options.researchNote || '').trim();
+  if (researchNote) userPayload.research_note = researchNote;
 
   const systemPrompt =
     options.systemPrompt === 'ecm-lead'

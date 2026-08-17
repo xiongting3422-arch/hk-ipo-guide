@@ -13,6 +13,7 @@
  *   node scripts/run-ipo-audit.js --code=01392
  *   node scripts/run-ipo-audit.js --dry-run --no-push
  *   node scripts/run-ipo-audit.js --code=02335 --verbose
+ *   node scripts/run-ipo-audit.js --code=03223 --verbose --research=/path/to/解读.md
  */
 'use strict';
 
@@ -41,6 +42,7 @@ function parseArgs(argv) {
     noPush: false,
     verbose: false,
     code: null,
+    research: null,
     limit: 1,
   };
   for (const arg of argv.slice(2)) {
@@ -50,6 +52,7 @@ function parseArgs(argv) {
     else if (arg === '--verbose' || arg === '-v') flags.verbose = true;
     else if (arg === '--all') flags.limit = 99;
     else if (arg.startsWith('--code=')) flags.code = normStockCode(arg.split('=')[1]);
+    else if (arg.startsWith('--research=')) flags.research = arg.slice('--research='.length);
     else if (arg.startsWith('--limit=')) flags.limit = Math.max(1, parseInt(arg.split('=')[1], 10) || 1);
   }
   return flags;
@@ -229,9 +232,18 @@ async function auditOneStock(stock, sheetRows, flags) {
   const row = findStockRow(sheetRows, { code, stockName: name });
   if (!row) throw new Error(`表格中未找到 ${name} / ${code}`);
 
+  const pipelineOpts = { systemPrompt: 'ecm-lead', source: 'run-ipo-audit' };
+  if (flags && flags.research) {
+    const researchPath = path.resolve(flags.research);
+    if (!fs.existsSync(researchPath)) {
+      throw new Error(`解读文件不存在：${researchPath}`);
+    }
+    pipelineOpts.researchNote = fs.readFileSync(researchPath, 'utf8');
+    console.log(`[run-ipo-audit] 已并入招股解读：${researchPath}`);
+  }
   const result = await runStockAnalysisPipeline(
     { code, stockName: name, row },
-    { systemPrompt: 'ecm-lead', source: 'run-ipo-audit' },
+    pipelineOpts,
   );
 
   console.log(

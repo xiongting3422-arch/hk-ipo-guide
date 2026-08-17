@@ -385,6 +385,79 @@
     document.querySelectorAll('.ipo-analysis-detail-btn.active').forEach(btn => btn.classList.remove('active'));
   }
 
+  /** 将大段 deep_analysis 拆成可读要点，避免整墙文字 */
+  function splitDeepAnalysisPoints(text) {
+    const raw = String(text || '')
+      .replace(/\r\n/g, '\n')
+      .replace(/\u3000/g, ' ')
+      .trim();
+    if (!raw || raw === '—') return [];
+
+    let s = raw
+      .replace(/\n+/g, '\n')
+      .replace(/([①②③④⑤⑥⑦⑧⑨⑩])/g, '\n$1')
+      .replace(/([；;])\s*/g, '$1\n');
+
+    // 无分号/序号时，按句号切分（保留句号）
+    if (!/[；;①②③④⑤⑥⑦⑧⑨⑩]/.test(raw)) {
+      s = s.replace(/([。！？])\s*(?=[^\n]{12})/g, '$1\n');
+    } else {
+      // 有分号时，过长段落仍按句号再切，避免单条过长
+      s = s
+        .split('\n')
+        .map(chunk => {
+          const t = chunk.trim();
+          if (t.length <= 120) return t;
+          return t.replace(/([。！？])\s*(?=[^\n]{20})/g, '$1\n');
+        })
+        .join('\n');
+    }
+
+    const parts = s
+      .split(/\n+/)
+      .map(p => p.replace(/^[；;、\s]+/, '').replace(/[；;]+$/, '').trim())
+      .filter(Boolean);
+
+    const out = [];
+    for (let i = 0; i < parts.length; i++) {
+      let p = parts[i];
+      // 过短片段并入上一条（如「综合判断：」单独成行）
+      if (out.length && p.length < 14 && !/^[①②③④⑤⑥⑦⑧⑨⑩]/.test(p) && !/[。！？]$/.test(p)) {
+        out[out.length - 1] += p;
+        continue;
+      }
+      // 以冒号收尾的标题行，与下一条合并为「标题：正文」
+      if (/[：:]$/.test(p) && i + 1 < parts.length && parts[i + 1].length > 8) {
+        p = p + parts[++i];
+      }
+      out.push(p);
+    }
+
+    // 若仍只有 1 条且很长，强制按句号拆
+    if (out.length === 1 && out[0].length > 160) {
+      return out[0]
+        .split(/(?<=[。！？])\s*/)
+        .map(x => x.trim())
+        .filter(x => x.length >= 8);
+    }
+    return out;
+  }
+
+  function formatDeepAnalysisHtml(text) {
+    const points = splitDeepAnalysisPoints(text);
+    if (!points.length) {
+      return '<p class="ipo-analysis-detail-empty">暂无深度分析内容。</p>';
+    }
+    if (points.length === 1) {
+      return '<p class="ipo-analysis-detail-para">' + esc(points[0]) + '</p>';
+    }
+    return (
+      '<ul class="ipo-analysis-detail-list">' +
+      points.map(p => '<li>' + esc(p) + '</li>').join('') +
+      '</ul>'
+    );
+  }
+
   function showAnalysisDetailPanel(idx) {
     const r = currentAnalysisRows[idx];
     if (!r) return;
@@ -394,7 +467,8 @@
     if (!panel || !titleEl || !bodyEl) return;
 
     titleEl.textContent = (r.dimension || '维度') + ' · 深度分析';
-    bodyEl.textContent = r.deep && String(r.deep).trim() ? String(r.deep) : '暂无深度分析内容。';
+    const deep = r.deep && String(r.deep).trim() ? String(r.deep) : '';
+    bodyEl.innerHTML = formatDeepAnalysisHtml(deep);
 
     document.querySelectorAll('.ipo-analysis-detail-btn').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-idx') === String(idx));
