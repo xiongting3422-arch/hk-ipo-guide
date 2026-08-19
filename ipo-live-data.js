@@ -333,6 +333,70 @@ function _enrichIpoHomeRowsFromListedSheet(homeRows) {
   return filled;
 }
 
+function _buildSyntheticIpoHomeRowFromListedSheet(listedRow) {
+  if (!listedRow || typeof listedRow !== 'object') return null;
+  const code = _extractStockCodeFromZh(listedRow);
+  const name = getColumnValue(listedRow, ['股票名称', '名称', 'IPO名称']);
+  const listDate = _getListingDateRaw(listedRow);
+  if (!code || !name || !listDate) return null;
+
+  const lot = getColumnValue(listedRow, ['每手股数', '每手手数', '手数', '每手']);
+  const ipo = getColumnValue(listedRow, ['招股价（港元）', '招股价(HKD)', '招股价 (HKD)', '招股价'], { exclude: /市值/ });
+  const entry = getColumnValue(listedRow, ['一手入场费', '每手金额', '入场费', '一手金额', '每手认购额']);
+  const over = getColumnValue(listedRow, ['认购总倍数', '超额倍数', '孖展倍数', '认购倍数']);
+  const darkP = getColumnValue(listedRow, ['暗盘表现', '暗盘涨幅', '暗盘涨跌幅']);
+  const darkLot = getColumnValue(listedRow, ['暗盘一手赚（港元）', '暗盘一手赚', '暗盘一手赚(HKD)', '暗盘一手赚 (HKD)', '暗盘每手赚']);
+  const fd = getColumnValue(listedRow, ['首日表现', '上市涨幅', '首日涨幅']);
+  const listProfit = getColumnValue(listedRow, ['首日一手赚（港元）', '上市一手赚', '首日一手赚', '上市每手赚']);
+
+  return {
+    '股票名称': name,
+    '股票代码': code ? `${code}.HK` : '',
+    '行业板块': getColumnValue(listedRow, ['行业板块', '板块', '行业']),
+    '上市日期': listDate,
+    '每手手数': lot,
+    '招股价': ipo,
+    '每手金额': entry,
+    '上市价': '',
+    '超额倍数': over,
+    '现价': '自动抓取',
+    '暗盘表现': darkP,
+    '暗盘一手赚': darkLot,
+    '首日表现': fd,
+    '上市一手赚': listProfit,
+    '累计表现': '自动抓取',
+  };
+}
+
+function _buildLeaderboardSourceRows(homeRows) {
+  const baseRows = Array.isArray(homeRows) ? homeRows.slice() : [];
+  const listed = window.__IPO_LISTED_SHEET_ROWS__;
+  if (!Array.isArray(listed) || !listed.length) {
+    return { rows: baseRows, added: 0, enriched: 0 };
+  }
+
+  const homeByCode = new Map();
+  baseRows.forEach(r => {
+    const code = _extractStockCodeFromZh(r);
+    if (code) homeByCode.set(code, r);
+  });
+
+  const enriched = _enrichIpoHomeRowsFromListedSheet(baseRows);
+
+  let added = 0;
+  listed.forEach(listedRow => {
+    const code = _extractStockCodeFromZh(listedRow);
+    if (!code || homeByCode.has(code)) return;
+    const synthetic = _buildSyntheticIpoHomeRowFromListedSheet(listedRow);
+    if (!synthetic) return;
+    baseRows.push(synthetic);
+    homeByCode.set(code, synthetic);
+    added++;
+  });
+
+  return { rows: baseRows, added, enriched };
+}
+
 function getColumnValue(row, keywords, options) {
   const key = findColumnKey(row, keywords, options);
   if (key == null) return '';
@@ -1544,16 +1608,17 @@ function _destroySheetLoadingTips() {
  */
 async function _buildIpoHomeLeaderboardMapped() {
   const home = window.__IPO_HOME_SHEET__;
-  const rows = (home && home.rows) || [];
+  const homeRows = (home && home.rows) || [];
+  const source = _buildLeaderboardSourceRows(homeRows);
+  const rows = source.rows || [];
 
   if (!rows.length) {
     _publishIpoHomeLbMapped([]);
     return;
   }
 
-  const enrichN = _enrichIpoHomeRowsFromListedSheet(rows);
-  if (enrichN > 0) {
-    console.log('[IPO LB] 上市新股表补全 IPO主页 字段', enrichN, '处');
+  if (source.enriched > 0 || source.added > 0) {
+    console.log('[IPO LB] 上市新股表同步到涨幅榜：补全', source.enriched || 0, '处，新增', source.added || 0, '只');
   }
 
   const list = rows.filter(_rowHasContent);
