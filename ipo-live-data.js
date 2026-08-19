@@ -259,9 +259,78 @@ function findColumnKey(row, keywords, options) {
 function _cleanCellValue(val) {
   if (val == null) return '';
   const s = String(val).trim();
-  if (s === '' || s === '—') return '';
+  if (s === '' || s === '—' || s === '-' || s === '－') return '';
   if (/^自动抓取$/i.test(s) || /^自動抓取$/i.test(s)) return '';
   return s;
+}
+
+function _cellNeedsEnrich(val) {
+  if (val == null) return true;
+  const s = String(val).trim();
+  return (
+    s === '' ||
+    s === '—' ||
+    s === '-' ||
+    s === '－' ||
+    /^自动抓取$/i.test(s) ||
+    /^自動抓取$/i.test(s)
+  );
+}
+
+/** IPO主页缺字段时，用「上市新股」转置表同代码行补全（认购总倍数→超额倍数等） */
+const _IPO_HOME_LISTED_ENRICH_PAIRS = [
+  { homeKw: ['超额倍数', '超购', '孖展倍数'], listedKw: ['认购总倍数', '超额倍数', '孖展倍数', '认购倍数'] },
+  { homeKw: ['暗盘表现', '暗盘涨幅', '暗盘涨跌幅'], listedKw: ['暗盘表现', '暗盘涨幅', '暗盘涨跌幅'] },
+  {
+    homeKw: ['暗盘一手赚', '暗盘一手赚(HKD)', '暗盘一手赚 (HKD)', '暗盘每手赚'],
+    listedKw: ['暗盘一手赚（港元）', '暗盘一手赚', '暗盘一手赚(HKD)', '暗盘一手赚 (HKD)', '暗盘每手赚'],
+  },
+  { homeKw: ['首日表现', '上市涨幅', '首日涨幅'], listedKw: ['首日表现', '上市涨幅', '首日涨幅'] },
+  {
+    homeKw: ['上市一手赚', '首日一手赚', '上市每手赚'],
+    listedKw: ['首日一手赚（港元）', '上市一手赚', '首日一手赚', '上市每手赚'],
+  },
+  { homeKw: ['招股价'], listedKw: ['招股价（港元）', '招股价(HKD)', '招股价 (HKD)', '招股价'], exclude: /市值/ },
+  { homeKw: ['每手手数', '每手股数', '手数'], listedKw: ['每手股数', '每手手数', '手数', '每手'] },
+  { homeKw: ['上市价', '定价', '发行价'], listedKw: ['上市价', '定价', '发行价'] },
+  { homeKw: ['每手金额', '入场费', '一手金额', '每手认购额'], listedKw: ['每手金额', '入场费', '一手金额', '每手认购额'] },
+];
+
+function _enrichIpoHomeRowsFromListedSheet(homeRows) {
+  const listed = window.__IPO_LISTED_SHEET_ROWS__;
+  if (!Array.isArray(listed) || !listed.length || !Array.isArray(homeRows)) return 0;
+
+  const listedByCode = new Map();
+  listed.forEach(r => {
+    const code = _extractStockCodeFromZh(r);
+    if (code) listedByCode.set(code, r);
+  });
+
+  let filled = 0;
+  homeRows.forEach(homeRow => {
+    const code = _extractStockCodeFromZh(homeRow);
+    if (!code) return;
+    const listedRow = listedByCode.get(code);
+    if (!listedRow) return;
+
+    _IPO_HOME_LISTED_ENRICH_PAIRS.forEach(({ homeKw, listedKw, exclude }) => {
+      const opts = exclude ? { exclude } : undefined;
+      const listedKey = findColumnKey(listedRow, listedKw, opts);
+      if (!listedKey || _cellNeedsEnrich(listedRow[listedKey])) return;
+
+      const homeKey = findColumnKey(homeRow, homeKw, opts);
+      if (homeKey) {
+        if (!_cellNeedsEnrich(homeRow[homeKey])) return;
+        homeRow[homeKey] = listedRow[listedKey];
+        filled++;
+        return;
+      }
+      homeRow[homeKw[0]] = listedRow[listedKey];
+      filled++;
+    });
+  });
+
+  return filled;
 }
 
 function getColumnValue(row, keywords, options) {
@@ -1480,6 +1549,11 @@ async function _buildIpoHomeLeaderboardMapped() {
   if (!rows.length) {
     _publishIpoHomeLbMapped([]);
     return;
+  }
+
+  const enrichN = _enrichIpoHomeRowsFromListedSheet(rows);
+  if (enrichN > 0) {
+    console.log('[IPO LB] 上市新股表补全 IPO主页 字段', enrichN, '处');
   }
 
   const list = rows.filter(_rowHasContent);
